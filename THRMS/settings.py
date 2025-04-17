@@ -145,8 +145,8 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'D:/Python Project/THRMS Logs', 'django.log'),  
-            # 'filename': os.path.join(BASE_DIR, '/home/ubuntu/THRMS Logs', 'django.log'),  
+            # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/THRMS Logs', 'django.log'),  
+            'filename': os.path.join(BASE_DIR, '/home/ubuntu/THRMS Logs', 'django.log'),  
         },
     },
     'loggers': {
