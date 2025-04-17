@@ -31,7 +31,7 @@ pip install django gunicorn
 
 sudo ufw allow 8000
 
-python3 manage.py runserver  172.26.5.61:8000     
+python3 manage.py runserver  172.26.3.201:8000     
 
 gunicorn --bind 172.26.5.61:8000 THRMS.wsgi   
 
@@ -81,7 +81,7 @@ Enter i and then paste below part then for save Enter Esc :wq
 
 server {
     listen 80;
-    server_name 172.26.5.61;
+    server_name 172.26.3.201;
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
