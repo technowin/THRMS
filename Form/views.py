@@ -176,7 +176,7 @@ def save_form(request):
                     value = field.get("masterValue","")
                     # value = dec(value)
                 else:
-                    value=",".join(option.strip() for option in field.get("options", [])),
+                    value=",".join(option.strip() for option in field.get("options", []))
 
                 
                 formatted_label = format_label(field.get("label", ""))
@@ -303,7 +303,7 @@ def update_form(request, form_id):
                     value = field.get("masterValue","")
                     # value = dec(value)
                 else:
-                    value=",".join(option.strip() for option in field.get("options", [])),
+                    value=",".join(option.strip() for option in field.get("options", []))
                 
                 form_field = FormField.objects.create(
                     form=form,
