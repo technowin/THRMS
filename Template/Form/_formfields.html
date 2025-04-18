@@ -59,6 +59,16 @@
                 {% endfor %}
             </select>
 
+        {% elif field.field_type == "master dropdown" %}
+            <select class="form-control select" name="field_{{ field.id }}"
+                {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+                <option value="" selected disabled>Select</option>
+                {% for option in field.values %}
+                    <option value="{{ option.id }}">{{ option.name }}</option>
+                {% endfor %}
+
+            </select>
+
         {% elif field.field_type == "select multiple" %}
             <select class="form-control select_multiple" id="multiple" name="field_{{ field.id }}" multiple
                 {% for attr in field.attributes %} {{ attr }} {% endfor %}>
