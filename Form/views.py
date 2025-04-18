@@ -212,7 +212,7 @@ def save_form(request):
 
 
                 # ✅ Save `file` validation (New Logic)
-                if field.get("type") == "file" and "validation" in field:
+                elif field.get("type") == "file" and "validation" in field:
                     file_validation_list = field["validation"]  # This is a list
 
                     if file_validation_list and isinstance(file_validation_list, list):
@@ -230,7 +230,7 @@ def save_form(request):
                             created_by = request.session.get('user_id', '').strip()
                         )
 
-                if field.get("type") == "file multiple" and "validation" in field:
+                elif field.get("type") == "file multiple" and "validation" in field:
                     file_validation_list = field["validation"]  # This is a list of validation dicts
 
                     if file_validation_list and isinstance(file_validation_list, list):
