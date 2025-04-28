@@ -916,7 +916,7 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
                     for chunk in uploaded_file.chunks():
                         destination.write(chunk)
 
-                FormFile.objects.create(
+                form_file =FormFile.objects.create(
                     file_name=saved_file_name,
                     uploaded_name=uploaded_file_name,
                     file_path=relative_file_path,
@@ -926,6 +926,28 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
                     updated_by=user,
                     field=field
                 )
+                form_field_value = FormFieldValues.objects.filter(
+                    form_id=form_data.form.id,
+                    field_id=field.id,
+                    form_data = form_data
+                ).first()
+
+                if form_field_value:
+                    # 3. Update values (append or set)
+                    if form_field_value.value:
+                        # Already has value, so append new id
+                        existing_ids = form_field_value.value.split(',')
+                        existing_ids.append(str(form_file.id))
+                        form_field_value.value = ','.join(existing_ids)
+                    else:
+                        # No value yet, set directly
+                        form_field_value.value = str(form_file.id)
+
+                    form_field_value.save()
+
+                    # 4. Update FormFile to add file_id (which is FormFieldValues' id)
+                    form_file.file_id = form_field_value.id
+                    form_file.save()
 
     except Exception as e:
         traceback.print_exc()
