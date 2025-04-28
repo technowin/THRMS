@@ -751,7 +751,7 @@ def common_form_post(request):
             form_data = FormData.objects.create(form=form)
         else:
             form_data = FormData.objects.create(form=form,action=action)
-        form_data.req_no = f"REQNO-00{form_data.id}"
+        form_data.req_no = f"UNIQ-NO-00{form_data.id}"
         form_data.created_by = user
         form_data.save()
 
