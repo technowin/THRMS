@@ -398,7 +398,7 @@ def update_form(request, form_id):
                             updated_by = user
                         )
 
-            # callproc('create_dynamic_form_views')
+            callproc('create_dynamic_form_views')
             messages.success(request, "Form updated successfully!!")
             return redirect('/masters?entity=form&type=i')
     except Exception as e:
@@ -868,7 +868,7 @@ def common_form_edit(request):
 
 
         handle_uploaded_files(request, form_name, created_by, form_data, user)
-        # callproc('create_dynamic_form_views')
+        callproc('create_dynamic_form_views')
         messages.success(request, "Form data updated successfully!")
 
     except Exception as e:
