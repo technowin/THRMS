@@ -335,7 +335,7 @@ def update_form(request, form_id):
                                 updated_by = user
                                   # Save regex pattern or max_length
                             )
-                elif field.get("type") == "file" and "validation" in field:
+                if field.get("type") == "file" and "validation" in field:
                     file_validation_list = field["validation"]  # This is a list
 
                     if file_validation_list and isinstance(file_validation_list, list):
