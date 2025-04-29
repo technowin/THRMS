@@ -880,8 +880,6 @@ def common_form_edit(request):
     
 
 
-from django.utils import timezone
-
 def handle_uploaded_files(request, form_name, created_by, form_data, user):
     try:
         for field_key, uploaded_files in request.FILES.lists():
