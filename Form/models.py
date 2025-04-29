@@ -99,7 +99,7 @@ class Form(models.Model):
         db_table = 'form'
 
 class FormField(models.Model):
-    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='fields')
+    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.SET_NULL, related_name='fields')
     label = models.CharField(max_length=255)
     field_type =  models.CharField(max_length=255,null=True, blank=True)
     values = models.TextField(null=True,blank=True)
@@ -113,9 +113,9 @@ class FormField(models.Model):
         db_table = 'form_field'
 
 class FieldValidation(models.Model):
-    field = models.ForeignKey('Form.FormField',null=True, blank=True, on_delete=models.CASCADE, related_name='validations')
-    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='form_validations')
-    sub_master =  models.ForeignKey('Form.ValidationMaster',null=True, blank=True, on_delete=models.CASCADE, related_name='field_validations')
+    field = models.ForeignKey('Form.FormField',null=True, blank=True, on_delete=models.SET_NULL, related_name='validations')
+    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.SET_NULL, related_name='form_validations')
+    sub_master =  models.ForeignKey('Form.ValidationMaster',null=True, blank=True, on_delete=models.SET_NULL, related_name='field_validations')
     value = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
@@ -125,8 +125,8 @@ class FieldValidation(models.Model):
         db_table = 'field_validation'
 
 class FieldDependency(models.Model):
-    field = models.ForeignKey(FormField,null=True, blank=True, on_delete=models.CASCADE, related_name='dependencies')
-    dependent_on = models.ForeignKey(FormField,null=True, blank=True, on_delete=models.CASCADE, related_name='dependent_fields')
+    field = models.ForeignKey(FormField,null=True, blank=True, on_delete=models.SET_NULL, related_name='dependencies')
+    dependent_on = models.ForeignKey(FormField,null=True, blank=True,on_delete=models.SET_NULL, related_name='dependent_fields')
     condition = models.CharField(max_length=255)  
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
@@ -195,7 +195,7 @@ class FormActionField(models.Model):
     button_type = models.TextField(null=True, blank=True)
     dropdown_values = models.TextField(null=True, blank=True)
     status = models.TextField(null=True, blank=True)
-    action = models.ForeignKey(FormAction,null=True, blank=True, on_delete=models.CASCADE, related_name='form_action')
+    action = models.ForeignKey(FormAction,null=True, blank=True, on_delete=models.SET_NULL, related_name='form_action')
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -204,9 +204,9 @@ class FormActionField(models.Model):
         db_table = 'form_action_field'
 
 class FormFieldValues(models.Model):
-    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='form_data')
-    form_data = models.ForeignKey('Form.FormData',null=True, blank=True, on_delete=models.CASCADE, related_name='form_value_id')
-    field = models.ForeignKey('Form.FormField',null=True, blank=True, on_delete=models.CASCADE, related_name='field_value_id')
+    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.SET_NULL, related_name='form_data')
+    form_data = models.ForeignKey('Form.FormData',null=True, blank=True, on_delete=models.SET_NULL, related_name='form_value_id')
+    field = models.ForeignKey('Form.FormField',null=True, blank=True,on_delete=models.SET_NULL, related_name='field_value_id')
     value = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
@@ -231,8 +231,8 @@ class FormFile(models.Model):
         db_table = 'form_file'
 
 class FormData(models.Model):
-    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='form_data_id')
-    action = models.ForeignKey('Form.FormAction',null=True, blank=True, on_delete=models.CASCADE, related_name='form_action_id')
+    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.SET_NULL, related_name='form_data_id')
+    action = models.ForeignKey('Form.FormAction',null=True, blank=True, on_delete=models.SET_NULL, related_name='form_action_id')
     req_no = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
@@ -253,8 +253,8 @@ class AttributeMaster(models.Model):
 
 class ActionData(models.Model):
     value = models.TextField(null=True, blank=True)
-    form_data = models.ForeignKey('Form.FormData',null=True, blank=True, on_delete=models.CASCADE, related_name='action_data_id')
-    field = models.ForeignKey('Form.FormActionField',null=True, blank=True, on_delete=models.CASCADE, related_name='action_field_id')
+    form_data = models.ForeignKey('Form.FormData',null=True, blank=True, on_delete=models.SET_NULL, related_name='action_data_id')
+    field = models.ForeignKey('Form.FormActionField',null=True, blank=True, on_delete=models.SET_NULL, related_name='action_field_id')
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
