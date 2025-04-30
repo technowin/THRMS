@@ -92,7 +92,7 @@ def form_builder(request):
     try:
         form_id = dec(form_id)  # Decrypt form_id
         form = get_object_or_404(Form, id=form_id)  # Get form or return 404
-        fields = FormField.objects.filter(form_id=form_id)
+        fields = FormField.objects.filter(form_id=form_id,is_active = 1)
         validations = FieldValidation.objects.filter(form_id=form_id)
     except Exception as e:
         print(f"Error fetching form data: {e}")  # Debugging
@@ -251,38 +251,8 @@ def save_form(request):
                                 created_by = request.session.get('user_id', '').strip()
                             )
 
-                if field.get("type") == "generative":
-                    generative_fields.append({
-                        "form_field": form_field,
-                        "prefix": field.get("prefix", ""),
-                        "field_names": field.get("field_name", []),
-                        "no_of_zero": field.get("no_of_zero", ""),
-                        "increment": field.get("increment", "")
-                    })
 
                 
-
-                for gen_field in generative_fields:
-                    
-                    prefix = gen_field["prefix"]
-                    if isinstance(prefix, (list, tuple)):
-                        prefix = prefix[0] if prefix else ""
-
-                    field_ids = FormField.objects.filter(
-                        form=form,
-                        label__in=gen_field["field_names"]
-                    ).values_list("id", flat=True)
-
-                    FormGenerativeField.objects.create(
-                        prefix=gen_field["prefix"],
-                        selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
-                        no_of_zero=gen_field["no_of_zero"],
-                        increment=gen_field["increment"],
-                        form=form,
-                        field=gen_field["form_field"]
-                    )
-
-
             callproc('create_dynamic_form_views')
             messages.success(request, "Form and fields saved successfully!!")
             new_url = f'/masters?entity=form&type=i'
@@ -321,11 +291,14 @@ def update_form(request, form_id):
             form = get_object_or_404(Form, id=form_id)
             form.name = form_name
             form.description = form_description
-            updated_by = request.session.get('user_id', '').strip()
             form.save()
             index = 0
+            existing_field_ids = set(FormField.objects.filter(form=form, is_active=1).values_list("id", flat=True))
+            incoming_field_ids = set()
+            for field in form_data:
+                if field.get("id"):
+                    incoming_field_ids.add(int(field["id"]))  
 
-            generative_fields = [] 
 
             for index,field in enumerate(form_data):
                 attributes_value = field.get("attributes", "")
@@ -351,29 +324,15 @@ def update_form(request, form_id):
                     except FormField.DoesNotExist:
                         # Field ID not found, create new
                         form_field = FormField.objects.create(
-                            form=form,
-                            label=formatted_label,
-                            field_type=field.get("type", ""),
-                            attributes=attributes_value,
-                            values=value,
-                            created_by=user,
-                            order=order
-                        )
+                            form=form,label=formatted_label,field_type=field.get("type"),attributes=attributes_value,values=value, created_by=user,
+                            order=order)
                 else:
                     # New field with no ID
                     form_field = FormField.objects.create(
-                        form=form,
-                        label=formatted_label,
-                        field_type=field.get("type", ""),
-                        attributes=attributes_value,
-                        values=value,
-                        created_by=user,
-                        order=order
-                    )
+                        form=form,label=formatted_label,field_type=field.get("type"),attributes=attributes_value,values=value,created_by=user,
+                        order=order)
 
                 field_id = form_field.id
-
-
 
                 # ✅ Ensure 'subValues' exists
                 if "validation" in field and isinstance(field["validation"], list):
@@ -433,39 +392,12 @@ def update_form(request, form_id):
                             updated_by = user
                         )
 
-
-                if field.get("type") == "generative":
-                    generative_fields.append({
-                        "form_field": form_field,
-                        "prefix": field.get("prefix", ""),
-                        "field_ids": field.get("field_name", []),
-                        "no_of_zero": field.get("no_of_zero", ""),
-                        "increment": field.get("increment", "")
-                    })
+                # Step 3: Find removed field IDs
+            removed_field_ids = existing_field_ids - incoming_field_ids
+            FormField.objects.filter(id__in=removed_field_ids).update(is_active=0, updated_by=user)
+            FormFieldValues.objects.filter(field_id__in=removed_field_ids, is_active=1).update(is_active=0, updated_by=user)
 
 
-                for gen_field in generative_fields:
-                    FormGenerativeField.objects.filter(form_id=form.id).delete()
-                    
-                    prefix = gen_field["prefix"]
-                    if isinstance(prefix, (list, tuple)):
-                        prefix = prefix[0] if prefix else ""
-
-                    field_ids = FormField.objects.filter(
-                        form=form,
-                        label__in=gen_field["field_ids"]
-                    ).values_list("id", flat=True)
-
-
-                    FormGenerativeField.objects.create(
-                        prefix=gen_field["prefix"],
-                        selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
-                        no_of_zero=gen_field["no_of_zero"],
-                        increment=gen_field["increment"],
-                        form=form,
-                        field=gen_field["form_field"]
-                    )
-                    
 
             # callproc('create_dynamic_form_views')
             messages.success(request, "Form updated successfully!!")

@@ -103,17 +103,15 @@
 
 </style>
 
-<div class="modal fade" id="livePreviewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+{% comment %} <div class="modal fade" id="livePreviewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog  modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="livePreviewModalLabel">Live Preview</h2>
-                    {% comment %} <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"><i class="fa-regular fa-xmark-large"></i></button> {% endcomment %}
                   </div>   
                   <div class="modal-body">
                     <div class="card shadow" style="border: 2px solid #b3b3b3; border-radius: 15px;">
-                        {% comment %} <h2 style="text-align:center; font-weight:600; color:black">Live Preview</h2> {% endcomment %}
                         <form id="dynamic-form" class="row col-md-12"></form>
                     </div>
                   </div>
@@ -122,29 +120,8 @@
                   </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
 
-{% comment %} <div class="modal fade" id="livePreviewModal" tabindex="-1" aria-labelledby="livePreviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        
-        <div class="modal-header">
-          <h5 class="modal-title" id="livePreviewModalLabel">Live Preview</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>   
-        <div class="modal-body">
-          <div class="card shadow" style="border: 2px solid #b3b3b3; border-radius: 15px;">
-              <form id="dynamic-form" class="row col-md-12"></form>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-  
-      </div>
-    </div>
-  </div>
-   {% endcomment %}
 
 <div class="mt-4">
     <form method="POST" action="{% if form %}{% url 'update_form' form.id %}{% else %}{% url 'save_form' %}{% endif %}" class="row col-md-12" id="main-form"
@@ -164,15 +141,15 @@
 
 
 
-        <div class="col-md-2 mt-3">
+        <div class="col-md-4 mt-3">
             <button type="submit" class="btn btn-primary mt-3">{% if form %}Update {% else %}Save {% endif %}Form</button>
         </div>
 
-        <div class="col-md-2 mt-3">
+        {% comment %} <div class="col-md-2 mt-3">
             <button type="button" class="btn btn-secondary mt-3" data-toggle="modal" data-target="#livePreviewModal">
                 Live Preview
             </button>
-        </div>
+        </div> {% endcomment %}
         
 
 
@@ -180,7 +157,7 @@
 
     <br> 
     <div class="row" >
-        <div class="col-md-12">
+        <div class="col-md-8">
             <div class="card shadow" style="border: 2px solid #b3b3b3; border-radius: 15px;">
                 <h2 style="text-align:center; font-weight:600; color:black">
                     {% if form %} Edit {% else %}Create {% endif %}Form  &nbsp;&nbsp;&nbsp;
@@ -196,12 +173,12 @@
     {% comment %} <br>
     <div class="row" > {% endcomment %}
 
-        {% comment %} <div class="col-md-6">
+         <div class="col-md-4">
             <div class="card shadow" style="border: 2px solid #b3b3b3; border-radius: 15px;">
                 <h2 style="text-align:center; font-weight:600; color:black">Live Preview</h2>
                 <form id="dynamic-form" class="row col-md-12"></form>
             </div>
-        </div> {% endcomment %}
+        </div> 
     </div>
 </div>
 
@@ -224,7 +201,6 @@
             type: "text",
             commonType: [],
             options: [],
-            generatefield: "",
             masterValue: "",
             order: formFields.length + 1
         };
@@ -244,7 +220,6 @@
             label: "Label Name " + (formFields.length + 1),
             type: "text",
             commonType: [],
-            generatefield: "",
             options: [],
             masterValue: "",
             order: formFields.length + 1
@@ -398,42 +373,6 @@
                     </select>
                 `;
             }
-           else if (field.type === "generative") {
-               // Show all field labels except current one
-               const dropdownOptions = allFieldLabels
-                   .filter(f => f.id !== field.id)
-                   .map(option =>
-                       `<option value="${option.id}" ${field.genDropdown == option.id ? 'selected' : ''}>${option.label}</option>`
-                   ).join('');
-           
-               optionDropdownHtml = `
-
-               <div class="row g-0">
-                   <div class="col-md-2 p-1">
-                       <input type="text" class="form-control" placeholder="Prefix" title="Enter a prefix" name="prefix-${fieldId}" id="prefix-${fieldId}" oninput="updateGenerativePreview('${fieldId}')"/>
-                   </div>
-
-                   <div class="col-md-6 p-1">
-                       <select class="form-control field_dropdown" oninput="updateGenerativePreview('${fieldId}')"
-                       multiple name="fielddropdown-${fieldId}" id="fielddropdown-${fieldId}"title="Select a field from the dropdown">
-                       <option value="">Select Field</option>${dropdownOptions}
-                       </select>
-                   </div>
-
-                   <div class="col-md-2 p-1">
-                       <input type="text" class="form-control" oninput="updateGenerativePreview('${fieldId}')" placeholder="0-9" name="zeroincrement1-${fieldId}" id="zeroincrement1-${fieldId}" 
-                       value="${field.genText2 || ''}" 
-                       minlength="1" maxlength="1" title="Enter number of Zero" />
-                   </div>
-
-                   <div class="col-md-2 p-1">
-                       <input type="number" class="form-control" oninput="updateGenerativePreview('${fieldId}')" placeholder="Value" name="zeroincrement2-${fieldId}" id="zeroincrement2-${fieldId}"  value="${field.genText2 || ''}"  title="Enter Increment number" />
-                   </div>
-               </div>
-
-               `;
-           }
-    
         
            let colSize = 'col-md-3'; // default
 
@@ -564,36 +503,6 @@
         });
     }
 
-     function updateGenerativePreview(fieldId) {
-        const prefix = document.getElementById(`prefix-${fieldId}`)?.value || '';
-        const dropdown = document.getElementById(`fielddropdown-${fieldId}`);
-        const selectedLabels = Array.from(dropdown?.selectedOptions || [])
-            .map(opt => opt.text.trim());
-        const selectedValues = Array.from(dropdown?.selectedOptions || [])
-            .map(opt => opt.value);
-    
-        const zeroCountStr = document.getElementById(`zeroincrement1-${fieldId}`)?.value || '';
-        const zeroCount = parseInt(zeroCountStr, 10);
-        const zeroPadding = '0'.repeat(isNaN(zeroCount) ? 0 : zeroCount);
-    
-        const incNum = document.getElementById(`zeroincrement2-${fieldId}`)?.value || '';
-        const previewValue = `${prefix}-${selectedLabels.join('-')}-${zeroPadding}${incNum}`;
-
-        const previewInput = document.getElementById('generatedValue');
-        if (previewInput) previewInput.value = previewValue;
-    
-        // Save to formFields object
-        const field = formFields.find(f => f.id == fieldId);
-        if (field) {
-            field.prefix = prefix;
-            field.field_name = selectedLabels;    // Save label names
-            field.field_id = selectedValues; // If needed
-            field.no_of_zero = zeroCountStr;
-            field.increment = incNum;
-            field.generatefield = previewValue;    // Full preview string
-        }
-    }
-
     
     
     function updateSubFieldAndGenerateElement(fieldId, selectedValue, savedValue = "", subControlId) {
@@ -707,11 +616,6 @@
             else if (field.type === "textarea") {
                 inputHtml = `<textarea class="form-control custom-textarea" rows="5" cols="5" name="${fieldName}" style="height: 20px; "></textarea>`;
             }
-
-            else if (field.type === "generative"){
-                debugger;
-                inputHtml= `<input type="text" class="form-control mt-2" id="generatedValue" readonly placeholder="Generated Value" />`;
-            }
             
             else if (field.type === "checkbox") {
                 let isChecked = field.value == "1" ? "checked" : "";
@@ -800,7 +704,7 @@
             }
             
             let fieldContainer = document.createElement("div");
-            const colClass =  "col-md-3";
+            const colClass =  "col-md-6";
             fieldContainer.classList.add(colClass, "mb-3", "d-flex", "flex-column");
             
             fieldContainer.innerHTML = `
@@ -1049,20 +953,6 @@
     updateField(fieldId, 'label', newLabel);
 }
 
-
-    {% comment %} document.getElementById("main-form").addEventListener("submit", function () {
-        debugger;
-        formFields.forEach(field => {
-            if (field.type === "master dropdown") {
-                const selectedDropdown = document.getElementById(`field_${field.id}`);
-                if (selectedDropdown) {
-                    field.selectedValue = selectedDropdown.value;
-                }
-            }
-        });
-        document.getElementById("form-data-input").value = JSON.stringify(formFields);
-    });  {% endcomment %}
-
     document.getElementById("main-form").addEventListener("submit", function () {
         debugger;
     
@@ -1092,34 +982,6 @@
     });
     
 
-    {% comment %} document.getElementById("main-form").addEventListener("submit", function () {
-        debugger;
-    
-        const fieldsInDom = document.querySelectorAll('#form-builder .draggable-field');
-        const orderedFormFields = [];
-    
-        fieldsInDom.forEach((fieldEl) => {
-            const fieldId = fieldEl.dataset.id;
-    
-            // Find the original field data from formFields by ID
-            const originalField = formFields.find(f => String(f.id) === String(fieldId));
-            if (!originalField) return;
-    
-            // Update selected value for master dropdown if present
-            if (originalField.type === "master dropdown") {
-                const selectedDropdown = document.getElementById(`field_${fieldId}`);
-                if (selectedDropdown) {
-                    originalField.selectedValue = selectedDropdown.value;
-                }
-            }
-    
-            orderedFormFields.push(originalField);
-        });
-    
-        // ✅ This now contains updated order and selected values
-        document.getElementById("form-data-input").value = JSON.stringify(orderedFormFields);
-    }); {% endcomment %}
-    
 </script>
 
   <script>
