@@ -293,7 +293,7 @@ def update_form(request, form_id):
             form.description = form_description
             form.save()
             index = 0
-            existing_field_ids = set(FormField.objects.filter(form=form).values_list("id", flat=True))
+            existing_field_ids = set(FormField.objects.filter(form=form,is_active=1).values_list("id", flat=True))
             incoming_field_ids = set()
             for field in form_data:
                 if field.get("id"):
