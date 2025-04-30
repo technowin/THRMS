@@ -92,7 +92,7 @@ def form_builder(request):
     try:
         form_id = dec(form_id)  # Decrypt form_id
         form = get_object_or_404(Form, id=form_id)  # Get form or return 404
-        fields = FormField.objects.filter(form_id=form_id,is_active = 1)
+        fields = FormField.objects.filter(form_id=form_id)
         validations = FieldValidation.objects.filter(form_id=form_id)
     except Exception as e:
         print(f"Error fetching form data: {e}")  # Debugging
@@ -394,8 +394,8 @@ def update_form(request, form_id):
 
                 # Step 3: Find removed field IDs
             removed_field_ids = existing_field_ids - incoming_field_ids
-            FormField.objects.filter(id__in=removed_field_ids).update(is_active=0, updated_by=user)
-            FormFieldValues.objects.filter(field_id__in=removed_field_ids, is_active=1).update(is_active=0, updated_by=user)
+            FormField.objects.filter(id__in=removed_field_ids).delete()
+
 
 
 
