@@ -92,7 +92,7 @@ def form_builder(request):
     try:
         form_id = dec(form_id)  # Decrypt form_id
         form = get_object_or_404(Form, id=form_id)  # Get form or return 404
-        fields = FormField.objects.filter(form_id=form_id)
+        fields = FormField.objects.filter(form_id=form_id,is_active =1)
         validations = FieldValidation.objects.filter(form_id=form_id)
     except Exception as e:
         print(f"Error fetching form data: {e}")  # Debugging
