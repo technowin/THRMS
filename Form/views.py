@@ -325,31 +325,52 @@ def update_form(request, form_id):
 
             generative_fields = [] 
 
-            for index,field in enumerate(form_data):
+            for index, field in enumerate(form_data):
                 attributes_value = field.get("attributes", "")
                 field_id = field.get("id", "")
                 formatted_label = format_label(field.get("label", ""))
-                # order = field.get("order","")
 
                 if field.get("type") == "master dropdown":
                     value = field.get("masterValue", "")
                 else:
                     value = ",".join(option.strip() for option in field.get("options", []))
 
-                if field_id:  # Update existing field
+                # If field_id exists and is numeric, try updating
+                if field_id:
                     try:
                         form_field = FormField.objects.get(id=field_id)
                         form_field.label = formatted_label
                         form_field.field_type = field.get("type", "")
                         form_field.attributes = attributes_value
                         form_field.values = value
-                        form_field.order = index  + 1
+                        form_field.order = index + 1
                         form_field.updated_by = user
                         form_field.save()
                     except FormField.DoesNotExist:
-                        pass 
+                        # Field ID not found, create new
+                        form_field = FormField.objects.create(
+                            form=form,
+                            label=formatted_label,
+                            field_type=field.get("type", ""),
+                            attributes=attributes_value,
+                            values=value,
+                            created_by=user,
+                            order=index + 1
+                        )
+                else:
+                    # New field with no ID
+                    form_field = FormField.objects.create(
+                        form=form,
+                        label=formatted_label,
+                        field_type=field.get("type", ""),
+                        attributes=attributes_value,
+                        values=value,
+                        created_by=user,
+                        order=index + 1
+                    )
 
                 field_id = form_field.id
+
 
 
 
