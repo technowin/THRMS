@@ -467,7 +467,7 @@ def update_form(request, form_id):
                     )
                     
 
-            callproc('create_dynamic_form_views')
+            # callproc('create_dynamic_form_views')
             messages.success(request, "Form updated successfully!!")
             return redirect('/masters?entity=form&type=i')
     except Exception as e:
