@@ -325,6 +325,13 @@ def update_form(request, form_id):
 
             generative_fields = [] 
 
+            frontend_field_ids = set()
+
+            # Step 2: If editing an existing form
+            existing_fields = FormField.objects.filter(form=form)
+            existing_field_ids = set(existing_fields.values_list("id", flat=True))
+
+            # Step 3: Loop over frontend fields, update or create
             for index, field in enumerate(form_data):
                 attributes_value = field.get("attributes", "")
                 field_id = field.get("id", "")
@@ -335,8 +342,9 @@ def update_form(request, form_id):
                 else:
                     value = ",".join(option.strip() for option in field.get("options", []))
 
-                # If field_id exists and is numeric, try updating
-                if field_id:
+                if field_id and str(field_id).isdigit():
+                    frontend_field_ids.add(int(field_id))  # Track IDs we keep
+
                     try:
                         form_field = FormField.objects.get(id=field_id)
                         form_field.label = formatted_label
@@ -347,7 +355,7 @@ def update_form(request, form_id):
                         form_field.updated_by = user
                         form_field.save()
                     except FormField.DoesNotExist:
-                        # Field ID not found, create new
+                        # Create if not found
                         form_field = FormField.objects.create(
                             form=form,
                             label=formatted_label,
@@ -357,8 +365,9 @@ def update_form(request, form_id):
                             created_by=user,
                             order=index + 1
                         )
+                        frontend_field_ids.add(form_field.id)
                 else:
-                    # New field with no ID
+                    # New field without an ID
                     form_field = FormField.objects.create(
                         form=form,
                         label=formatted_label,
@@ -368,8 +377,12 @@ def update_form(request, form_id):
                         created_by=user,
                         order=index + 1
                     )
+                    frontend_field_ids.add(form_field.id)
 
-                field_id = form_field.id
+                    # Step 4: Delete fields not in frontend
+                    fields_to_delete = existing_field_ids - frontend_field_ids
+                    FormField.objects.filter(id__in=fields_to_delete).delete()
+
 
 
 
@@ -466,7 +479,7 @@ def update_form(request, form_id):
                 #     )
                     
 
-            callproc('create_dynamic_form_views')
+            # callproc('create_dynamic_form_views')
             messages.success(request, "Form updated successfully!!")
             return redirect('/masters?entity=form&type=i')
     except Exception as e:
@@ -905,13 +918,13 @@ def common_form_edit(request):
         form_data = get_object_or_404(FormData, id=form_data_id)
         form_data.updated_by = user
         form_data.save()
+        id=request.POST.get("form_id")
 
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
 
         created_by = request.session.get("user_id", "").strip()
         form_name = request.POST.get("form_name", "").strip()
-
-        FormFieldValues.objects.filter(form_data_id = form_data_id).delete()
+    
 
         # Re-create all non-file fields
         for key, value in request.POST.items():
@@ -919,21 +932,36 @@ def common_form_edit(request):
                 field_id = value.strip()
                 field = get_object_or_404(FormField, id=field_id)
 
-
                 if field.field_type == "select multiple":
                     selected_values = request.POST.getlist(f"field_{field_id}")
                     input_value = ','.join([val.strip() for val in selected_values if val.strip()])
                 else:
                     input_value = request.POST.get(f"field_{field_id}", "").strip()
 
+                if field.field_type == "generative":
+                    continue
+                elif  field.field_type in ["file", "file multiple"]:
+                    continue
 
-                # if field.field_type == "generative":
-                #     continue
+                # Check if a value already exists for this field
+                existing_value = FormFieldValues.objects.filter(
+                    form_data=form_data, form=form, field=field
+                ).first()
 
-                
-                FormFieldValues.objects.create(
-                    form_data=form_data,form=form, field=field, value=input_value, created_by=created_by
-                )
+                if existing_value:
+                    # Update existing entry
+                    existing_value.value = input_value
+                    existing_value.save()
+                else:
+                    # Create new entry
+                    FormFieldValues.objects.create(
+                        form_data=form_data,
+                        form=form,
+                        field=field,
+                        value=input_value,
+                        created_by=created_by
+                    )
+
 
 
         # ✅ File upload logic goes here
