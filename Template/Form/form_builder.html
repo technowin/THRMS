@@ -376,37 +376,6 @@
         
            let colSize = 'col-md-3'; // default
 
-          // if (field.type === 'radio' || field.type === 'select' || field.type === 'select_multiple') {
-          //     colSize = 'col-md-5';
-          // } else if (field.type === 'generative') {
-          //     colSize = 'col-md-5';
-          // }
-           
-           // Now use colSize dynamically 👇
-          // builder.innerHTML += `
-          //     <div class="row col-md-12">
-          //         <div class="col-md-2 mb-3">
-          //             <input class="form-control" type="text" 
-          //                 value="${field.label}" 
-          //                 onchange="validateAndUpdateLabel(this, ${fieldId})">
-          //         </div>
-          //         <div class="col-md-2 mb-3">
-          //             ${dropdownHtml}
-          //         </div>
-          //         <div class="col-md-3 mb-3">
-          //             ${commonDropdownHtml}
-          //         </div>
-          //         <div class="${colSize} mb-3">
-          //             ${subControlHtml || optionDropdownHtml}
-          //         </div>
-          //        <div class="col-md-1 mt-2">
-          //          <span onclick="removeField(${fieldId})" style="cursor: pointer;">
-          //              <i class="fa-solid fa-trash" style="color: #dc3545; font-size: 1.5rem;"></i>
-          //          </span>
-          //      </div>
-
-          //     </div>
-          // `;
           builder.innerHTML += `
             <div class="row col-md-12 draggable-field" data-id="${fieldId}">
                 <div class="col-md-custom-1 drag-handle" style="cursor: grab;">
@@ -826,7 +795,8 @@
         $(select).data("existing-values", selectedOptions); // Store initial values
     });
 
-    
+
+
 
     function removeField(id) {
         formFields = formFields.filter(f => f.id !== id);

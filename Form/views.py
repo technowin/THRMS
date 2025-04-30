@@ -92,7 +92,7 @@ def form_builder(request):
     try:
         form_id = dec(form_id)  # Decrypt form_id
         form = get_object_or_404(Form, id=form_id)  # Get form or return 404
-        fields = FormField.objects.filter(form_id=form_id,is_active =1)
+        fields = FormField.objects.filter(form_id=form_id,is_active =1).order_by('order')
         validations = FieldValidation.objects.filter(form_id=form_id)
     except Exception as e:
         print(f"Error fetching form data: {e}")  # Debugging
@@ -293,13 +293,6 @@ def update_form(request, form_id):
             form.description = form_description
             form.save()
             index = 0
-            existing_field_ids = set(FormField.objects.filter(form=form,is_active=1).values_list("id", flat=True))
-            incoming_field_ids = set()
-            for field in form_data:
-                if field.get("id"):
-                    incoming_field_ids.add(int(field["id"]))  
-
-
             for index,field in enumerate(form_data):
                 attributes_value = field.get("attributes", "")
                 field_id = field.get("id", "")
@@ -391,18 +384,6 @@ def update_form(request, form_id):
                             created_by = user,
                             updated_by = user
                         )
-
-                # Step 3: Find removed field IDs
-            removed_field_ids = existing_field_ids - incoming_field_ids
-            # Step 4: Deactivate those fields
-            FormField.objects.filter(id__in=removed_field_ids).update(is_active=0, updated_by=user)
-
-            # Step 5: Deactivate corresponding values in FormFieldValues
-            FormFieldValues.objects.filter(field_id__in=removed_field_ids, is_active=1).update(is_active=0, updated_by=user)
-
-
-
-
 
             # callproc('create_dynamic_form_views')
             messages.success(request, "Form updated successfully!!")
