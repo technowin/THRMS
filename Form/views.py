@@ -394,7 +394,12 @@ def update_form(request, form_id):
 
                 # Step 3: Find removed field IDs
             removed_field_ids = existing_field_ids - incoming_field_ids
-            FormField.objects.filter(id__in=removed_field_ids).delete()
+            # Step 4: Deactivate those fields
+            FormField.objects.filter(id__in=removed_field_ids).update(is_active=0, updated_by=user)
+
+            # Step 5: Deactivate corresponding values in FormFieldValues
+            FormFieldValues.objects.filter(field_id__in=removed_field_ids, is_active=1).update(is_active=0, updated_by=user)
+
 
 
 
