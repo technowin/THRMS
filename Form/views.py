@@ -193,7 +193,9 @@ def save_form(request):
                     created_by=request.session.get('user_id', '').strip(),
                     order=order
                 )
+                
                 field_id = form_field.id
+                
 
 
                
@@ -260,25 +262,25 @@ def save_form(request):
 
                 
 
-                # for gen_field in generative_fields:
+                for gen_field in generative_fields:
                     
-                #     prefix = gen_field["prefix"]
-                #     if isinstance(prefix, (list, tuple)):
-                #         prefix = prefix[0] if prefix else ""
+                    prefix = gen_field["prefix"]
+                    if isinstance(prefix, (list, tuple)):
+                        prefix = prefix[0] if prefix else ""
 
-                #     field_ids = FormField.objects.filter(
-                #         form=form,
-                #         label__in=gen_field["field_names"]
-                #     ).values_list("id", flat=True)
+                    field_ids = FormField.objects.filter(
+                        form=form,
+                        label__in=gen_field["field_names"]
+                    ).values_list("id", flat=True)
 
-                #     FormGenerativeField.objects.create(
-                #         prefix=gen_field["prefix"],
-                #         selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
-                #         no_of_zero=gen_field["no_of_zero"],
-                #         increment=gen_field["increment"],
-                #         form=form,
-                #         field=gen_field["form_field"]
-                #     )
+                    FormGenerativeField.objects.create(
+                        prefix=gen_field["prefix"],
+                        selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
+                        no_of_zero=gen_field["no_of_zero"],
+                        increment=gen_field["increment"],
+                        form=form,
+                        field=gen_field["form_field"]
+                    )
 
 
             callproc('create_dynamic_form_views')
@@ -325,37 +327,29 @@ def update_form(request, form_id):
 
             generative_fields = [] 
 
-            frontend_field_ids = set()
-
-            # Step 2: If editing an existing form
-            existing_fields = FormField.objects.filter(form=form)
-            existing_field_ids = set(existing_fields.values_list("id", flat=True))
-
-            # Step 3: Loop over frontend fields, update or create
-            for index, field in enumerate(form_data):
+            for index,field in enumerate(form_data):
                 attributes_value = field.get("attributes", "")
                 field_id = field.get("id", "")
                 formatted_label = format_label(field.get("label", ""))
+                order = field.get("order","")
 
                 if field.get("type") == "master dropdown":
                     value = field.get("masterValue", "")
                 else:
                     value = ",".join(option.strip() for option in field.get("options", []))
 
-                if field_id and str(field_id).isdigit():
-                    frontend_field_ids.add(int(field_id))  # Track IDs we keep
-
+                if field_id:
                     try:
                         form_field = FormField.objects.get(id=field_id)
                         form_field.label = formatted_label
                         form_field.field_type = field.get("type", "")
                         form_field.attributes = attributes_value
                         form_field.values = value
-                        form_field.order = index + 1
+                        form_field.order = order
                         form_field.updated_by = user
                         form_field.save()
                     except FormField.DoesNotExist:
-                        # Create if not found
+                        # Field ID not found, create new
                         form_field = FormField.objects.create(
                             form=form,
                             label=formatted_label,
@@ -363,11 +357,10 @@ def update_form(request, form_id):
                             attributes=attributes_value,
                             values=value,
                             created_by=user,
-                            order=index + 1
+                            order=order
                         )
-                        frontend_field_ids.add(form_field.id)
                 else:
-                    # New field without an ID
+                    # New field with no ID
                     form_field = FormField.objects.create(
                         form=form,
                         label=formatted_label,
@@ -375,15 +368,10 @@ def update_form(request, form_id):
                         attributes=attributes_value,
                         values=value,
                         created_by=user,
-                        order=index + 1
+                        order=order
                     )
-                    frontend_field_ids.add(form_field.id)
 
-                    # Step 4: Delete fields not in frontend
-                    fields_to_delete = existing_field_ids - frontend_field_ids
-                    FormField.objects.filter(id__in=fields_to_delete).delete()
-
-
+                field_id = form_field.id
 
 
 
@@ -456,30 +444,30 @@ def update_form(request, form_id):
                     })
 
 
-                # for gen_field in generative_fields:
-                #     FormGenerativeField.objects.filter(form_id=form.id).delete()
+                for gen_field in generative_fields:
+                    FormGenerativeField.objects.filter(form_id=form.id).delete()
                     
-                #     prefix = gen_field["prefix"]
-                #     if isinstance(prefix, (list, tuple)):
-                #         prefix = prefix[0] if prefix else ""
+                    prefix = gen_field["prefix"]
+                    if isinstance(prefix, (list, tuple)):
+                        prefix = prefix[0] if prefix else ""
 
-                #     field_ids = FormField.objects.filter(
-                #         form=form,
-                #         label__in=gen_field["field_ids"]
-                #     ).values_list("id", flat=True)
+                    field_ids = FormField.objects.filter(
+                        form=form,
+                        label__in=gen_field["field_ids"]
+                    ).values_list("id", flat=True)
 
 
-                #     FormGenerativeField.objects.create(
-                #         prefix=gen_field["prefix"],
-                #         selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
-                #         no_of_zero=gen_field["no_of_zero"],
-                #         increment=gen_field["increment"],
-                #         form=form,
-                #         field=gen_field["form_field"]
-                #     )
+                    FormGenerativeField.objects.create(
+                        prefix=gen_field["prefix"],
+                        selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
+                        no_of_zero=gen_field["no_of_zero"],
+                        increment=gen_field["increment"],
+                        form=form,
+                        field=gen_field["form_field"]
+                    )
                     
 
-            # callproc('create_dynamic_form_views')
+            callproc('create_dynamic_form_views')
             messages.success(request, "Form updated successfully!!")
             return redirect('/masters?entity=form&type=i')
     except Exception as e:
@@ -836,23 +824,15 @@ def common_form_post(request):
         form_name = request.POST.get('form_name', '').strip()
         type = request.POST.get('type','')
 
-        form_id_key = next((key for key in request.POST if key.startswith("form_id_")), None)
-        if not form_id_key:
-            return JsonResponse({"error": "Form ID not found"}, status=400)
-        
-        if type != 'master':
-            action_id_key = next((key for key in request.POST if key.startswith("action_field_id_")), None)
-            if not action_id_key:
-                return JsonResponse({"error": "Form ID not found"}, status=400)
-            
-        
+        workflow_YN = request.POST.get('workflow_YN', '')
+        form_id = request.POST.get("form_id")
 
-        form_id = request.POST.get(form_id_key, '').strip()
-        form = get_object_or_404(Form, id=form_id)
+        # form_id = request.POST.get(form_id_key, '').strip()
+        form = get_object_or_404(Form, id=request.POST.get("form_id"))
 
         if type != 'master':
-            action_id = request.POST.get(action_id_key, '').strip()
-            action = get_object_or_404(FormAction,id = action_id )
+            # action_id = request.PSOT.get("action_id")action_id = request.POST.get(action_id_key, '').strip()
+            action = get_object_or_404(FormAction,id  = request.POST.get("action_id") )
 
         if type == 'master':
             form_data = FormData.objects.create(form=form)
@@ -861,19 +841,14 @@ def common_form_post(request):
         form_data.req_no = f"UNIQ-NO-00{form_data.id}"
         form_data.created_by = user
         form_data.save()
-
-        saved_values = []
-        file_records = []
-        field_value_map = {} 
+        
+        form_dataID = form_data.id
 
         # Process each field
         for key, value in request.POST.items():
             if key.startswith("field_id_"):
                 field_id = value.strip()
                 field = get_object_or_404(FormField, id=field_id)
-
-                if field.field_type.startswith("file"):
-                    continue
 
 
                 if field.field_type == "select multiple":
@@ -883,14 +858,17 @@ def common_form_post(request):
                     input_value = request.POST.get(f"field_{field_id}", "").strip()
 
 
-                # Insert into FormFieldValues first
-                form_field_value = FormFieldValues.objects.create(
+                if field.field_type == "generative":
+                    continue
+
+                
+                FormFieldValues.objects.create(
                     form_data=form_data,form=form, field=field, value=input_value, created_by=created_by
                 )
-                field_value_map[field_id] = form_field_value
-
-
+               
         handle_uploaded_files(request, form_name, created_by, form_data, user)
+        if field.field_type == "generative":
+            handle_generative_fields(form, form_data, created_by)
 
         callproc('create_dynamic_form_views')
         messages.success(request, "Form data saved successfully!")
@@ -900,12 +878,16 @@ def common_form_post(request):
         messages.error(request, 'Oops...! Something went wrong!')
 
     finally:
-        return redirect('/masters?entity=form_master&type=i')
+        if workflow_YN == '1':
+            return redirect('workflow_starts')
+        else:
+            return redirect('/masters?entity=form_master&type=i')
 
 
 def common_form_edit(request):
 
     user = request.session.get('user_id', '')
+    workflow_YN = request.POST.get("workflow_YN")
     
     try:
         if request.method != "POST":
@@ -918,7 +900,6 @@ def common_form_edit(request):
         form_data = get_object_or_404(FormData, id=form_data_id)
         form_data.updated_by = user
         form_data.save()
-        id=request.POST.get("form_id")
 
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
 
@@ -966,8 +947,8 @@ def common_form_edit(request):
 
         # ✅ File upload logic goes here
         handle_uploaded_files(request, form_name, created_by, form_data, user)
-        # if field.field_type == "generative":
-        #     handle_generative_fields(form, form_data, created_by)
+        if field.field_type == "generative":
+            handle_generative_fields(form, form_data, created_by)
 
         callproc('create_dynamic_form_views')
         messages.success(request, "Form data updated successfully!")
@@ -977,9 +958,58 @@ def common_form_edit(request):
         messages.error(request, "Oops...! Something went wrong!")
 
     finally:
-        return redirect("/masters?entity=form_master&type=i")
-    
+        #return redirect("/masters?entity=form_master&type=i")
+        if workflow_YN == '1E':
+            return redirect('workflow_starts')
+        else:
+            return redirect("/masters?entity=form_master&type=i")
 
+    
+def handle_generative_fields(form, form_data, created_by):
+    generative_fields = FormField.objects.filter(form=form, field_type="generative")
+
+    for field in generative_fields:
+        try:
+            gen_settings = FormGenerativeField.objects.get(field=field, form=form)
+
+            prefix = gen_settings.prefix or ''
+            selected_ids = (gen_settings.selected_field_id or '').split(',')
+            no_of_zero = int(gen_settings.no_of_zero or '0')
+            increment = int(gen_settings.increment or '1')
+
+            # Gather values from previously saved fields
+            selected_values = []
+            for sel_id in selected_ids:
+                selected_field = FormField.objects.filter(id=sel_id).first()
+                if not selected_field:
+                    continue
+
+                value_obj = FormFieldValues.objects.filter(
+                    form_data=form_data,
+                    form=form,
+                    field=selected_field
+                ).first()
+
+                if value_obj:
+                    selected_values.append(value_obj.value)
+
+            base_part = '-'.join(selected_values)
+            padded_number = str(0).zfill(no_of_zero)
+            final_value = f"{prefix}-{base_part}-{padded_number}{increment}"
+
+            # Save the generated value
+            FormFieldValues.objects.create(
+                form_data=form_data,
+                form=form,
+                field=field,
+                value=final_value,
+                created_by=created_by
+            )
+
+        except FormGenerativeField.DoesNotExist:
+            continue  # skip if no config found
+
+    
 
 def handle_uploaded_files(request, form_name, created_by, form_data, user):
     try:
@@ -1024,7 +1054,6 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
                         existing_file.file_path = relative_file_path
                         existing_file.updated_by = user
                         existing_file.save()
-
                         continue
 
                 else:
@@ -1041,7 +1070,7 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
                     for chunk in uploaded_file.chunks():
                         destination.write(chunk)
 
-                form_file =FormFile.objects.create(
+                form_file = FormFile.objects.create(
                     file_name=saved_file_name,
                     uploaded_name=uploaded_file_name,
                     file_path=relative_file_path,
@@ -1051,6 +1080,7 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
                     updated_by=user,
                     field=field
                 )
+                 
                 form_field_value = FormFieldValues.objects.filter(
                     form_id=form_data.form.id,
                     field_id=field.id,
@@ -1073,6 +1103,8 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
                     # 4. Update FormFile to add file_id (which is FormFieldValues' id)
                     form_file.file_id = form_field_value.id
                     form_file.save()
+
+
 
     except Exception as e:
         traceback.print_exc()
