@@ -10,6 +10,11 @@
 
  <link rel="stylesheet" type="text/css" href="{% static 'css/tooltips.css' %}" />
 
+ <!-- Font Awesome -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+ integrity="sha512-...fullhash..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
  <!-- Include DataTables CSS -->
  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
@@ -19,6 +24,13 @@
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+ <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+
+ <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+
 
  <!-- Selectize.js CSS -->
 <link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
@@ -26,10 +38,90 @@
 <script src="{% static 'js/selectize.min.js' %}"></script>
 
 
+
 <style>
 
-    
+
+    /* Base container row */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+/* Custom column widths (based on 12-column layout but adjustable) */
+.col-md-custom-0.5 { flex: 0 0 5.33%; max-width: 5.33%; padding: 0 15px; }
+.col-md-custom-1 { flex: 0 0 5%; max-width: 4%; padding: 0 15px; }
+.col-md-custom-2 { flex: 0 0 16.66%; max-width: 16.66%; padding: 0 15px; }
+.col-md-custom-3 { flex: 0 0 25%; max-width: 25%; padding: 0 15px; }
+.col-md-custom-4 { flex: 0 0 33.33%; max-width: 33.33%; padding: 0 15px; }
+.col-md-custom-5 { flex: 0 0 41.66%; max-width: 41.66%; padding: 0 15px; }
+.col-md-custom-6 { flex: 0 0 50%; max-width: 50%; padding: 0 15px; }
+.col-md-custom-7 { flex: 0 0 58.33%; max-width: 58.33%; padding: 0 15px; }
+.col-md-custom-8 { flex: 0 0 66.66%; max-width: 66.66%; padding: 0 15px; }
+.col-md-custom-9 { flex: 0 0 75%; max-width: 75%; padding: 0 15px; }
+.col-md-custom-10 { flex: 0 0 83.33%; max-width: 83.33%; padding: 0 15px; }
+.col-md-custom-11 { flex: 0 0 91.66%; max-width: 91.66%; padding: 0 15px; }
+.col-md-custom-12 { flex: 0 0 100%; max-width: 100%; padding: 0 15px; }
+
+
+
+.selectize-input {
+    border: 1px solid black !important; 
+    border-radius: 10px !important; 
+    font-size: 1em;
+    min-height:38px;
+    max-height: auto; 
+    overflow-y: auto;
+    padding: 6px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .selectize-dropdown {
+    overflow: hidden !important;
+  }
+
+  #livePreviewButton {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    padding: 10px 20px; /* nice padding */
+    min-width: 150px; /* initial width */
+    text-align: center;
+}
+
+/* On hover */
+#livePreviewButton:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px 5px rgba(0, 123, 255, 0.7);
+    background-color: #0d6efd;
+    color: white;
+    min-width: 250px; /* wider on hover */
+}
+
+
 </style>
+
+{% comment %} <div class="modal fade" id="livePreviewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog  modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="livePreviewModalLabel">Live Preview</h2>
+                  </div>   
+                  <div class="modal-body">
+                    <div class="card shadow" style="border: 2px solid #b3b3b3; border-radius: 15px;">
+                        <form id="dynamic-form" class="row col-md-12"></form>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+            </div>
+        </div>
+    </div> {% endcomment %}
+
 
 <div class="mt-4">
     <form method="POST" action="{% if form %}{% url 'update_form' form.id %}{% else %}{% url 'save_form' %}{% endif %}" class="row col-md-12" id="main-form"
@@ -47,9 +139,18 @@
 
         <input type="hidden" name="form_data" id="form-data-input">
 
+
+
         <div class="col-md-4 mt-3">
             <button type="submit" class="btn btn-primary mt-3">{% if form %}Update {% else %}Save {% endif %}Form</button>
         </div>
+
+        {% comment %} <div class="col-md-2 mt-3">
+            <button type="button" class="btn btn-secondary mt-3" data-toggle="modal" data-target="#livePreviewModal">
+                Live Preview
+            </button>
+        </div> {% endcomment %}
+        
 
 
     </form>
@@ -62,16 +163,22 @@
                     {% if form %} Edit {% else %}Create {% endif %}Form  &nbsp;&nbsp;&nbsp;
                     <button class="btn btn-primary" onclick="addField()"> Add Field</button>
                 </h2>
+                <div id="form-fields-container">
                 <div id="form-builder" class="row col-md-12 mt-3"></div>
+                </div>
             </div>
         </div>
+       
+    {% comment %} </div> {% endcomment %}
+    {% comment %} <br>
+    <div class="row" > {% endcomment %}
 
-        <div class="col-md-4">
+         <div class="col-md-4">
             <div class="card shadow" style="border: 2px solid #b3b3b3; border-radius: 15px;">
                 <h2 style="text-align:center; font-weight:600; color:black">Live Preview</h2>
                 <form id="dynamic-form" class="row col-md-12"></form>
             </div>
-        </div>
+        </div> 
     </div>
 </div>
 
@@ -85,6 +192,7 @@
 
     {% if form %}
     let formFields = JSON.parse('{{ form_fields_json|escapejs|safe }}');
+    let allFieldLabels = []; 
 
     function addField() {
         let newField = {
@@ -93,15 +201,18 @@
             type: "text",
             commonType: [],
             options: [],
-            masterValue: ""
+            masterValue: "",
+            order: formFields.length + 1
         };
         formFields.push(newField);
+        updateAllFieldLabels();
         renderFormBuilder();
         renderFormPreview();
     }
     
     {% else %}
     let formFields = [];
+    let allFieldLabels = []; 
 
     function addField() {
         let newField = {
@@ -110,15 +221,25 @@
             type: "text",
             commonType: [],
             options: [],
-            masterValue: ""
+            masterValue: "",
+            order: formFields.length + 1
         };
         formFields.push(newField);
+        updateAllFieldLabels();
         renderFormBuilder();
         renderFormPreview();
     }
     
 
     {% endif %}
+
+    function updateAllFieldLabels() {
+        allFieldLabels = formFields.map(field => ({
+            id: field.id,
+            label: field.label
+        }));
+    }
+    
 
    
 
@@ -252,23 +373,26 @@
                     </select>
                 `;
             }
-            
-            
-    
-            builder.innerHTML += `
+        
+           let colSize = 'col-md-3'; // default
+
+          builder.innerHTML += `
+            <div class="row col-md-12 draggable-field" data-id="${fieldId}">
+                <div class="col-md-custom-1 drag-handle" style="cursor: grab;">
+                    &#x2630;
+                </div>
                 <div class="col-md-2 mb-3">
                     <input class="form-control" type="text" 
                         value="${field.label}" 
                         onchange="validateAndUpdateLabel(this, ${fieldId})">
                 </div>
-
                 <div class="col-md-2 mb-3">
                     ${dropdownHtml}
                 </div>
                 <div class="col-md-3 mb-3">
                     ${commonDropdownHtml}
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="${colSize} mb-3">
                     ${subControlHtml || optionDropdownHtml}
                 </div>
                 <div class="col-md-1 mt-2">
@@ -276,7 +400,8 @@
                         <i class="fa-solid fa-trash" style="color: #dc3545; font-size: 1.5rem;"></i>
                     </span>
                 </div>
-            `;
+            </div>
+        `;
     
             // Step 3: Restore selected sub-controls
             if (field.selectedValue) {
@@ -316,6 +441,20 @@
             let selectizeControl = selectInstance[0].selectize;
             selectizeControl.setValue(selectedIds);
         });
+
+        document.querySelectorAll(".field_dropdown").forEach(select => {
+            $(select).selectize({
+                plugins: ["remove_button"],
+                delimiter: ",",
+                placeholder: "Enter options",
+                persist: false,
+                create: true,
+                onChange: function(value) {
+                    let fieldId = select.id.split("-").pop();
+                    updateFielddropdwon(parseInt(fieldId), 'options', value);
+                }
+            });
+        });
     
         // Initialize Selectize for Option Dropdowns
         document.querySelectorAll(".option-select").forEach(select => {
@@ -332,9 +471,9 @@
             });
         });
     }
-    
-    
 
+    
+    
     function updateSubFieldAndGenerateElement(fieldId, selectedValue, savedValue = "", subControlId) {
         let dynamicElement = document.getElementById(`dynamic-element-${fieldId}`);
         dynamicElement.innerHTML = "";
@@ -388,6 +527,12 @@
         }
     }
     
+    function updateFielddropdwon(fieldId, key, value) {
+        const fieldIndex = formFields.findIndex(field => field.id === fieldId);
+        if (fieldIndex !== -1) {
+            formFields[fieldIndex][key] = value; // Save the multiselect value array or string
+        }
+    }
     
 
     function renderFormPreview() {
@@ -440,7 +585,6 @@
             else if (field.type === "textarea") {
                 inputHtml = `<textarea class="form-control custom-textarea" rows="5" cols="5" name="${fieldName}" style="height: 20px; "></textarea>`;
             }
-            
             
             else if (field.type === "checkbox") {
                 let isChecked = field.value == "1" ? "checked" : "";
@@ -529,7 +673,7 @@
             }
             
             let fieldContainer = document.createElement("div");
-            const colClass = (field.type === "file" || field.type === "file multiple") ? "col-md-12" : "col-md-6";
+            const colClass =  "col-md-6";
             fieldContainer.classList.add(colClass, "mb-3", "d-flex", "flex-column");
             
             fieldContainer.innerHTML = `
@@ -603,12 +747,20 @@
             renderFormPreview();  // Update preview
         }
     }
+
+    function updateFielddroppwon(id, key, value) {
+        formFields = formFields.map(f => f.id === id ? { ...f, [key]: value } : f);
+        updateAllFieldLabels();
+        renderFormBuilder();
+        renderFormPreview();
+    }
     
     
     
     
     function updateField(id, key, value) {
         formFields = formFields.map(f => f.id === id ? { ...f, [key]: value } : f);
+        updateAllFieldLabels();
         renderFormBuilder();
         renderFormPreview();
     }
@@ -620,9 +772,6 @@
             formFields[fieldIndex][key] = value;
         }
     }
-    
-    
-    
     
 
         document.addEventListener("input", function (event) {
@@ -646,15 +795,61 @@
         $(select).data("existing-values", selectedOptions); // Store initial values
     });
 
+
+
+        {% if form %}
+        function removeField(id) {
     
+            $.ajax({
+                url: "{% url 'check_field_before_delete' %}",
+                type: "POST",
+                data: {
+                    'field_id': id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.exists) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Can't Delete",
+                            text: "This field has existing data and cannot be deleted."
+                        });
+                    } else if (response.success) {
+                        formFields = formFields.filter(f => f.id !== id);
+                        updateAllFieldLabels();
+                        renderFormBuilder();
+                        renderFormPreview();
 
-    function removeField(id) {
-        formFields = formFields.filter(f => f.id !== id);
-        renderFormBuilder();
-        renderFormPreview();
-    }
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Unexpected response. Please try again."
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error",
+                        text: "Something went wrong on the server."
+                    });
+                }
+            });
+        }
+        {% else %}
 
+        function removeField(id) {
+            formFields = formFields.filter(f => f.id !== id);
+            updateAllFieldLabels();
+            renderFormBuilder();
+            renderFormPreview();
+        }
+        {% endif %}
+
+    
     document.getElementById("main-form").addEventListener("submit", function () {
+        debugger;
         syncFormValidationsBeforeSubmit(); // 👈 Ensure untouched validations are captured
         document.getElementById("form-data-input").value = JSON.stringify(formFields);
     });
@@ -669,7 +864,6 @@
 
 <script>
 
- 
 
     function fetchMasterOptions(query, fieldId) {
         debugger;
@@ -723,8 +917,6 @@
     }
     
     
-    
-    
 </script>
 
 
@@ -753,39 +945,66 @@
 
     function validateAndUpdateLabel(inputElement, fieldId) {
         
-    let newLabel = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '').trim();
-    
-    // Check for duplicates (excluding current field)
-    let isDuplicate = formFields.some(field => field.id !== fieldId && field.label.toLowerCase() === newLabel.toLowerCase());
+        let newLabel = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+        
+        // Check for duplicates (excluding current field)
+        let isDuplicate = formFields.some(field => field.id !== fieldId && field.label.toLowerCase() === newLabel.toLowerCase());
 
-    if (isDuplicate) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Duplicate Label',
-            text: `A field with the label "${newLabel}" already exists.`,
-        });
-        inputElement.value = ""; // Clear the input
-        return;
+        if (isDuplicate) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Duplicate Label',
+                text: `A field with the label "${newLabel}" already exists.`,
+            });
+            inputElement.value = ""; // Clear the input
+            return;
+        }
+
+        updateField(fieldId, 'label', newLabel);
     }
-
-    updateField(fieldId, 'label', newLabel);
-}
-
 
     document.getElementById("main-form").addEventListener("submit", function () {
         debugger;
-        formFields.forEach(field => {
-            if (field.type === "master dropdown") {
-                const selectedDropdown = document.getElementById(`field_${field.id}`);
+    
+        const fieldsInDom = document.querySelectorAll('#form-builder .draggable-field');
+        const orderedFormFields = [];
+    
+        fieldsInDom.forEach((fieldEl, index) => {
+            const fieldId = fieldEl.dataset.id;
+            const originalField = formFields.find(f => String(f.id) === String(fieldId));
+            if (!originalField) return;
+    
+            // Set the order based on DOM position
+            originalField.order = index + 1;
+    
+            if (originalField.type === "master dropdown") {
+                const selectedDropdown = document.getElementById(`field_${fieldId}`);
                 if (selectedDropdown) {
-                    field.selectedValue = selectedDropdown.value;
+                    originalField.selectedValue = selectedDropdown.value;
                 }
             }
+    
+            orderedFormFields.push(originalField);
         });
-        document.getElementById("form-data-input").value = JSON.stringify(formFields);
+    
+        // Save reordered + updated fields
+        document.getElementById("form-data-input").value = JSON.stringify(orderedFormFields);
     });
+    
+
 </script>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formBuilder = document.getElementById('form-builder');
+
+        Sortable.create(formBuilder, {
+            handle: '.drag-handle', // Only allow dragging using ☰
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+        });
+    });
+</script>
 
     
 
