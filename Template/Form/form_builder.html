@@ -864,7 +864,6 @@
 
 <script>
 
- 
 
     function fetchMasterOptions(query, fieldId) {
         debugger;
@@ -918,8 +917,6 @@
     }
     
     
-    
-    
 </script>
 
 
@@ -948,23 +945,23 @@
 
     function validateAndUpdateLabel(inputElement, fieldId) {
         
-    let newLabel = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '').trim();
-    
-    // Check for duplicates (excluding current field)
-    let isDuplicate = formFields.some(field => field.id !== fieldId && field.label.toLowerCase() === newLabel.toLowerCase());
+        let newLabel = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+        
+        // Check for duplicates (excluding current field)
+        let isDuplicate = formFields.some(field => field.id !== fieldId && field.label.toLowerCase() === newLabel.toLowerCase());
 
-    if (isDuplicate) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Duplicate Label',
-            text: `A field with the label "${newLabel}" already exists.`,
-        });
-        inputElement.value = ""; // Clear the input
-        return;
+        if (isDuplicate) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Duplicate Label',
+                text: `A field with the label "${newLabel}" already exists.`,
+            });
+            inputElement.value = ""; // Clear the input
+            return;
+        }
+
+        updateField(fieldId, 'label', newLabel);
     }
-
-    updateField(fieldId, 'label', newLabel);
-}
 
     document.getElementById("main-form").addEventListener("submit", function () {
         debugger;

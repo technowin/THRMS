@@ -756,8 +756,6 @@ def common_form_post(request):
         form_name = request.POST.get('form_name', '').strip()
         type = request.POST.get('type','')
 
-        workflow_YN = request.POST.get('workflow_YN', '')
-        form_id = request.POST.get("form_id")
 
         # form_id = request.POST.get(form_id_key, '').strip()
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
@@ -770,11 +768,9 @@ def common_form_post(request):
             form_data = FormData.objects.create(form=form)
         else:
             form_data = FormData.objects.create(form=form,action=action)
-        form_data.req_no = f"UNIQ-NO-00{form_data.id}"
+        form_data.req_no = f"REQ-NO-00{form_data.id}"
         form_data.created_by = user
         form_data.save()
-        
-        form_dataID = form_data.id
 
         # Process each field
         for key, value in request.POST.items():
@@ -789,18 +785,12 @@ def common_form_post(request):
                 else:
                     input_value = request.POST.get(f"field_{field_id}", "").strip()
 
-
-                if field.field_type == "generative":
-                    continue
-
                 
                 FormFieldValues.objects.create(
                     form_data=form_data,form=form, field=field, value=input_value, created_by=created_by
                 )
                
         handle_uploaded_files(request, form_name, created_by, form_data, user)
-        if field.field_type == "generative":
-            handle_generative_fields(form, form_data, created_by)
 
         callproc('create_dynamic_form_views')
         messages.success(request, "Form data saved successfully!")
@@ -810,10 +800,7 @@ def common_form_post(request):
         messages.error(request, 'Oops...! Something went wrong!')
 
     finally:
-        if workflow_YN == '1':
-            return redirect('workflow_starts')
-        else:
-            return redirect('/masters?entity=form_master&type=i')
+        return redirect('/masters?entity=form_master&type=i')
 
 
 def common_form_edit(request):
@@ -879,8 +866,8 @@ def common_form_edit(request):
 
         # ✅ File upload logic goes here
         handle_uploaded_files(request, form_name, created_by, form_data, user)
-        if field.field_type == "generative":
-            handle_generative_fields(form, form_data, created_by)
+        # if field.field_type == "generative":
+        #     handle_generative_fields(form, form_data, created_by)
 
         callproc('create_dynamic_form_views')
         messages.success(request, "Form data updated successfully!")
