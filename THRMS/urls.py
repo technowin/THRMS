@@ -30,6 +30,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # APP URLS
 
+    path('upload/', upload_document, name='upload_document'),
+    path('document/<int:pk>/', document_detail, name='document_detail'),
+
     # Form 
     path('form_builder/', form_builder, name='form_builder'),
     path('form_action_builder/', form_action_builder, name='form_action_builder'),  # Render HTML
