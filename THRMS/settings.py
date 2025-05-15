@@ -40,7 +40,7 @@ DATABASES = {
 BASE_DIR = Path(__file__).resolve().parent.parent
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # You can change 'staticfiles' to your desired folder
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # or your desired path
 
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'D:/Python Projects/Documents/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'C:/inetpub/wwwroot/Documents/')
