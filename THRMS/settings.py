@@ -13,7 +13,7 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
-ALLOWED_HOSTS = ['43.204.250.53']
+ALLOWED_HOSTS = ['13.204.21.23']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -27,7 +27,7 @@ DATABASES = {
         'NAME': 'techno_hrms_db',      # Replace with your database name
         'USER': 'root',      # Replace with your database user
         'PASSWORD': 'Mysql_MH-047319',  # Replace with your database password
-        # 'HOST': '43.204.250.53',       # IP FOR TEST
+        # 'HOST': '13.204.21.23',       # IP FOR TEST
         'HOST': '127.0.0.1',       # IP FOR LOCAL VM
         'PORT': '3306',            
         'OPTIONS': {
@@ -40,7 +40,7 @@ DATABASES = {
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'D:/Python Projects/Documents/')
-MEDIA_ROOT = os.path.join(BASE_DIR, '/home/ubuntu/Documents/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'C:/inetpub/wwwroot/Documents/')
 MEDIA_URL = '/media/'
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
@@ -117,12 +117,12 @@ MIDDLEWARE = [
     'axes.middleware.AxesMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
-    'http://43.204.250.53',
+    'http://13.204.21.23',
     'https://push3.aclgateway.com'
 ]
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
-    'http://43.204.250.53',
+    'http://13.204.21.23',
     'https://push3.aclgateway.com'
 ]
 AUTO_LOGOUT = {
@@ -146,7 +146,7 @@ LOGGING = {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
             # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/THRMS Logs', 'django.log'),  
-            'filename': os.path.join(BASE_DIR, '/home/ubuntu/THRMS Logs', 'django.log'),  
+            'filename': os.path.join(BASE_DIR, 'C:/inetpub/wwwroot/THRMS Logs', 'django.log'),  
         },
     },
     'loggers': {
