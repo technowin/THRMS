@@ -14,7 +14,7 @@ import os
 from datetime import timedelta
 
 # ALLOWED_HOSTS = ['13.204.21.23']
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','13.204.21.23']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
