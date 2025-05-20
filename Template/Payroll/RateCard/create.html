@@ -1,0 +1,234 @@
+{% extends "Shared/Layout.html" %}
+{% block username %}{{ username }}{% endblock %}
+{% block content %}
+{% load static %}
+{% csrf_token %}
+
+<link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css">
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Create Rate Card</title>
+    <style>
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .checkbox-container {
+            margin-bottom: 10px;
+        }
+        .amount-field {
+            width: 80px;
+            margin-left: 10px;
+        }
+        #id_card_name {
+            width: 40%; 
+        }
+        
+    </style>
+</head>
+<body>
+    {% comment %} <h1>Create Rate Card</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label>Card Name:</label>
+            {{ form.card_name }}
+        </div>
+        <div>
+            <h4>Select Salary Elements:</h4>
+            {% for item in form.item_ids.field.queryset %}
+                <div class="checkbox-container row">
+
+                    <div class="col-md-3" style="text-align: center; border:1px solid black; padding:10px; margin:10px;">
+                        <input type="checkbox" name="item_ids" class=" form-control"  value="{{ item.pk }}"  style="font-size: 3px;">
+                        <br>
+                        <label>
+                            {{ item.item_name }}
+                        </label>
+                    </div>
+                    <div class="col-md-2" style="text-align: center; border:1px solid black; padding:10px; margin:10px;">
+                        <label>
+                            Four Hour Amount
+                        </label>
+                        <input type="number" name="four_hour_amount_{{ item.pk }}" style="width: 90%;" class="amount-field  form-control" placeholder="4-Hour Amount" min="0">
+                    </div>
+                    <div class="col-md-2" style="text-align: center; border:1px solid black; padding:10px; margin:10px;">
+                        <label>
+                            Nine Hour Amount
+                        </label>
+                        <input type="number" name="nine_hour_amount_{{ item.pk }}" style="width: 90%;" class="amount-field  form-control" placeholder="9-Hour Amount" min="0">
+                    </div>
+                    
+                </div>
+            {% endfor %}
+        </div>
+        <button type="submit" id ="id_card_name_button" class="btn btn-primary">Create</button>
+        <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a>
+    </form> {% endcomment %}
+
+
+    <div class="card">
+        <div class="card-body">
+            <div class="card-header">
+                <h1>Create Rate Card</h1>
+            </div>
+            <br>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="card_name" class="form-label">Card Name:</label>
+                    {{ form.card_name }} 
+                </div>
+                <div class="mb-3">
+                    <h4>Select Salary Elements:</h4>
+    
+                    {% for item in form.item_ids.field.queryset %}
+                    <div class="row mb-3">
+                        <div class="col-md-3 text-center" style="border:1px solid black; padding:10px; margin:10px;">
+                            <input type="checkbox" name="item_ids" class="form-control" value="{{ item.pk }}" 
+                                onclick="toggleAmountFields(this, '{{ item.pk }}')" 
+                                style="font-size: 1rem;">
+                            <br>
+                            <label>{{ item.item_name }}</label>
+                        </div>
+                        <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
+                            <label for="four_hour_amount_{{ item.pk }}" class="form-label">Four Hour Amount</label>
+                            <input type="number" name="four_hour_amount_{{ item.pk }}" 
+                                class="form-control amount-field" placeholder="4-Hour Amount" min="0" 
+                                id="four_hour_amount_{{ item.pk }}" style="width: 90%;" step="0.01" disabled>
+                        </div>
+                        <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
+                            <label for="nine_hour_amount_{{ item.pk }}" class="form-label">Nine Hour Amount</label>
+                            <input type="number" name="nine_hour_amount_{{ item.pk }}" 
+                                class="form-control amount-field" placeholder="9-Hour Amount" min="0" 
+                                id="nine_hour_amount_{{ item.pk }}" style="width: 90%;" step="0.01" disabled>
+                        </div>
+                        <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
+                            <label for="tax_parameter_{{ item.pk }}" class="form-label">Tax Parameter</label>
+                            <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control" style="width: 90%;" disabled>
+                                <option value="">Select Tax</option>
+                                {% for tax in tax_parameter %}
+                                    <option value="{{ tax.id }}">{{ tax.tax_parameter }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center">
+                    <button type="submit" id="id_card_name_button" class="btn btn-primary">Create</button>
+                    <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById("id_card_name").addEventListener("change", function() {
+        var cardName = this.value.trim();  // Remove leading/trailing whitespace from card name
+        var submitButton = document.getElementById("id_card_name_button");
+    
+        submitButton.disabled = true;
+    
+        if (cardName === "") {
+            submitButton.disabled = false;
+            return;
+        }
+    
+        // Send the value to Django via AJAX
+        fetch("{% url 'handle_card_name_change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",  // CSRF Token for security
+            },
+            body: JSON.stringify({
+                'card_name': cardName,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                // If the card name exists, show SweetAlert warning
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Card Name Already Exists',
+                    text: 'Please choose a different card name.',
+                    confirmButtonText: 'OK'
+                });
+    
+                // Keep the submit button disabled since the card name exists
+                submitButton.disabled = true;
+            }
+            else {
+                submitButton.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    </script>
+
+     
+
+    <script>
+        {% comment %} function toggleAmountFields(checkbox, itemId) {
+            debugger;
+            var fourHourInput = document.getElementById("four_hour_amount_" + itemId);
+            var nineHourInput = document.getElementById("nine_hour_amount_" + itemId);
+            var taxParameter =  document.getElementById("tax_parameter_" +  itemId);
+    
+            if (checkbox.checked) {
+                // Enable input fields and set default value to 0
+                fourHourInput.disabled = false;
+                nineHourInput.disabled = false;
+                taxParameter.disabled = false;
+                fourHourInput.value = 0;
+                nineHourInput.value = 0;
+            } else {
+                // Disable input fields and clear values
+                fourHourInput.disabled = true;
+                nineHourInput.disabled = true;
+                taxParameter.disabled = true;
+                fourHourInput.value = "";
+                nineHourInput.value = "";
+            }
+        } {% endcomment %}
+
+        function toggleAmountFields(checkbox, itemId) {
+            var fourHourInput = document.getElementById("four_hour_amount_" + itemId);
+            var nineHourInput = document.getElementById("nine_hour_amount_" + itemId);
+            var taxParameter = document.getElementById("tax_parameter_" + itemId);
+        
+            if (checkbox.checked) {
+                // Enable all fields and set default values
+                fourHourInput.disabled = false;
+                nineHourInput.disabled = false;
+                taxParameter.disabled = false; // Enable tax parameter
+                fourHourInput.value = 0;
+                nineHourInput.value = 0;
+            } else {
+                // Disable all fields and clear values
+                fourHourInput.disabled = true;
+                nineHourInput.disabled = true;
+                taxParameter.disabled = true; // Keep tax parameter disabled
+                fourHourInput.value = "";
+                nineHourInput.value = "";
+                taxParameter.value = ""; // Optionally clear tax parameter field
+            }
+        }
+        
+    </script>
+    
+{% endblock %}

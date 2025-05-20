@@ -24,6 +24,8 @@ from Form.views import *
 from Reports.views import *
 from MenuManager.views import *
 from Workflow.views import *
+from Payroll.views import *
+from Tax.views import *
 from django.urls import path
 
 urlpatterns = [
@@ -116,6 +118,87 @@ urlpatterns = [
     path('workflow_Editmap/', workflow_Editmap, name='workflow_Editmap'),
     path('workflow_starts/', workflow_starts, name='workflow_starts'),
     path('workflow_form_step/', workflow_form_step, name='workflow_form_step'),
+
+    path('salary_element_index', index, name='salary_element_index'),
+    path('salary_element_create/', create, name='salary_element_create'),
+    path('salary_element_edit/<str:pk>/', edit, name='salary_element_edit'),
+    path('salary_element_view/<str:pk>/', view, name='salary_element_view'),
+    path('rate_card_index', rate_card_index, name='rate_card_index'),
+    path('rate-card/create/', rate_card_create, name='rate_card_create'),
+    path('rate-card/<str:card_id>/edit/', rate_card_edit, name='rate_card_edit'),
+    path('rate-card/<str:card_id>/view/', rate_card_view, name='rate_card_view'),
+    path('site_card_relation_index', site_card_relation_index, name='site_card_relation_index'),
+    path('site_card_relation/create/', site_card_relation_create, name='site_card_relation_create'),
+    path('site_card_relation/edit/<str:pk>/', site_card_relation_edit, name='site_card_relation_edit'),
+    path('site_card_relation/view/<str:pk>/', site_card_relation_view, name='site_card_relation_view'),
+    # path('check_shift/<int:employee_id>/<int:site_id>/', check_shift_for_next_day, name='check_shift_for_next_day'),
+    path('get_rate_cards/<int:site_id>/', get_rate_cards, name='get_rate_cards'),
+    path('employee_rate_card_create', employee_rate_card_create, name='employee_rate_card_create'),
+    path('employee_rate_card_edit/<int:id>/', employee_rate_card_edit, name='employee_rate_card_edit'),
+    path('employee_rate_card_view/<int:id>/', employee_rate_card_view, name='employee_rate_card_view'),
+    path('employee_rate_card_index', employee_rate_card_index, name='employee_rate_card_index'),
+    path('employee_rate_card_create/', employee_rate_card_create, name='employee_rate_card_create'),
+    
+    path('slots', SlotListView.as_view(), name='slot_list'),
+    path('slots', SlotListView.as_view(), name='slot_list'),
+    path('approveslots', ApproveSlotListView.as_view(), name='approveslots'),
+    path('update_payout_status', UpdatePayoutStatus.as_view(), name='update_payout_status'),
+
+    path('user_salary_index', user_salary_index, name='user_salary_index'),
+    path('view_approve_salary/<int:slot_id>', view_approve_salary, name='view_approve_salary'),
+    path('edit_attendance/<str:encrypted_id>', edit_attendance, name='edit_attendance'),
+    path('employee/<str:employee_id>/slot/<int:slot_id>/salary-details/', view_employee_salary_details, name='view_employee_salary_details'),
+    path('slots/<int:slot_id>/', user_slot_details_list, name='user_slot_details_list'),
+    path('slots/generate-salary/<int:slot_id>/', generate_salary_redirect, name='generate_salary_redirect'),
+    path('calculate-salary/<int:slot_id>/', calculate_daily_salary, name='generate_salary'),
+    
+    path('attendance_index', attendance_index, name='attendance_index'),
+    
+    path('attendance/create', upload_attendance, name='create_attendance'),
+    path('attendance/approve', approve_attendance, name='approve_attendance'),
+    path('get_sites', get_sites, name='get_sites'),
+    path('get_slots', get_slots, name='get_slots'),
+    path('handle_card_name_change', handle_card_name_change, name='handle_card_name_change'),
+    path('download_sample/', download_sample, name='download_sample'),
+    path('attendance_error/', attendance_error, name='attendance_error'),
+
+    path('create_payout', create_payout, name='create_payout'),
+    path('create_new_payout/<str:employee_id>/slot/<int:slot_id>', create_new_payout, name='create_new_payout'),
+    path('generate_pay_slip', generate_pay_slip, name='generate_pay_slip'),
+
+
+    #TAX
+
+    path('state_master_index', state_master_index, name='state_master_index'),
+    path('state_edit/<str:pk>/', state_edit, name='state_edit'),
+    path('state_view/<str:pk>/', state_view, name='state_view'),
+    path('state_create', state_create, name='state_create'),
+
+    path('city_master_index/<str:pk>/', city_master_index, name='city_master_index'),
+    path('city_edit/<str:pk>', city_edit, name='city_edit'),
+    path('city_view/<str:pk>', city_view, name='city_view'),
+    path('city_create/<str:state_id>/', city_create, name='city_create'),
+
+    path('act_master_index', act_master_index, name='act_master_index'),
+    path('act_edit/<str:pk>/', act_edit, name='act_edit'),
+    path('act_view/<str:pk>/', act_view, name='act_view'),
+    path('act_create', act_create, name='act_create'),
+
+    path('slab_index/<str:pk>/', slab_index, name='slab_index'),
+    path('slab_edit/<str:pk>/', slab_edit, name='slab_edit'),
+    path('slab_view/<str:pk>/', slab_view, name='slab_view'),
+    path('slab_create', slab_create, name='slab_create'),
+
+    path('slab_master_index', slab_master_index, name='slab_master_index'),
+    path('slab_master_edit/<str:pk>/', slab_master_edit, name='slab_master_edit'),
+    path('slab_master_view/<str:pk>/', slab_master_view, name='slab_master_view'),
+    path('slab_master_create', slab_master_create, name='slab_master_create'),
+    path('check_slab_combination', check_slab_combination, name='check_slab_combination'),
+
+    path('income_tax_master_index', income_tax_master_index, name='income_tax_master_index'),
+    path('income_tax_edit/<str:pk>/', income_tax_edit, name='income_tax_edit'),
+    path('income_tax_view/<str:pk>/', income_tax_view, name='income_tax_view'),
+    path('income_tax_create', income_tax_create, name='income_tax_create'),
 
 ]
 

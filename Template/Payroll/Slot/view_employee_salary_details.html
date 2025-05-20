@@ -1,0 +1,237 @@
+{% extends "Shared/Layout.html" %}
+
+{% block content %}
+
+    <!-- Success/Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>Net Salary Details</h2>
+            {% comment %} {% if status_id == '6' or status_id == '7' %} {% endcomment %}
+                <button class="btn btn-primary" onclick="generatePaySlip()">Payment Slip</button>
+            {% comment %} {% endif %} {% endcomment %}
+        
+        </div>
+        
+        <div class="card-body">
+            <!-- Employee Details -->
+            <form>
+                <div class="row mb-3">
+
+                    <div class="col-md-4" hidden>
+                        <label for="employeeId"class="me-2 text-dark"><strong>SLot Id:</strong></label>
+                        <input type="text" id="slotId" class="form-control" value="{{ slot_id }}" readonly>
+                    </div>
+                    <!-- Employee ID -->
+                    <div class="col-md-4">
+                        <label for="employeeId"class="me-2 text-dark"><strong>Employee ID:</strong></label>
+                        <input type="text" id="employeeId" class="form-control" value="{{ employee_id }}" readonly>
+                    </div>
+                    <!-- Employee Name -->
+                    <div class="col-md-4">
+                        <label for="employeeName" class="me-2 text-dark"><strong>Employee Name:</strong></label>
+                        <input type="text" id="employeeName" class="form-control" value="{{ employee_name }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="shiftDate" class="me-2 text-dark"><strong>Date:</strong></label>
+                        <input type="text" id="shiftDate" class="form-control" value="{{ date }}" readonly>
+                    </div>
+                </div>
+            </form>
+            
+            <hr>
+
+    
+            <div class="card">
+
+                <div class="card-body">
+
+    <div class="row">
+        <!-- Earnings Table -->
+        <div class="col-md-6">
+            <h3>Earnings</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Element Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for earning in earnings %}
+                        <tr>
+                            <td>{{ earning.element_name }}</td>
+                            <td>{{ earning.amount }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="2">No earnings found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Deductions Table -->
+        <div class="col-md-6">
+            <h3>Deductions</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Element Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for deduction in deductions %}
+                        <tr>
+                            <td>{{ deduction.element_name }}</td>
+                            <td>{{ deduction.amount }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="2">No deductions found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Total Earnings Table -->
+        <div class="col-md-6">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Element Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for total in total_earnings_value%}
+                        <tr>
+                            <td>{{ total.element_name }}</td>
+                            <td>{{ total.amount }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="2">No total earnings found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total Deductions Table -->
+        <div class="col-md-6">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Element Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for total in total_deductions_value %}
+                        <tr>
+                            <td>{{ total.element_name }}</td>
+                            <td>{{ total.amount }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="2">No total deductions found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row"> 
+        <div class="col-md-6">
+            <h3>Employer Contributions</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Element Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for deduction in employer_contribution %}
+                        <tr>
+                            <td>{{ deduction.element_name }}</td>
+                            <td>{{ deduction.amount }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="2">No Contributions found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Total Contribution</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Element Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for deduction in employer_contribution_total %}
+                        <tr>
+                            <td>{{ deduction.element_name }}</td>
+                            <td>{{ deduction.amount }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="2">No Contribution found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+</div>
+</div>
+</div>
+<div class="d-flex justify-content-center">
+    <a href="{% url 'slot_list' %}" class="btn btn-secondary">Back to List</a>
+</div>
+</div>
+
+<script>
+    function generatePaySlip() {
+        debugger;
+        var employeeId = $('#employeeId').val();  
+        var slotId = $('#slotId').val(); 
+        
+        // Send an AJAX request
+        $.ajax({
+            url: "{% url 'generate_pay_slip' %}",  // The URL is dynamically generated
+            type: 'GET',  // HTTP method
+            data: {
+                employeeId: employeeId,  // Send employeeId
+                slotId: slotId  // Send slotId
+            },
+            success: function(response) {
+                // If the server responds with the PDF, create a download link
+                var blob = new Blob([response], { type: 'application/pdf' });
+    
+                // Create a temporary link element to trigger the download
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `payment_slip_${employeeId}.pdf`;  // Set the filename
+                link.click();  // Trigger the download
+            },
+            error: function(xhr, status, error) {
+                console.error('Error generating payment slip:', error);
+            }
+        });
+    }
+</script>
+
+    
+{% endblock %}

@@ -74,6 +74,23 @@ class common_model(models.Model):
     name = models.CharField(max_length=255)
     id1 =models.CharField(max_length=255)
     def __str__(self):
-        return self.id1    
+        return self.id1   
+
+class user_role_map(models.Model):
+    id = models.AutoField(primary_key=True)
+    user_id = models.BigIntegerField(null=True, blank=True)
+    role_id = models.BigIntegerField(null=True, blank=True)
+    company_id = models.BigIntegerField(null=True, blank=True)
+    site_id = models.BigIntegerField(null=True, blank=True)
+    worksite = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+    created_by = models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
+    updated_by = models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'user_role_map'
+    def __str__(self):
+        return f'User {self.user_id} - Role {self.role_id}'
+ 
 
 
