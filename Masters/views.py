@@ -94,6 +94,7 @@ logger = logging.getLogger(__name__)
 #     return top_keywords
 
 
+
 # import os
 # from django.shortcuts import render, redirect
 # from .models import Document
@@ -133,6 +134,79 @@ logger = logging.getLogger(__name__)
 # def document_detail(request, pk):
 #     document = get_object_or_404(Document, pk=pk)
 #     return render(request, 'Master/document_detail.html', {'document': document})
+
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Document
+
+def search_documents(request):
+    documents = Document.objects.all().order_by('-uploaded_at')
+     # Process documents to add keywords_list
+    def process_documents(docs):
+        processed = []
+        for doc in docs:
+            processed.append({
+                'id': doc.id,
+                'title': doc.title,
+                'pdf_file': doc.pdf_file,
+                'keywords': doc.keywords,
+                'uploaded_at': doc.uploaded_at,
+                'keywords_list': doc.keywords.split(',') if doc.keywords else []
+            })
+        return processed
+    context = {'documents': process_documents(documents),'search_type': None}
+    if request.method == 'GET':
+        # Simple search
+        if 'simple_query' in request.GET:
+            query = request.GET.get('simple_query', '').strip()
+            if query:
+                documents = documents.filter(
+                    Q(title__icontains=query) | 
+                    Q(keywords__icontains=query)
+                )
+                context['documents'] = process_documents(documents)
+                context['search_type'] = 'simple'
+                context['query'] = query
+        
+        # Advanced search
+        elif any(key in request.GET for key in ['title', 'keyword1', 'keyword2', 'keyword3']):
+            title = request.GET.get('title', '').strip()
+            keyword1 = request.GET.get('keyword1', '').strip()
+            keyword2 = request.GET.get('keyword2', '').strip()
+            keyword3 = request.GET.get('keyword3', '').strip()
+            keyword4 = request.GET.get('keyword4', '').strip()
+            keyword5 = request.GET.get('keyword5', '').strip()
+            keyword6 = request.GET.get('keyword6', '').strip()
+            match_all = request.GET.get('match_all', 'off') == 'on'
+            
+            if title:
+                documents = documents.filter(title__icontains=title)
+            
+            keywords = [kw for kw in [keyword1, keyword2, keyword3, keyword4, keyword5, keyword6] if kw]
+            if keywords:
+                if match_all:
+                    for keyword in keywords:
+                        documents = documents.filter(keywords__icontains=keyword)
+                else:
+                    query = Q()
+                    for keyword in keywords:
+                        query |= Q(keywords__icontains=keyword)
+                    documents = documents.filter(query)
+
+            context['documents'] = process_documents(documents)
+            context['search_type'] = 'advanced'
+            context['search_params'] = {'title': title,'keyword1': keyword1,'keyword2': keyword2,'keyword3': keyword3,'keyword4': keyword4,'keyword5': keyword5,'keyword6': keyword6,'match_all': match_all}
+
+    
+    return render(request, 'Master/search.html', context)
+
+def document_detail(request, document_id):
+    document = get_object_or_404(Document, id=document_id)
+    keywords = document.keywords.split(',')[:20]  # Top 20 keywords
+    return render(request, 'Master/document_keyword.html', {
+        'document': document,
+        'keywords': keywords
+    })
 
 @login_required
 def masters(request):
