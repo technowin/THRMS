@@ -194,7 +194,7 @@ def search_documents(request):
                             query |= Q(keywords__icontains=keyword)
                         documents = documents.filter(query)
 
-            context['documents'] = process_documents(documents)
+                context['documents'] = process_documents(documents)
             context['search_type'] = 'advanced'
             context['search_params'] = {'title': title,'keyword1': keyword1,'keyword2': keyword2,'keyword3': keyword3,'keyword4': keyword4,'keyword5': keyword5,'keyword6': keyword6,'match_all': match_all}
 
