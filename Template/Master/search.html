@@ -136,69 +136,71 @@
             </div>
             
             <!-- Search Results -->
-            {% if search_type %}
-                <div class="panel panel-default mt-30">
-                    {% comment %} <div class="panel-heading">
-                        <h3 class="panel-title" style="font-weight:600;">
-                            {% if search_type == 'simple' %}
-                                Simple Search Results
-                            {% else %}
-                                Advanced Search Results
-                            {% endif %}
-                            <span class="badge pull-right">{{ documents|length }} found</span>
-                        </h3>
-                    </div> {% endcomment %}
-                    
-                    {% if documents %}
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover" id="dataTable" >
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Keywords</th>
-                                        <th>Uploaded</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    <tr>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for document in documents %}
-                                    <tr>
-                                        <td>{{ document.title }}</td>
-                                        <td>
-                                            {% for keyword in document.keywords_list|slice:":5" %}
-                                                <span class="label label-info">{{ keyword }}</span>
-                                            {% endfor %}
-                                            {% if document.keywords_list|length > 5 %}
-                                                <span class="label label-default"> ... +{{ document.keywords_list|length|add:"-5" }} more</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ document.uploaded_at|date:"M d, Y" }}</td>
-                                        <td>
-                                            <a href="{% url 'document_detail' document.id %}" class="btn btn-success">Open File</a>
-                                          
-                                            <a href="{{ document.pdf_file.url }}" class="btn btn-xs btn-primary" download>
-                                                <i class="glyphicon glyphicon-download"></i> Download
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="panel-body">
-                            <div class="alert alert-warning">
-                                No documents found matching your search criteria.
+            {% if show_results %}
+                {% if search_type %}
+                    <div class="panel panel-default mt-30">
+                        {% comment %} <div class="panel-heading">
+                            <h3 class="panel-title" style="font-weight:600;">
+                                {% if search_type == 'simple' %}
+                                    Simple Search Results
+                                {% else %}
+                                    Advanced Search Results
+                                {% endif %}
+                                <span class="badge pull-right">{{ documents|length }} found</span>
+                            </h3>
+                        </div> {% endcomment %}
+
+                        {% if documents %}
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="dataTable" >
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Keywords</th>
+                                            <th>Uploaded</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for document in documents %}
+                                        <tr>
+                                            <td>{{ document.title }}</td>
+                                            <td>
+                                                {% for keyword in document.keywords_list|slice:":5" %}
+                                                    <span class="label label-info">{{ keyword }}</span>
+                                                {% endfor %}
+                                                {% if document.keywords_list|length > 5 %}
+                                                    <span class="label label-default"> ... +{{ document.keywords_list|length|add:"-5" }} more</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ document.uploaded_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'document_detail' document.id %}" class="btn btn-success">Open File</a>
+                                            
+                                                <a href="{{ document.pdf_file.url }}" class="btn btn-xs btn-primary" download>
+                                                    <i class="glyphicon glyphicon-download"></i> Download
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                    {% endif %}
-                </div>
+                        {% else %}
+                            <div class="panel-body">
+                                <div class="alert alert-warning">
+                                    No documents found matching your search criteria.
+                                </div>
+                            </div>
+                        {% endif %}
+                     </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>
