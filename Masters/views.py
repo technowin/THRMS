@@ -178,20 +178,21 @@ def search_documents(request):
             keyword5 = request.GET.get('keyword5', '').strip()
             keyword6 = request.GET.get('keyword6', '').strip()
             match_all = request.GET.get('match_all', 'off') == 'on'
-            
-            if title:
-                documents = documents.filter(title__icontains=title)
-            
-            keywords = [kw for kw in [keyword1, keyword2, keyword3, keyword4, keyword5, keyword6] if kw]
-            if keywords:
-                if match_all:
-                    for keyword in keywords:
-                        documents = documents.filter(keywords__icontains=keyword)
-                else:
-                    query = Q()
-                    for keyword in keywords:
-                        query |= Q(keywords__icontains=keyword)
-                    documents = documents.filter(query)
+            if title or keyword1 or keyword2 or keyword3 or keyword4 or keyword5 or keyword6:
+                documents = Document.objects.all()
+                if title:
+                    documents = documents.filter(title__icontains=title)
+
+                keywords = [kw for kw in [keyword1, keyword2, keyword3, keyword4, keyword5, keyword6] if kw]
+                if keywords:
+                    if match_all:
+                        for keyword in keywords:
+                            documents = documents.filter(keywords__icontains=keyword)
+                    else:
+                        query = Q()
+                        for keyword in keywords:
+                            query |= Q(keywords__icontains=keyword)
+                        documents = documents.filter(query)
 
             context['documents'] = process_documents(documents)
             context['search_type'] = 'advanced'
