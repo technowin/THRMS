@@ -167,6 +167,7 @@ def search_documents(request):
                 context['documents'] = process_documents(documents)
                 context['search_type'] = 'simple'
                 context['query'] = query
+                context['show_results'] = True
         
         # Advanced search
         elif any(key in request.GET for key in ['title', 'keyword1', 'keyword2', 'keyword3']):
