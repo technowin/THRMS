@@ -205,10 +205,18 @@ def search_documents(request):
 
 def document_detail(request, document_id):
     document = get_object_or_404(Document, id=document_id)
-    keywords = document.keywords.split(',')[:20]  # Top 20 keywords
+    keywords = document.keywords.split(',')[:20]  # Top 20
+
+    text = document.extracted_text
+    for idx, keyword in enumerate(keywords):
+        pattern = r'\b' + re.escape(keyword) + r'\b'
+        span = f"<span class='kw kw{idx}'>{keyword}</span>"
+        text = re.sub(pattern, span, text, flags=re.IGNORECASE)
+
     return render(request, 'Master/document_keyword.html', {
         'document': document,
-        'keywords': keywords
+        'keywords': keywords,
+        'highlighted_text': text
     })
 
 @login_required

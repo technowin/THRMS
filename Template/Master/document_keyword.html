@@ -11,14 +11,22 @@
             margin: 5px;
         }
         .highlight {
-            background-color: yellow;
+            background-color: yellow !important;
+            color: black;
         }
+        .kw { font-weight: bold; padding: 2px 4px; border-radius: 3px; }
+
+        {% for i in keywords %}
+        .kw{{ forloop.counter0 }} { background-color: hsl({{ forloop.counter0|stringformat:"d" }}0, 70%, 85%); }
+        {% endfor %}
+        .highlight { background-color: yellow !important; color: black !important; }
+
         #pdf-viewer {
             width: 100%;
             height: 600px;
             border: 1px solid #ccc;
         }
-</style>
+    </style>
 
     <div class=" mb-2 shadow justify-content-center" style="padding: 15px;border: 2px solid #b3b3b3;border-radius: 15px;">
         <h2 class="mb-4">{{ document.title }}</h2>
@@ -33,27 +41,33 @@
             </div>
         </div>
 
-        <div class="row mb-2 shadow justify-content-center" style="padding: 10px;border: 2px solid #b3b3b3;border-radius: 15px;">
-            <div class="col-md-12 bg-white p-3 shadow-sm" style="max-height: 400px; overflow-y: auto;">
+        <div class="row col-md-12 mb-2 shadow justify-content-center" style="padding: 10px;border: 2px solid #b3b3b3;border-radius: 15px;">
+            <div class="col-md-6 bg-white p-3 shadow" style="max-height: 650px; overflow-y: auto;">
                 <h5 style="font-weight:bold;">Extracted Text with Highlights:</h5>
-                <p id="text-content">{{ document.extracted_text }}</p>
+                <p id="text-content">{{ highlighted_text|safe }}</p>
+            </div>
+            <div class="col-md-6 bg-white p-3 shadow">
+                <embed id="pdf-viewer" src="{{ document.pdf_file.url }}" type="application/pdf">
             </div>
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-12">
-                <embed id="pdf-viewer" src="{{ document.pdf_file.url }}" type="application/pdf">
-            </div>
+         
         </div>
     </div>
 
-    <script>
+     <script>
         function highlightKeyword(keyword) {
-            const textContainer = document.getElementById('text-content');
-            const text = textContainer.textContent;
-            const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
-            const highlightedText = text.replace(regex, match => `<span class="highlight">${match}</span>`);
-            textContainer.innerHTML = highlightedText;
+            const container = document.getElementById("text-content");
+            const spans = container.querySelectorAll("span.kw");
+
+            spans.forEach(span => {
+                if (span.textContent.toLowerCase() === keyword.toLowerCase()) {
+                    span.classList.add("highlight");
+                } else {
+                    span.classList.remove("highlight");
+                }
+            });
         }
     </script>
 
