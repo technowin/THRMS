@@ -67,8 +67,6 @@ class rate_card_master(models.Model):
 class RateCardSalaryElement(models.Model):
     rate_card = models.ForeignKey('rate_card_master', on_delete=models.CASCADE)
     salary_element = models.ForeignKey('salary_element_master', on_delete=models.CASCADE)
-    
-    # Additional fields
     item_name = models.TextField(null=True, blank=True)
     pay_type = models.TextField(null=True, blank=True)
     classification = models.TextField(null=True, blank=True)

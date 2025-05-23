@@ -753,6 +753,8 @@ def rate_card_create(request):
                 nine_hour_amount = request.POST.get(f'nine_hour_amount_{item_id}', 0)
                 tax_param = request.POST.get(f'tax_parameter_{item_id}', None)
                 salary_unit = request.POST.get(f'salary_unit_{item_id}')
+                pay_types = request.POST.get(f'pay_type_{item_id}')
+                classification = request.POST.get(f'classification_{item_id}')
                 
                 if not tax_param or tax_param == '0':
                     tax_object = None
@@ -762,8 +764,8 @@ def rate_card_create(request):
                     rate_card=rate_card,
                     salary_element=item,
                     item_name=item.item_name,
-                    pay_type=item.pay_type,
-                    classification=item.classification,
+                    pay_type=pay_types,
+                    classification=classification,
                     four_hour_amount=four_hour_amount,
                     nine_hour_amount=nine_hour_amount,
                     tax_parameter=tax_object,
@@ -808,17 +810,19 @@ def rate_card_edit(request, card_id):
                 nine_hour_amount = request.POST.get(f'nine_hour_amount_{item_id}', 0)
                 tax_param = request.POST.get(f'tax_parameter_{item_id}', 0)
                 salary_unit = request.POST.get(f'salary_unit_{item_id}')
+                pay_types = request.POST.get(f'pay_type_{item_id}')
+                classification = request.POST.get(f'classification_{item_id}')
 
 
                 RateCardSalaryElement.objects.create(
                     rate_card=rate_card,
                     salary_element=item,
                     item_name=item.item_name,
-                    pay_type=item.pay_type,
-                    classification=item.classification,
+                    pay_type=pay_types,
+                    classification=classification,
                     four_hour_amount=four_hour_amount,
                     nine_hour_amount=nine_hour_amount,
-                    tax_parameter=get_object_or_404(tax_parameter, id = tax_param),
+                    tax_parameter=get_object_or_404(income_tax_parameter, id = tax_param),
                     salary_unit = get_object_or_404(SalaryUnit, id = salary_unit)
 
                 )
@@ -831,8 +835,8 @@ def rate_card_edit(request, card_id):
         tax_parameter = income_tax_parameter.objects.all()
         form = RateCardMasterForm(instance=rate_card)
         salary_unit = SalaryUnit.objects.all()
-        salary_unit = SalaryUnit.objects.all()
-        salary_unit = SalaryUnit.objects.all()
+        pay_types = pay_type.objects.all()
+        classification = basis_type.objects.all()
 
     selected_item_ids = rate_card.item_ids.values_list('item_id', flat=True)
 
@@ -845,13 +849,17 @@ def rate_card_edit(request, card_id):
             'four_hour_amount': relation.four_hour_amount,
             'nine_hour_amount': relation.nine_hour_amount,
             'tax_parameter':relation.tax_parameter,
-            'salary_unit':relation.salary_unit
+            'salary_unit':relation.salary_unit,
+            'pay_type':relation.pay_type,
+            'classification':relation.classification
         }
 
     return render(request, 'Payroll/RateCard/edit.html', {
         'form': form,
         'tax_parameter':tax_parameter,
         'salary_unit':salary_unit,
+        'pay_type':pay_types,
+        'classification':classification,
         'rate_card': rate_card,
         'selected_item_ids': list(selected_item_ids),
         'prefilled_data': prefilled_data,  # Pass the prefilled amounts
