@@ -33,7 +33,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # APP URLS
 
-    # path('upload/', upload_document, name='upload_document'),
+    path('upload/', upload_document, name='upload_document'),
     path('document_detail1/<int:pk>/', document_detail1, name='document_detail1'),
     
     path('search/', search_documents, name='document_search'),
