@@ -119,6 +119,15 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
+                            <label for="salary_unit_{{ item.pk }}" class="form-label">Tax Parameter</label>
+                            <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control" style="width: 90%;" disabled>
+                                <option value="">Select Salary Unit</option>
+                                {% for tax in salary_unit %}
+                                    <option value="{{ tax.id }}">{{ tax.salary_unit }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -210,19 +219,22 @@
             var fourHourInput = document.getElementById("four_hour_amount_" + itemId);
             var nineHourInput = document.getElementById("nine_hour_amount_" + itemId);
             var taxParameter = document.getElementById("tax_parameter_" + itemId);
+            var salary_unit = document.getElementById("salary_unit_" + itemId);
         
             if (checkbox.checked) {
                 // Enable all fields and set default values
                 fourHourInput.disabled = false;
                 nineHourInput.disabled = false;
-                taxParameter.disabled = false; // Enable tax parameter
+                taxParameter.disabled = false; 
+                salary_unit.disabled = false;// Enable tax parameter
                 fourHourInput.value = 0;
                 nineHourInput.value = 0;
             } else {
                 // Disable all fields and clear values
                 fourHourInput.disabled = true;
                 nineHourInput.disabled = true;
-                taxParameter.disabled = true; // Keep tax parameter disabled
+                taxParameter.disabled = true; 
+                salary_unit.disabled = true; // Keep tax parameter disabled
                 fourHourInput.value = "";
                 nineHourInput.value = "";
                 taxParameter.value = ""; // Optionally clear tax parameter field

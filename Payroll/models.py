@@ -73,6 +73,7 @@ class RateCardSalaryElement(models.Model):
     pay_type = models.TextField(null=True, blank=True)
     classification = models.TextField(null=True, blank=True)
     tax_parameter = models.ForeignKey('Payroll.income_tax_parameter', on_delete=models.CASCADE,related_name='rate_card_income_related',blank=True, null=True,db_column='tax_parameter')
+    salary_unit = models.ForeignKey('Payroll.SalaryUnit', on_delete=models.CASCADE,related_name='rate_card_salary_unit',blank=True, null=True,db_column='salary_unit')
     four_hour_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     nine_hour_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
@@ -117,6 +118,7 @@ class employee_rate_card_details(models.Model):
     classification = models.TextField(null=True,blank=True)
     four_hour_amount = models.BigIntegerField(null=True,blank=False)
     nine_hour_amount = models.BigIntegerField(null=True,blank=False)
+    salary_unit = models.ForeignKey('Payroll.SalaryUnit', on_delete=models.CASCADE,related_name='emp_rate_card_salary_unit',blank=True, null=True,db_column='salary_unit')
     is_active =models.BooleanField(null=True,blank=True,default=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='employee_rate_card_created_by',blank=True, null=True,db_column='created_by')
@@ -359,6 +361,18 @@ class income_tax_parameter(models.Model):
         db_table = 'income_tax_parameter'
     def __str__(self):
         return f"{self.tax_parameter}"  
+
+class SalaryUnit(models.Model):
+    unit_name = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='salary_unit_created_by', blank=True, null=True, db_column='created_by')
+    updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='salary_unit_updated_by', blank=True, null=True, db_column='updated_by')
+    class Meta:
+        db_table = 'salary_unit'
+    def __str__(self):
+        return f"{self.unit_name}" 
+
 
 
 

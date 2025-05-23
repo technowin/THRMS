@@ -20,7 +20,7 @@ from Account.models import CustomUser
 from Masters.models import CityMaster, SlotDetails, StateMaster, UserSlotDetails, company_master, parameter_master, sc_employee_master, site_master
 from Masters.serializers import PaySlipSerializer, SalaryGeneratedSerializer
 from Payroll.forms import ExcelUploadForm, RateCardMasterForm, SalaryElementMasterForm, SiteCardRelationForm
-from Payroll.models import IncomeTaxCalculation, IncomeTaxMaster, PaySlip, PayoutDetails, RateCardSalaryElement, PayrollStatusMaster, daily_salary, employee_rate_card_details, income_tax_deduction, income_tax_parameter
+from Payroll.models import IncomeTaxCalculation, IncomeTaxMaster, PaySlip, PayoutDetails, RateCardSalaryElement, PayrollStatusMaster, SalaryUnit, daily_salary, employee_rate_card_details, income_tax_deduction, income_tax_parameter
 from Payroll.models import payment_details as pay, rate_card_master, salary_element_master, salary_generated_log, site_card_relation, slot_attendance_details
 from THRMS.encryption import enc, dec
 from django.contrib.auth.decorators import login_required
@@ -774,9 +774,10 @@ def rate_card_create(request):
             messages.error(request, 'Error creating Rate Card.')
     else:
         tax_parameter = income_tax_parameter.objects.all()
+        salary_unit = SalaryUnit.objects.all()
         form = RateCardMasterForm()
     
-    return render(request, 'Payroll/RateCard/create.html', {'form': form,'tax_parameter':tax_parameter})
+    return render(request, 'Payroll/RateCard/create.html', {'form': form,'tax_parameter':tax_parameter,'salary_unit':salary_unit})
 
 
 

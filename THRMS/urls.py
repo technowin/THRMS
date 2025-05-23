@@ -27,12 +27,13 @@ from Workflow.views import *
 from Payroll.views import *
 from Tax.views import *
 from django.urls import path
+from Test.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # APP URLS
 
-    path('upload/', upload_document, name='upload_document'),
+    # path('upload/', upload_document, name='upload_document'),
     path('document_detail1/<int:pk>/', document_detail1, name='document_detail1'),
     
     path('search/', search_documents, name='document_search'),
@@ -205,6 +206,12 @@ urlpatterns = [
     path('income_tax_edit/<str:pk>/', income_tax_edit, name='income_tax_edit'),
     path('income_tax_view/<str:pk>/', income_tax_view, name='income_tax_view'),
     path('income_tax_create', income_tax_create, name='income_tax_create'),
+
+# Test Module    
+    path("enterthedetails",enterthedetails, name="enterthedetails"),
+    path("test_page",test_page, name="test_page"),
+    path("result_page",result_page, name="result_page"),
+    path("test_index",test_index, name="test_index"),     
 
 ]
 
