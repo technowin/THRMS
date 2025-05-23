@@ -29,49 +29,11 @@
         #id_card_name {
             width: 40%; 
         }
-        
+        .col-md-custom-2 { flex: 0 0 13%; max-width: 13%; padding: 0 15px; }
+
     </style>
 </head>
 <body>
-    {% comment %} <h1>Create Rate Card</h1>
-    <form method="post">
-        {% csrf_token %}
-        <div>
-            <label>Card Name:</label>
-            {{ form.card_name }}
-        </div>
-        <div>
-            <h4>Select Salary Elements:</h4>
-            {% for item in form.item_ids.field.queryset %}
-                <div class="checkbox-container row">
-
-                    <div class="col-md-3" style="text-align: center; border:1px solid black; padding:10px; margin:10px;">
-                        <input type="checkbox" name="item_ids" class=" form-control"  value="{{ item.pk }}"  style="font-size: 3px;">
-                        <br>
-                        <label>
-                            {{ item.item_name }}
-                        </label>
-                    </div>
-                    <div class="col-md-2" style="text-align: center; border:1px solid black; padding:10px; margin:10px;">
-                        <label>
-                            Four Hour Amount
-                        </label>
-                        <input type="number" name="four_hour_amount_{{ item.pk }}" style="width: 90%;" class="amount-field  form-control" placeholder="4-Hour Amount" min="0">
-                    </div>
-                    <div class="col-md-2" style="text-align: center; border:1px solid black; padding:10px; margin:10px;">
-                        <label>
-                            Nine Hour Amount
-                        </label>
-                        <input type="number" name="nine_hour_amount_{{ item.pk }}" style="width: 90%;" class="amount-field  form-control" placeholder="9-Hour Amount" min="0">
-                    </div>
-                    
-                </div>
-            {% endfor %}
-        </div>
-        <button type="submit" id ="id_card_name_button" class="btn btn-primary">Create</button>
-        <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a>
-    </form> {% endcomment %}
-
 
     <div class="card">
         <div class="card-body">
@@ -90,46 +52,92 @@
                     <h4>Select Salary Elements:</h4>
     
                     {% for item in form.item_ids.field.queryset %}
-                    <div class="row mb-3">
-                        <div class="col-md-3 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                            <input type="checkbox" name="item_ids" class="form-control" value="{{ item.pk }}" 
-                                onclick="toggleAmountFields(this, '{{ item.pk }}')" 
-                                style="font-size: 1rem;">
-                            <br>
-                            <label>{{ item.item_name }}</label>
-                        </div>
-                        <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                            <label for="four_hour_amount_{{ item.pk }}" class="form-label">Four Hour Amount</label>
-                            <input type="number" name="four_hour_amount_{{ item.pk }}" 
-                                class="form-control amount-field" placeholder="4-Hour Amount" min="0" 
-                                id="four_hour_amount_{{ item.pk }}" style="width: 90%;" step="0.01" disabled>
-                        </div>
-                        <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                            <label for="nine_hour_amount_{{ item.pk }}" class="form-label">Nine Hour Amount</label>
-                            <input type="number" name="nine_hour_amount_{{ item.pk }}" 
-                                class="form-control amount-field" placeholder="9-Hour Amount" min="0" 
-                                id="nine_hour_amount_{{ item.pk }}" style="width: 90%;" step="0.01" disabled>
-                        </div>
-                        <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                            <label for="tax_parameter_{{ item.pk }}" class="form-label">Tax Parameter</label>
-                            <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control" style="width: 90%;" disabled>
-                                <option value="">Select Tax</option>
-                                {% for tax in tax_parameter %}
-                                    <option value="{{ tax.id }}">{{ tax.tax_parameter }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                            <label for="salary_unit_{{ item.pk }}" class="form-label">Salary Unit</label>
-                            <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control" style="width: 90%;" disabled>
-                                {% comment %} <option value="">Select Salary Unit</option> {% endcomment %}
-                                {% for sal in salary_unit %}
-                                    <option value="{{ sal.id }}">{{ sal.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    {% endfor %}
+<div class="row g-3 mb-4">
+    <div class="col-md-custom-2 text-center">
+        <div class="border p-3 h-100">
+            <input type="checkbox" name="item_ids" class="form-control" value="{{ item.pk }}" 
+                onclick="toggleAmountFields(this, '{{ item.pk }}')" 
+                style="font-size: 1rem;">
+            <label class="mt-2">{{ item.item_name }}</label>
+        </div>
+    </div>
+
+    <div class="col-md-custom-2 text-center">
+        <div class="border p-3 h-100">
+            <label for="four_hour_amount_{{ item.pk }}" class="form-label">4-Hour Amount</label>
+            <input type="number" name="four_hour_amount_{{ item.pk }}" 
+                class="form-control amount-field" placeholder="4-Hour Amount" min="0" 
+                id="four_hour_amount_{{ item.pk }}" step="0.01" disabled>
+        </div>
+    </div>
+
+    <div class="col-md-custom-2 text-center">
+        <div class="border p-3 h-100">
+            <label for="nine_hour_amount_{{ item.pk }}" class="form-label">9-Hour Amount</label>
+            <input type="number" name="nine_hour_amount_{{ item.pk }}" 
+                class="form-control amount-field" placeholder="9-Hour Amount" min="0" 
+                id="nine_hour_amount_{{ item.pk }}" step="0.01" disabled>
+        </div>
+    </div>
+
+    <div class="col-md-custom-2 text-center">
+        <div class="border p-3 h-100">
+            <label for="pay_type_{{ item.pk }}" class="form-label">Pay Type</label>
+           <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control" disabled>
+             <option value="">Select Pay Type</option>
+                {% for pay in pay_type %}
+                    <option value="{{ pay.id }}" {% if item.pay_type.id == pay.id %}selected{% endif %}>
+                        {{ pay.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+        </div>
+    </div>
+
+    <div class="col-md-custom-2 text-center">
+        <div class="border p-3 h-100">
+            <label for="salary_unit_{{ item.pk }}" class="form-label">Classification</label>
+           <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control" disabled>
+            <option value="">Select Classification</option>
+                {% for class in classification %}
+                    <option value="{{ class.id }}" {% if item.classification_id == class.id %}selected{% endif %}>
+                        {{ class.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+        </div>
+    </div>
+
+    <div class="col-md-2 text-center">
+        <div class="border p-3 h-100">
+            <label for="salary_unit_{{ item.pk }}" class="form-label">Unit</label>
+            <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control" disabled>
+                {% for sal in salary_unit %}
+                    <option value="{{ sal.id }}">{{ sal.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-2 text-center">
+        <div class="border p-3 h-100">
+            <label for="tax_parameter_{{ item.pk }}" class="form-label">Tax</label>
+            <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control" disabled>
+                 <option value="">Select Tax Parameter</option>
+                {% for tax in tax_parameter %}
+                    <option value="{{ tax.id }}" {% if item.tax_parameter.id == tax.id %}selected{% endif %}>
+                        {{ tax.tax_parameter }}
+                    </option>
+                {% endfor %}
+            </select>
+
+        </div>
+    </div>
+</div>
+{% endfor %}
+
                 </div>
                 <div class="text-center">
                     <button type="submit" id="id_card_name_button" class="btn btn-primary">Create</button>
@@ -220,13 +228,17 @@
             var nineHourInput = document.getElementById("nine_hour_amount_" + itemId);
             var taxParameter = document.getElementById("tax_parameter_" + itemId);
             var salary_unit = document.getElementById("salary_unit_" + itemId);
+            var pay_type = document.getElementById("pay_type_" + itemId);
+            var classification = document.getElementById("classification_" + itemId);
         
             if (checkbox.checked) {
                 // Enable all fields and set default values
                 fourHourInput.disabled = false;
                 nineHourInput.disabled = false;
                 taxParameter.disabled = false; 
-                salary_unit.disabled = false;// Enable tax parameter
+                salary_unit.disabled = false;
+                classification.disabled = false; 
+                pay_type.disabled = false;
                 fourHourInput.value = 0;
                 nineHourInput.value = 0;
             } else {
@@ -235,6 +247,8 @@
                 nineHourInput.disabled = true;
                 taxParameter.disabled = true; 
                 salary_unit.disabled = true; // Keep tax parameter disabled
+                classification.disabled = true; 
+                pay_type.disabled = true;
                 fourHourInput.value = "";
                 nineHourInput.value = "";
                 taxParameter.value = ""; // Optionally clear tax parameter field

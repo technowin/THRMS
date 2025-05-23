@@ -20,7 +20,7 @@ from Account.models import CustomUser
 from Masters.models import CityMaster, SlotDetails, StateMaster, UserSlotDetails, company_master, parameter_master, sc_employee_master, site_master
 from Masters.serializers import PaySlipSerializer, SalaryGeneratedSerializer
 from Payroll.forms import ExcelUploadForm, RateCardMasterForm, SalaryElementMasterForm, SiteCardRelationForm
-from Payroll.models import IncomeTaxCalculation, IncomeTaxMaster, PaySlip, PayoutDetails, RateCardSalaryElement, PayrollStatusMaster, SalaryUnit, daily_salary, employee_rate_card_details, income_tax_deduction, income_tax_parameter
+from Payroll.models import IncomeTaxCalculation, IncomeTaxMaster, PaySlip, PayoutDetails, RateCardSalaryElement, PayrollStatusMaster, SalaryUnit, basis_type, daily_salary, employee_rate_card_details, income_tax_deduction, income_tax_parameter, pay_type
 from Payroll.models import payment_details as pay, rate_card_master, salary_element_master, salary_generated_log, site_card_relation, slot_attendance_details
 from THRMS.encryption import enc, dec
 from django.contrib.auth.decorators import login_required
@@ -777,9 +777,11 @@ def rate_card_create(request):
     else:
         tax_parameter = income_tax_parameter.objects.all()
         salary_unit = SalaryUnit.objects.all()
+        pay_types = pay_type.objects.all()
+        classification = basis_type.objects.all()
         form = RateCardMasterForm()
     
-    return render(request, 'Payroll/RateCard/create.html', {'form': form,'tax_parameter':tax_parameter,'salary_unit':salary_unit})
+    return render(request, 'Payroll/RateCard/create.html', {'form': form,'tax_parameter':tax_parameter,'salary_unit':salary_unit,'pay_type':pay_types,'classification':classification})
 
 
 
@@ -828,6 +830,8 @@ def rate_card_edit(request, card_id):
     else:
         tax_parameter = income_tax_parameter.objects.all()
         form = RateCardMasterForm(instance=rate_card)
+        salary_unit = SalaryUnit.objects.all()
+        salary_unit = SalaryUnit.objects.all()
         salary_unit = SalaryUnit.objects.all()
 
     selected_item_ids = rate_card.item_ids.values_list('item_id', flat=True)

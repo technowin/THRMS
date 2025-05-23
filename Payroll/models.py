@@ -22,7 +22,7 @@ class salary_element_master(models.Model):
     
 
 class pay_type(models.Model):
-    pay_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.TextField(null=True,blank=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='pay_created_by',blank=True, null=True,db_column='created_by')
