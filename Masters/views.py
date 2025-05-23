@@ -54,44 +54,44 @@ logger = logging.getLogger(__name__)
 
 # utils/ocr_utils.py
 
-# import pytesseract
-# from pdf2image import convert_from_path
-# from nltk.corpus import stopwords
-# from nltk.tokenize import word_tokenize
+import pytesseract
+from pdf2image import convert_from_path
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 import os
 import tempfile
 import string
 
-# def extract_text_from_pdf(pdf_path):
-#     # Convert PDF to images
-#     # images = convert_from_path(pdf_path, poppler_path=r'C:\poppler\poppler-24.08.0\Library\bin')
-#     # ✅ On Linux, no need to set path if tesseract and poppler-utils are installed globally
-#     images = convert_from_path(pdf_path)
+def extract_text_from_pdf(pdf_path):
+    # Convert PDF to images
+    # images = convert_from_path(pdf_path, poppler_path=r'C:\poppler\poppler-24.08.0\Library\bin')
+    # ✅ On Linux, no need to set path if tesseract and poppler-utils are installed globally
+    images = convert_from_path(pdf_path)
 
-#     full_text = ""
-#     # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    full_text = ""
+    # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-#     for image in images:
-#         text = pytesseract.image_to_string(image)
-#         full_text += text + "\n"
+    for image in images:
+        text = pytesseract.image_to_string(image)
+        full_text += text + "\n"
     
-#     return full_text.strip()
+    return full_text.strip()
 
-# def extract_keywords(text, num_keywords=100):
-#     stop_words = set(stopwords.words('english'))
-#     from nltk.tokenize import word_tokenize
-#     words = word_tokenize(text.lower())
+def extract_keywords(text, num_keywords=100):
+    stop_words = set(stopwords.words('english'))
+    from nltk.tokenize import word_tokenize
+    words = word_tokenize(text.lower())
 
-#     words = [w for w in words if w.isalpha() and w not in stop_words]
+    words = [w for w in words if w.isalpha() and w not in stop_words]
     
-#     # Frequency distribution
-#     freq = {}
-#     for word in words:
-#         freq[word] = freq.get(word, 0) + 1
+    # Frequency distribution
+    freq = {}
+    for word in words:
+        freq[word] = freq.get(word, 0) + 1
     
-#     sorted_keywords = sorted(freq.items(), key=lambda x: x[1], reverse=True)
-#     top_keywords = [kw for kw, _ in sorted_keywords[:num_keywords]]
-#     return top_keywords
+    sorted_keywords = sorted(freq.items(), key=lambda x: x[1], reverse=True)
+    top_keywords = [kw for kw, _ in sorted_keywords[:num_keywords]]
+    return top_keywords
 
 
 
@@ -101,31 +101,31 @@ from .models import Document
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 
-# def upload_document(request):
-#     if request.method == 'POST':
-#         title = request.POST.get('title')
-#         pdf_file = request.FILES.get('pdf_file')
+def upload_document(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        pdf_file = request.FILES.get('pdf_file')
 
-#         if title and pdf_file:
-#             # Save file to media/documents/
-#             fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'documents'))
-#             filename = fs.save(pdf_file.name, pdf_file)
-#             file_path = os.path.join(fs.location, filename)
+        if title and pdf_file:
+            # Save file to media/documents/
+            fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'documents'))
+            filename = fs.save(pdf_file.name, pdf_file)
+            file_path = os.path.join(fs.location, filename)
 
-#             # OCR + Keyword extraction
-#             text = extract_text_from_pdf(file_path)
-#             keywords = extract_keywords(text)
+            # OCR + Keyword extraction
+            text = extract_text_from_pdf(file_path)
+            keywords = extract_keywords(text)
 
-#             # Save to DB
-#             document = Document.objects.create(
-#                 title=title,
-#                 pdf_file=os.path.join('documents', filename),
-#                 extracted_text=text,
-#                 keywords=', '.join(keywords)
-#             )
-#             return redirect('document_detail1', pk=document.pk)
+            # Save to DB
+            document = Document.objects.create(
+                title=title,
+                pdf_file=os.path.join('documents', filename),
+                extracted_text=text,
+                keywords=', '.join(keywords)
+            )
+            return redirect('document_detail1', pk=document.pk)
     
-#     return render(request, 'Master/upload.html')
+    return render(request, 'Master/upload.html')
 
 
 
