@@ -363,7 +363,8 @@ class income_tax_parameter(models.Model):
         return f"{self.tax_parameter}"  
 
 class SalaryUnit(models.Model):
-    unit_name = models.TextField(null=True,blank=True)
+    id = models.AutoField(primary_key=True)
+    name = models.TextField(null=True,blank=True)
     created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='salary_unit_created_by', blank=True, null=True, db_column='created_by')
     updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
@@ -371,7 +372,7 @@ class SalaryUnit(models.Model):
     class Meta:
         db_table = 'salary_unit'
     def __str__(self):
-        return f"{self.unit_name}" 
+        return f"{self.name}" 
 
 
 

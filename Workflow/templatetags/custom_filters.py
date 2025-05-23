@@ -85,3 +85,7 @@ def dec(encoded_cipher_text):
     cipher_suite = Fernet(get_encryption_key())
     plain_text = cipher_suite.decrypt(cipher_text).decode()
     return plain_text
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

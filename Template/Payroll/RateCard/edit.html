@@ -166,6 +166,19 @@
                                     </select>
                                     
                                 </div>
+
+                                <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
+                                    <label for="salary_unit_{{ item.pk }}" class="form-label">Salary Unit</label>
+                                    <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control" style="width: 90%;">
+                                        {% comment %} <option value="">Select Tax</option> {% endcomment %}
+                                        {% for sal in salary_unit %}
+                                            <option value="{{ sal.id }}"
+                                                    {% if prefilled_data|get_item:item.pk|get_item:'salary_unit' == sal %} selected {% endif %}>
+                                                {{ sal.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                                 
                             </div>
                         {% endfor %}
@@ -183,7 +196,7 @@
     
 </body>
 
-<script>
+ <script>
     // Function to handle enabling/disabling inputs based on checkbox state
     document.querySelectorAll('.salary-checkbox').forEach(function (checkbox) {
         checkbox.addEventListener('change', function () {
@@ -207,6 +220,48 @@
             }
         });
     });
+</script> 
+
+<script>
+    // Function to handle enabling/disabling inputs based on checkbox state
+    {% comment %} document.querySelectorAll('.salary-checkbox').forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            const container = this.closest('div[class^="col-md"]')?.parentNode; // Move to the parent container
+
+            const itemPk = this.id.split('_')[1]; // Extract item.pk from checkbox id
+
+            const fourHourInput = container.querySelector(`#four_hour_amount_${itemPk}`);
+            const nineHourInput = container.querySelector(`#nine_hour_amount_${itemPk}`);
+            const taxSelect = container.querySelector(`#tax_parameter_${itemPk}`);
+            const salaryUnitSelect = container.querySelector(`#salary_unit_${itemPk}`);
+
+            const isChecked = this.checked;
+
+            // Toggle inputs
+            if (fourHourInput) {
+                fourHourInput.disabled = !isChecked;
+                if (isChecked && !fourHourInput.value) fourHourInput.value = 0;
+                if (!isChecked) fourHourInput.value = '';
+            }
+
+            if (nineHourInput) {
+                nineHourInput.disabled = !isChecked;
+                if (isChecked && !nineHourInput.value) nineHourInput.value = 0;
+                if (!isChecked) nineHourInput.value = '';
+            }
+
+            if (taxSelect) {
+                taxSelect.disabled = !isChecked;
+                if (!isChecked) taxSelect.value = '';
+            }
+
+            if (salaryUnitSelect) {
+                salaryUnitSelect.disabled = !isChecked;
+                if (!isChecked) salaryUnitSelect.value = '';
+            }
+        });
+    }); {% endcomment %}
 </script>
+
 </html>
 {% endblock %}

@@ -33,4 +33,4 @@ def logged_in_user(request):
 
         menu_items = menu_dict.get(-1, []) 
 
-    return {'username':username,'full_name':full_name,'session_timeout_minutes':session_timeout_minutes,'reports':reports, 'menu_items': menu_items}
+    return {'username':username,'full_name':full_name,'session_timeout_minutes':session_timeout_minutes,'reports':reports, 'menu_items': menu_items,'role_id':role_id}

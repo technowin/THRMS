@@ -120,11 +120,11 @@
                             </select>
                         </div>
                         <div class="col-md-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                            <label for="salary_unit_{{ item.pk }}" class="form-label">Tax Parameter</label>
+                            <label for="salary_unit_{{ item.pk }}" class="form-label">Salary Unit</label>
                             <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control" style="width: 90%;" disabled>
-                                <option value="">Select Salary Unit</option>
-                                {% for tax in salary_unit %}
-                                    <option value="{{ tax.id }}">{{ tax.salary_unit }}</option>
+                                {% comment %} <option value="">Select Salary Unit</option> {% endcomment %}
+                                {% for sal in salary_unit %}
+                                    <option value="{{ sal.id }}">{{ sal.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
