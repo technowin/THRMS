@@ -92,6 +92,12 @@ server {
         include proxy_params;
         proxy_pass http://unix:/run/gunicorn.sock;
     }
+
+    location /media/ {
+        alias /home/ubuntu/Documents/;
+        autoindex on;  
+    }
+
 }
 
 sudo ln -s /etc/nginx/sites-available/THRMS /etc/nginx/sites-enabled/
