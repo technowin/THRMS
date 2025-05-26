@@ -104,7 +104,15 @@ def enterthedetails(request):
                     created_by=user
                 )  
                     
-                candidate_id2 = CandidateTestMaster.objects.filter(name=name1, mobile=mobile1).values_list('id', flat=True).first()
+                # candidate_id2 = CandidateTestMaster.objects.filter(name=name1, mobile=mobile1).values_list('id', flat=True).first()
+                candidate_id2 = (
+                    CandidateTestMaster.objects
+                    .filter(name=name1, mobile=mobile1)
+                    .order_by('-id')  # or use '-created_at' if available
+                    .values_list('id', flat=True)
+                    .first()
+                )
+                
                 candidate_id = enc(str(candidate_id2))                
                                                                 
     except Exception as e:
@@ -124,7 +132,7 @@ def enterthedetails(request):
                 messages.error(request,"No Questions Found For This Post !!!!") 
                 return redirect('enterthedetails')
             else:                
-                return redirect(f'/test_page?zparqwwq={ids_str}&candidate_id={candidate_id}')                    
+                return redirect(f'/test_page?zparqwwq={ids_str}&candidate_id={candidate_id}')                     
         
 @login_required
 def test_page(request):
@@ -143,8 +151,24 @@ def test_page(request):
             ids_str=dec(ids_str1)
             id_list = [int(qid) for qid in ids_str.split(",") if qid.isdigit()]  
             
-            questions = QuestionAnswerMaster.objects.filter(question_id__in=id_list)
-            questions = sorted(questions, key=lambda q: id_list.index(q.question_id))                     
+            questions_raw = QuestionAnswerMaster.objects.filter(question_id__in=id_list)
+            questions_raw = sorted(questions_raw, key=lambda q: id_list.index(q.question_id))  
+            
+            questions = []
+            for q in questions_raw:
+                options = [
+                    {"text": q.choice1},
+                    {"text": q.choice2},
+                    {"text": q.choice3},
+                    {"text": q.choice4},
+                ]
+                random.shuffle(options)  # shuffle in-place
+
+                questions.append({
+                    "question_id": q.question_id,
+                    "question": q.question,
+                    "options": options,
+                })                     
 
         if request.method == "POST":
 

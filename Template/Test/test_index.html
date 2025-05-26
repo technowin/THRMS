@@ -72,7 +72,14 @@
                                 <td>{{ row.post }}</td>
                                 <td>{{ row.percentage }}</td>
                                 <td>{{ row.time_taken }}</td>
-                                <td>{{ row.status }}</td>
+                                {% comment %} <td>{{ row.status }}</td> {% endcomment %}
+                                <td>
+                                    {% if row.status == "pass" %}
+                                      <span style="color:green"> PASS </span>
+                                    {% else %}
+                                      <span style="color:red"> FAIL </span>
+                                    {% endif %}
+                                </td>                                 
                                 <td>{{ row.created_at }}</td>                                 
                             </tr>
                         {% endfor %}

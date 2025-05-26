@@ -28,19 +28,11 @@
 
 </style>
 
-{% comment %} this is instruction css {% endcomment %}
-<style>
-.inst{
-  font-color:black;
-}
-</style>  
-
-
 <div class="mt-2" style="align-items:center;justify-items:center;"> 
       <div class=" col-md-11 mb-1 shadow " style="margin-top:2%;padding: 10px;border: 2px solid #b3b3b3;border-radius: 15px;">
           <div class="p-4" style="margin-left:2%">
             <div class="text-center" style="margin-bottom:5%" >
-              <h1 class="h4 text-gray-900 mb-3" style="font-size:25px;"> Multiple Choice Questions </h1>
+              <h1 class="h4 text-gray-900 mb-3" style="font-size:25px;font-weight:bold;"> Multiple Choice Questions </h1>
             </div>
               <div class="row ">
                 <h5 style="color:black;font-weight:bold">Instructions :</h5>
@@ -57,9 +49,44 @@
 
             <form method="POST" action="{% url 'test_page' %}">
               {% csrf_token %}
+              <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
+              <input type="hidden" name="start_time" value="{{ start_time }}">
+
+              {% for q in questions %}
+              <div class="mb-4">
+                <label class="form-label fw-bold" style="font-size: 1.25rem;">
+                  {{ forloop.counter }}. {{ q.question }}
+                </label>
+
+                <input type="hidden" name="question_ids" value="{{ q.question_id }}">
+
+                <div class="row mb-2" style="font-size: 1.1rem;">
+                  {% for opt in q.options %}
+                  <div class="col-sm-6">
+                    <div class="form-check">
+                      <input class="form-check-input" style="cursor:pointer;" type="radio"
+                            name="answer_{{ q.question_id }}" value="{{ opt.text }}" required>
+                      <label class="form-check-label custom-label" style="white-space: normal;">{{ opt.text }}</label>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+
+                <hr class="my-4">
+              </div>
+              {% endfor %}
+
+              <div style="text-align:center; margin-top:5%">
+                <button style="width:15%; padding:0.7%" type="submit" class="btn btn-sm btn-primary">Submit</button>
+              </div>
+            </form>
+
+
+            <!-- <form method="POST" action="{% url 'test_page' %}">
+              {% csrf_token %}
                 <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
                 <input type="hidden" name="start_time" value="{{ start_time }}">
-              <!-- Loop through questions -->
+              
               {% for q in questions %}
               <div class="mb-4">
                 <label class="form-label fw-bold" style="font-size: 1.25rem;">
@@ -107,7 +134,7 @@
               <div style ="text-align:center;margin-top:5%">
                 <button style="width:15%;padding:0.7%" type="submit"  class="btn btn-sm btn-primary">Submit</button>
               </div>
-            </form>
+            </form> -->
           </div>
       </div>
    </div>
