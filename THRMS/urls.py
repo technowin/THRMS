@@ -22,6 +22,8 @@ from Dashboard.views import *
 from Masters.views import *
 from Form.views import *
 from Reports.views import *
+from Masters.views import site_master as sm
+from Masters.views import company_master as cm
 from MenuManager.views import *
 from Workflow.views import *
 from Payroll.views import *
@@ -57,6 +59,7 @@ urlpatterns = [
     path('delete-file/', delete_file, name='delete_file'),
     path('get_query_data/', get_query_data, name='get_query_data'),
     path('check_field_before_delete/', check_field_before_delete, name='check_field_before_delete'),
+    path('get_access_control', get_access_control, name='get_access_control'),
 
 
     # Account
@@ -212,6 +215,25 @@ urlpatterns = [
     path("test_page",test_page, name="test_page"),
     path("result_page",result_page, name="result_page"),
     path("test_index",test_index, name="test_index"),     
+
+# masters
+
+    path('sample_xlsx/', sample_xlsx, name='sample_xlsx'),
+    path('upload_excel_cm', upload_excel_cm, name='upload_excel_cm'),
+    path("company_master",cm,name="company_master"),
+    path("employee_master",employee_master, name="employee_master"),
+    path("upload_excel",upload_excel, name="upload_excel"),
+    path("site_master",sm, name="site_master"),
+    path("designation_master1",designation_master1, name="designation_master1"),
+    path("view_employee",view_employee, name="view_employee"),
+    path("view_designation",view_designation, name="view_designation"),
+    path("employee_upload",employee_upload, name="employee_upload"),
+    path("worksite_upload",worksite_upload, name="employee_upload"),
+    path("designation_master1",designation_master1, name="designation_master1"),
+    # path("view_employee",view_employee, name="view_employee"),
+    path("view_designation",view_designation, name="view_designation"),
+    path("get_worksites",get_worksites, name="get_worksites"),
+    path('fetch-cities/', fetch_cities, name='fetch_cities'),
 
 ]
 

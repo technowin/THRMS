@@ -69,13 +69,20 @@
         </div>
     </div>
     <div class="card-body">
-        <table class="table table-bordered">
+        <div class="table-responsive">
+            <table style="width: 100%;" class="table" id="dataTable">
             <thead>
                 <tr>
                     <th>Item Name</th>
                     <th>Pay Type</th>
                     <th>Basis</th>
                     <th>Actions</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -93,10 +100,54 @@
             </tbody>
         </table>
     </div>
+     </div>
 </div>
 
-
-</body>
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#dataTable").DataTable({
+      //order: [[0, 'desc']],
+      "ordering": false,
+      initComplete: function () {
+        this.api()
+          .columns()
+          .every(function () {
+            var column = this;
+            var select = $(
+              '<select style="width:100%;border-radius: 10px;background-color:whitesmoke ;color: black;"><option value="">All</option></select>'
+            )
+              .appendTo($(column.header()).empty())
+              .on("change", function () {
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                column.search(val ? "^" + val + "$" : "", true, false).draw();
+              });
+            column
+              .data()
+              .unique()
+              .sort()
+              .each(function (d, j) {
+                var ce = d;
+                if (
+                  ce.includes("<a") ||
+                  ce.includes("span") ||
+                  ce.includes("<input") ||
+                  ce.includes("select") ||
+                  ce.includes("textarea")
+                ) {
+                } else {
+                  select.append('<option value="' + d + '">' + d + "</option>");
+                }
+              });
+          });
+      },
+      pageLength: 10,
+      lengthMenu: [
+        [5, 10, 25, 50, 100, 200, 300, 400, 500, -1],
+        [5, 10, 25, 50, 100, 200, 300, 400, 500, "All"],
+      ],
+    });
+  });
+</script>
 
 {% load static %}
     

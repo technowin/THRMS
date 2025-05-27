@@ -25,6 +25,8 @@
         }
          .col-md-custom-2 { flex: 0 0 12%; max-width: 12%; padding: 0 15px; }
     </style>
+
+    
 </head>
 <body>
     {% comment %} <h1>Edit Rate Card</h1>
@@ -156,7 +158,7 @@
 
                                 <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
                                     <label for="pay_type_{{ item.pk }}" class="form-label">Pay type</label>
-                                    <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control pay_type" style="width: 90%;">
+                                    <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control pay_type select" style="width: 90%;">
                                     {% for pay in pay_type %}
                                     <option value="">Select Pay Type</option>
                                         <option value="{{ pay.id }}"

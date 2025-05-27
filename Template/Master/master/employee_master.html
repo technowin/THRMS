@@ -1,0 +1,650 @@
+{% extends "Shared/Layout.html" %} {% block username %}{{username}}{% endblock %}
+{% block content %}
+{% load static %}
+{% comment %} {% csrf_token %} {% endcomment %}
+
+ <!-- Custom styles for this html-->
+ <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" >
+ 
+ <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+ <!-- Include DataTables CSS -->
+ <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+ <!-- Include DataTables JS -->
+ <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<!-- Selectize css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+ 
+
+ <body>
+    <div class="container mt-5" style="max-width: 1800px;">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center text-primary" >
+                  <u>{% if id == '0' %} Create {% else %} Edit  {% endif %} Employee Master</u>
+                </h2>
+                <br>
+                
+                <form id ="form_id" method="POST" action="{% url 'employee_master' %}">
+                
+                    {% csrf_token %}
+
+                    <input type="hidden" value="{{ id }}" name="id" >
+
+                    <div class="row mb-3">
+                        <!-- First Row: Employee No, Employee Name, Mobile Number, Email Id -->
+                       
+                        <div class="col-md-3">
+                            <label for="company_id" class="form-label">Company <span style="color:red;"> *</span> :</label>
+                            <select name="company_id" id="company_name" class="form-control" required>
+                                {% if id == '0' %}
+                                    <!-- For adding a new entry -->
+                                    <option value="" selected disabled>Select</option>
+                                    {% for item in company_names %}
+                                        <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- For editing an existing entry -->
+                                    <option disabled>Select</option>
+                                    {% for item in company_names %}
+                                        <option value="{{ item.0 }}" {% if item.0 == company_id_value %}selected{% endif %}>
+                                            {{ item.1 }}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="dropdown" class="">Worksite<span style="color:red;"> *</span> :</label>
+                            {% comment %} <select name="site_name" id="sitedropdown" class="sitedropdown" multiple required>
+                                <option value="" disabled>Select</option>
+                                {% for item in site_name %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                             {% endcomment %}
+
+                             <select name="site_name" id="sitedropdown" class="sitedropdown" multiple required>
+                                <option value="" disabled>Select</option>
+                                <option value="select_all">Select All</option> 
+                                {% for item in site_name %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                        </div>
+
+                       
+                        <div class="col-md-3">
+                            <label for="EmployeeNumber" class="form-label">Employee No.<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ employee_id }}" name="employee_id" class="form-control" id="EmployeeNumber" placeholder="Enter Employee Id" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="EmployeeName" class="form-label">Employee Name<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ employee_name }}" name="employee_name" class="form-control" id="EmployeeName" placeholder="Enter Employee Name" required>
+                        </div>
+                       
+                    </div>
+                    <div class="row mb-3">
+                        <!-- Second Row: Gender, Handicapped, Worksite, Company Id -->
+
+                        <div class="col-md-3">
+                            <label for="dropdown" class="">Designation<span style="color:red;"> *</span> :</label>
+                            <select name="designation_name" id="designationdropdown" class="designationdropdown" multiple required>
+                                <option value="" disabled>Select</option>
+                                {% for item in designation_name %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                        </div>
+  
+                        <div class="col-md-3">
+                            <label for="MobileNumber" class="form-label">Mobile Number<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ mobile_no }}" name="mobile_no" class="form-control" id="MobileNumber" placeholder="Enter Mobile Number" required oninput="limitMobileNumber(this)">
+                            <small id="mobileError" style="color:red; display:none;">Mobile number must be 10 digits.</small>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="EmailId" class="form-label">Email Id<span style="color:red;"> *</span> :</label>
+                            <input type="email" value="{{ email }}" name="email" class="form-control" id="EmailId" placeholder="Enter Email Id" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="gender" class="form-label">Gender<span style="color:red;"> *</span> :</label>
+                            <select name="gender" id="dropdown" class="form-control" required>
+                                {% if id == '0' %}
+                                    <option value="" selected disabled>Select</option>
+                                    {% for item in gender %}
+                                        <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                <option disabled>Select</option>
+                                {% for item in gender %}
+                                    <option value="{{ item.0 }}" {% if gender_value == item.0 %}selected{% endif %}>
+                                        {{ item.1 }}
+                                    </option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                       
+                    </div> 
+              
+                    <div class="row mb-3">
+                        <!-- Third Row: Worksite, Address, City, State -->
+                        <div class="col-md-3">
+                            <label for="state_id" class="form-label">State <span style="color:red;"> *</span> :</label>
+                            <select name="state_id" id="dropdown" class="form-control" required>
+                                {% if id == '0' %}
+                                    <!-- For adding a new entry -->
+                                    <option value="" selected disabled>Select</option>
+                                    {% for item in state_names %}
+                                        <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- For editing an existing entry -->
+                                    <option disabled>Select</option>
+                                    {% for item in state_names %}
+                                        <option value="{{ item.0 }}" {% if item.0 == state_id_value %}selected{% endif %}>
+                                            {{ item.1 }}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="City" class="form-label">City<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ city }}" name="city" class="form-control" id="City" placeholder="Enter Your City" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="Address" class="form-label">Address<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ address }}" name="address" class="form-control" id="address" placeholder="Enter Your Address" required>
+                        </div> 
+                       
+                        <div class="col-md-3">
+                            <label for="Pincode" class="form-label">Pincode<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ pincode }}" name="pincode" class="form-control" id="Pincode" placeholder="Enter Your Pincode" required>
+                        </div>
+                        
+                        
+                    </div>
+                    <div class="row mb-3">
+                        <!-- Fourth Row: Employee No, Employee Name, Mobile Number, Email Id -->
+                      
+                        <div class="col-md-3">
+                            <label for="AccountHolderName" class="form-label">Account Holder Name<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ account_holder_name }}" name="account_holder_name" class="form-control" id="AccountHolderName" placeholder="Enter Your Name As Per Bank" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="AccountNo" class="form-label">Account No<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ account_no }}" name="account_no" class="form-control" id="AccountNo" placeholder="Enter Your Account No." required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="BankName" class="form-label">Bank Name<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ bank_name }}" name="bank_name" class="form-control" id="BankName" placeholder="Enter Your Bank Name" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="BranchName" class="form-label">Branch Name<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ branch_name }}" name="branch_name" class="form-control" id="BranchName" placeholder="Enter Your Branch Name" required>
+                        </div>
+                        
+                    </div>
+                    <div class="row mb-3">
+                        <!-- Fifth Row: Employee No, Employee Name, Mobile Number, Email Id -->
+                       
+                        <div class="col-md-3">
+                            <label for="IFSCCode" class="form-label">IFSC Code<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ ifsc_code }}" name="ifsc_code" class="form-control" id="IFSCCode" placeholder="Enter Bank's IFSC Code" required oninput="validateIFSC(this)">
+                            <small id="ifscError" style="color:red; display:none;">IFSC Code must be 4 alphabets followed by 7 digits (e.g., ABCD1234567).</small>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="ProvidentFundNo" class="form-label">Provident Fund No.<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ pf_no }}" name="pf_no" class="form-control" id="ProvidentFundNo" placeholder="Enter Your Provident Fund No." required>
+                        </div>
+                  
+
+                        <div class="col-md-3">
+                            <label for="UniversalAccountNo" class="form-label">Universal Account No.<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ uan_no }}" name="uan_no" class="form-control" id="UniversalAccountNo" placeholder="Enter Your Universal Account No." required oninput="limitUAN(this)">
+                            <small id="uanError" style="color:red; display:none;">Universal Account No. must be 12 digits.</small>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="ESICNo" class="form-label">ESIC No. <span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ esic }}" name="esic" class="form-control" id="ESICNo" placeholder="Enter Your ESIC No." required>
+                        </div>
+                        
+                    </div>
+                        
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">  
+                                <label for="HandicappedSwitch" class="form-label">Is Handicapped<span style="color:red;"> *</span> :</label>
+                                <br>
+                                <label class="switch">
+                                    <input type="checkbox" value="{{ handicapped_value }}" id="HandicappedSwitch" name="handicapped" 
+                                           {% if handicapped_value == "1" %} checked {% endif %} onchange="updateHandicapped()">
+                                    <span class="slider"></span>
+                                </label>
+                                <input type="text" id="HandicappedValue" name="handicapped_value" value="{{ handicapped_value }}" hidden>
+                            </div>
+                            
+
+                            
+                            {% if id != '0' %}
+                            <div class="col-md-3">
+                                <label for="employment_status_id" class="form-label">Employee Status<span style="color:red;"> *</span> :</label>
+                                <select name="employment_status" id="dropdown" class="form-control" required>
+                                    <option value="" disabled {% if employment_status_id %}selected{% endif %}>Select</option>
+                                    {% for item in employee_status %}
+                                        <option value="{{ item.0 }}" 
+                                            {% if item.0 == employment_status_id %}selected{% endif %}>
+                                            {{ item.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                        
+                       
+                    
+                        {% if id != '0' %}
+                            <div class="col-md-3">  
+                                <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
+                                <br>
+                                <label class="switch">
+                                    <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
+                                           {% if is_active == "1" %} checked {% endif %} onchange="updateStatus()">
+                                    <span class="slider"></span>
+                                </label>
+                                <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% comment %} <input type="hidden" id="hiddenActiveStatus" name="employee_status" value="0"> {% endcomment %}
+
+                   
+              
+               
+
+                    <div class="text-center">
+                        <button  type="submit" id = "submitBtn" class="btn btn-primary"  >Submit</button>
+                    </div>
+              
+                </form>
+            </div></div>
+        
+</body>
+
+<script>
+$(document).ready(function() {
+    
+
+    // Initialize the selectize dropdown
+    var $select = $('#designationdropdown').selectize({
+        plugins: ['remove_button'],
+        delimiter: ',',
+        persist: false,
+        create: false,
+        selectOnTab: false,
+        maxItems: null,
+        onInitialize: function() {
+            var control = this;
+            control.clear();
+        }
+    });
+
+    // Get the Selectize instance
+    var designationdropdown_instance = $select[0].selectize;
+    // var desig_list=$('#designation_hidden').val();
+    var desig_list = JSON.parse('{{ selected_designation|escapejs }}');
+    // Array of values to be selected by default
+    // var selectedValues = designationdropdownArray.map(item => item[0]);
+
+    // Set the default selected values
+    designationdropdown_instance.setValue(desig_list, true);
+});
+
+</script>
+
+
+<script>
+    {% if id != '0' %}
+    $(document).ready(function() {
+        var $select1 = $('#sitedropdown').selectize({
+            plugins: ['remove_button'],
+            delimiter: ',',
+            persist: false,
+            create: false,
+            selectOnTab: false,
+            maxItems: null
+        });
+    
+       var sitedropdown_instance = $select1[0].selectize;
+    var site_list = JSON.parse('{{ selected_site|escapejs }}');
+
+      sitedropdown_instance.setValue(site_list, true);
+    
+        // Handle "Select All" selection
+        sitedropdown_instance.on('change', function(value) {
+            if (value.includes("select_all")) {
+                let allValues = [];
+    
+                // Collect all available options except "Select All"
+                $.each(sitedropdown_instance.options, function(key, option) {
+                    if (key !== "select_all") {
+                        allValues.push(key);
+                    }
+                });
+    
+                // ✅ Prevent "Select All" from being selected
+                sitedropdown_instance.off('change');
+                sitedropdown_instance.setValue(allValues, true);
+                sitedropdown_instance.on('change', arguments.callee);
+            }
+        });
+    });
+    {% else %}
+
+    $(document).ready(function() {
+        var $select1 = $('#sitedropdown').selectize({
+            plugins: ['remove_button'],
+            delimiter: ',',
+            persist: false,
+            create: false,
+            selectOnTab: false,
+            maxItems: null
+        });
+    
+       var sitedropdown_instance = $select1[0].selectize;
+    //  var site_list = JSON.parse('{{ selected_site|escapejs }}');
+
+     //  sitedropdown_instance.setValue(site_list, true);
+    
+        // Handle "Select All" selection
+        sitedropdown_instance.on('change', function(value) {
+            if (value.includes("select_all")) {
+                let allValues = [];
+    
+                // Collect all available options except "Select All"
+                $.each(sitedropdown_instance.options, function(key, option) {
+                    if (key !== "select_all") {
+                        allValues.push(key);
+                    }
+                });
+    
+                // ✅ Prevent "Select All" from being selected
+                sitedropdown_instance.off('change');
+                sitedropdown_instance.setValue(allValues, true);
+                sitedropdown_instance.on('change', arguments.callee);
+            }
+        });
+    });
+    {% endif %}
+</script>
+
+<script>
+
+  $(document).ready(function() {
+        $('#company_name').change(function() {
+            var selectedCompany = $(this).val();
+    
+            if (selectedCompany) {
+                var $select1 = $('#sitedropdown').selectize();
+                var sitedropdown_instance = $select1[0].selectize;
+    
+                // Clear existing options
+                sitedropdown_instance.clear();
+                sitedropdown_instance.clearOptions();
+    
+                // Fetch new site options
+                $.ajax({
+                    url: "{% url 'get_worksites' %}",
+                    type: "POST",
+                    data: {
+                        'selectedCompany': selectedCompany,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        let siteOptions = [];
+    
+                        // Collect new site options
+                        $.each(response.companywise_site_names, function(index, value) {
+                            siteOptions.push({ value: value[0], text: value[1] });
+                        });
+    
+                        // Add "Select All" first, then add site options
+                        sitedropdown_instance.addOption({ value: "select_all", text: "Select All" });
+                        siteOptions.forEach(option => sitedropdown_instance.addOption(option));
+    
+                        // Refresh the dropdown
+                        sitedropdown_instance.refreshOptions(false);
+    
+                        // Handle preselected sites (for edit mode)
+                        var selectedSiteData = '{{ selected_site|escapejs }}';
+                        if (selectedSiteData && selectedSiteData !== 'null' && selectedSiteData !== 'None') {
+                            var preselectedSites = JSON.parse(selectedSiteData);
+    
+                            // ✅ Ensure "Select All" is NOT preselected
+                            preselectedSites = preselectedSites.filter(site => site !== "select_all");
+    
+                            if (preselectedSites.length > 0) {
+                                sitedropdown_instance.setValue(preselectedSites, true);
+                            }
+                        }
+                    },
+                    error: function(error) {
+                        console.log("Error fetching site names:", error);
+                    }
+                });
+            } else {
+                var $select1 = $('#sitedropdown').selectize();
+                var sitedropdown_instance = $select1[0].selectize;
+    
+                // Clear dropdown if no company is selected
+                sitedropdown_instance.clear();
+                sitedropdown_instance.clearOptions();
+            }
+        });
+    }); 
+   
+    
+    
+</script>
+<script>
+{% comment %} $(document).ready(function() {
+    $('#company_name').change(function() {
+        var selectedCompany = $(this).val();
+
+        if (selectedCompany) {
+            // Clear existing options
+            sitedropdown_instance.clear();
+            sitedropdown_instance.clearOptions();
+
+            // Fetch new site options
+            $.ajax({
+                url: "{% url 'get_worksites' %}",
+                type: "POST",
+                data: {
+                    'selectedCompany': selectedCompany,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    let siteOptions = [];
+
+                    // Collect new site options
+                    $.each(response.companywise_site_names, function(index, value) {
+                        siteOptions.push({ value: value[0], text: value[1] });
+                    });
+
+                    // Add "Select All" first, then add site options
+                    sitedropdown_instance.addOption({ value: "select_all", text: "Select All" });
+                    siteOptions.forEach(option => sitedropdown_instance.addOption(option));
+
+                    // Refresh the dropdown
+                    sitedropdown_instance.refreshOptions(false);
+
+                    // **Preselect the previously selected site IDs**
+                    var preselectedSites = JSON.parse('{{ selected_site|escapejs }}');
+                    sitedropdown_instance.setValue(preselectedSites, true);
+                },
+                error: function(error) {
+                    console.log("Error fetching site names:", error);
+                }
+            });
+        } else {
+            // Clear dropdown if no company is selected
+            sitedropdown_instance.clear();
+            sitedropdown_instance.clearOptions();
+        }
+    });
+}); {% endcomment %}
+</script>
+
+
+
+<script>
+    document.getElementById('submitBtn').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent form submission for some reason
+        console.log("Form submission is prevented.");
+        // You can do additional validation or AJAX calls here.
+        // To manually submit the form with the specific form_id:
+        document.getElementById('form_id').submit();
+    });
+</script>
+
+   
+    
+
+<script>
+
+     document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('statusSwitch');
+        const isActive = checkbox.getAttribute('values');
+        checkbox.checked = (isActive == '1');
+        updateStatus(); 
+      }); 
+
+</script>
+
+<script>
+    function updateStatus() {
+        var checkBox = document.getElementById("statusSwitch");
+        var statusValue = document.getElementById("statusValue");
+        statusValue.value = checkBox.checked ? "1" : "0";
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('HandicappedSwitch');
+        const handicappedValue = checkbox.getAttribute('value'); // Fetching the 'value' attribute
+        checkbox.checked = (handicappedValue == '1');
+        updateHandicapped(); // Call the function to set the initial state
+    });
+</script>
+
+<script>
+    function updateHandicapped() {
+        var checkBox = document.getElementById("HandicappedSwitch");
+        var handicappedValue = document.getElementById("HandicappedValue");
+        handicappedValue.value = checkBox.checked ? "1" : "0"; // Set value to '1' if checked, otherwise '0'
+    }
+</script>
+
+
+
+<script>
+    function limitMobileNumber(input) {
+        // Remove any non-digit characters
+        input.value = input.value.replace(/\D/g, '');
+    
+        // Check if the length exceeds 10 digits
+        if (input.value.length > 10) {
+            input.value = input.value.slice(0, 10); // Truncate to 10 digits
+        }
+    
+        // Get the error message element and the submit button
+        const errorMsg = document.getElementById('mobileError');
+        const submitBtn = document.getElementById('submitBtn');
+    
+        // Check if the mobile number is valid (exactly 10 digits)
+        if (input.value.length === 10) {
+            errorMsg.style.display = 'none'; // Hide error message when valid
+            submitBtn.disabled = false; // Enable submit button
+        } else {
+            errorMsg.style.display = 'block'; // Show error message when invalid
+            submitBtn.disabled = true; // Disable submit button
+        }
+    }
+    
+</script>
+
+<script>
+    function limitUAN(input) {
+        // Remove any non-digit characters
+        input.value = input.value.replace(/\D/g, '');
+
+        // Check if the length exceeds 12 digits
+        if (input.value.length > 12) {
+            input.value = input.value.slice(0, 12); // Truncate to 12 digits
+        }
+
+        // Optional: Show an error message if more than 12 digits are entered
+        const errorMsg = document.getElementById('uanError');
+        const submitBtn = document.getElementById('submitBtn');
+        if (input.value.length === 12) {
+            errorMsg.style.display = 'none';
+            submitBtn.disabled = false;  // Hide error message when valid
+        } else {
+            errorMsg.style.display = 'block';
+            submitBtn.disabled = true; // Show error message if invalid
+        }
+    }
+</script>
+
+<script>
+    function validateIFSC(input) {
+        // Regular expression for IFSC: 4 letters followed by 7 digits
+        const ifscPattern = /^[A-Za-z]{4}\d{7}$/;
+
+        // Optionally limit the input to 11 characters (IFSC should be exactly 11 characters)
+        if (input.value.length > 11) {
+            input.value = input.value.slice(0, 11); // Limit to 11 characters
+        }
+
+        // Check if the input matches the IFSC pattern
+        const isValid = ifscPattern.test(input.value);
+
+        // Display error message if the input doesn't match the pattern
+        const errorMsg = document.getElementById('ifscError');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (isValid) {
+            errorMsg.style.display = 'none'; // Hide error if valid
+            submitBtn.disabled = false;      // Enable submit button
+        } else {
+            errorMsg.style.display = 'block'; // Show error if invalid
+            submitBtn.disabled = true;        // Disable submit button
+        }
+    }
+</script>
+
+
+
+
+ {% endblock %} 

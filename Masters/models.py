@@ -186,7 +186,6 @@ class sc_employee_master(models.Model):
     employee_name =models.TextField(null=True,blank=True)
     gender = models.TextField(null=True,blank=True)
     handicapped = models.BooleanField(null=True,blank=True,default=True)
-    # state = models.IntegerField(null=True, blank=False)
     state_id = models.ForeignKey(StateMaster, on_delete=models.CASCADE,related_name='employee_relation_state_id',blank=True, null=True,db_column='state_id')
     city = models.TextField(null=True,blank=True)
     address = models.TextField(null=True,blank=True)
@@ -340,3 +339,6 @@ class employee_site(models.Model):
         db_table = 'employee_site'
     def __str__(self):
         return self.name
+    
+
+

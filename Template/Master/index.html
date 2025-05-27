@@ -40,7 +40,7 @@
                       </div>  
                   {% endif %}    
                    <div class="col-sm-2">
-                     <form method="GET" action="{% if entity == 'user' %}/register_new_user {% elif entity == 'form' %}/form_builder{% elif entity == 'wfseq' %}/workflow_mapping{% elif entity == 'action' %}/form_action_builder{% elif entity == 'form_master' %}/form_master{% else %}/masters{% endif %}">
+                     <form method="GET" action="{% if entity == 'user' %}/register_new_user {% elif entity == 'form' %}/form_builder{% elif entity == 'sm' %}/site_master{% elif entity == 'cm' %}/company_master{% elif entity == 'em' %}/employee_master{% elif entity == 'wfseq' %}/workflow_mapping{% elif entity == 'action' %}/form_action_builder{% elif entity == 'form_master' %}/form_master{% else %}/masters{% endif %}">
                          <input type="hidden" name="id" value="0">
                          <input type="hidden" name="entity" value="{{entity}}">
                          <input type="hidden" name="type" value="ed">
@@ -161,6 +161,131 @@
    </div>
 
  {% endif %}
+
+ {% if type == 'urm' %}
+    <link href="{% static 'css/menuButton.css' %}" rel="stylesheet" type="text/css" >
+    <!-- {{name}} -->
+    <div class="card mb-4" style="zoom:90%" >
+       <div class="card-body">
+        <div class="row col-md-12">
+          <div class="col-md-4">
+            <h2 class="text-primary"  style="font-weight:bold">
+              <u>{{name}}</u>
+            </h2>
+          </div>
+          <div class="col-md-2">
+            <a href="/masters?entity={{entity}}&type=acu" class="btn btn-primary" style="border-radius:15px;">
+              Assign to User
+            </a>         
+          </div>
+          <div class="col-md-2">
+            <a href="/masters?entity={{entity}}&type=acr"class="btn btn-primary"   style="border-radius:15px;">
+              Assign to Role
+            </a>         
+          </div>
+        </div>
+  
+         <div class="table-responsive">
+          <table style="width: 100%;"  class="table"  id="dataTable">   
+            <thead>
+             <tr>
+               {% for col in header %}
+                   {% if not forloop.first %}
+                       <th style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th>
+                   {% endif %}
+               {% endfor %}
+           </tr>
+           <tr>
+               {% for col in header %}
+                   {% if not forloop.first %}
+                       <th> </th>
+                   {% endif %}
+               {% endfor %}
+           </tr>
+           
+            </thead>
+            <tbody>
+             {% for row in data %}
+                 <tr style="color:black">
+                     <td>{{ forloop.counter }}</td>
+                     {% for cell in row %}
+                         {% if not forloop.first %}
+                             <td>
+                                 {% if cell|length > 60 %}
+                                     <!-- <textarea rows="4" readonly>{{ cell }}</textarea>  -->
+                                     {{ cell }}
+                                 {% else %}
+                                     {{ cell }}
+                                 {% endif %}
+                             </td>
+                         {% endif %}
+                     {% endfor %}
+                 </tr>
+             {% endfor %}
+         </tbody>
+        </table>
+       </div>
+    </div>
+
+
+
+ {% elif type == 'acu' or type == 'acr' %}
+ <!-- Selectize css -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+    <div class="container mt-5" style="max-width: 700px; ">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center" style="color:#B12121;font-weight:bold">Assign to {% if type == 'acu' %}User{% elif type == 'acr' %}Roles{% endif %}</h2>
+                <form method="POST" action="{% url 'masters' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="entity" id="entity" value="{{ entity }}">
+                    <input type="hidden" name="type" id= "type" value="{{type}}">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="ur" class="form-label">{% if type == 'acu' %}Users{% elif type == 'acr' %}Roles{% endif %} :</label>
+                            <select name="ur" id="ur" class="form-control" required>
+                                <option value="" selected disabled>Select</option>
+                                {% for item in header %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %} 
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="company_id" class="">Company :</label>
+                            <select name="company_id" id="company_id" class=" " multiple required>
+                                <option value="" disabled>Select</option>
+                                {% for item in company_names %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                      <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="worksite" class="">Worksite :</label>
+                            <select name="worksite" id="worksite" class=" " multiple required>
+                                <option value="" disabled>Select</option>
+                                {% for item in data %}
+                                    <option value="{{ item.0 }}">{{ item.0 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                  
+    
+                    <div class="text-center">
+                        <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+{% endif %}
  
  {% load static %}
  
@@ -177,6 +302,138 @@
    </script>
    {% endfor %}
  {% endif %}
+
+ <script>    
+   
+
+    $(document).ready(function () {
+      $('#worksite').selectize({plugins: ['remove_button'],delimiter: ',',persist: false,create: false,selectOnTab: false,maxItems: null,
+        onInitialize: function () {var control = this;control.clear();},
+      });
+  
+      var company = $('#company_id').selectize({plugins: ['remove_button'],delimiter: ',',persist: false,create: false,selectOnTab: false,maxItems: null,
+        onInitialize: function () {var control = this;control.clear();},
+      });
+  
+      company.on('change', async function () {
+         debugger;
+          var worksite = $('#worksite')[0].selectize;
+          var selectedCompanies = $('#company_id').val(); // Get selected companies
+          var type = $('#type').val();
+          var ur = $('#ur').val();
+  
+          // Fetch worksites for selected companies
+          $.ajax({
+              url: '/get_access_control',
+              type: 'POST',
+              datatype: 'json',
+              traditional: true,
+              data: {
+                  type1: 'worksites',
+                  type: type,
+                  ur: ur,
+                  company_id: selectedCompanies,
+                  csrfmiddlewaretoken: '{{ csrf_token }}',
+              },
+              success: function (res) {
+                  console.log("Response:", res); // Debug response
+                  var ws = $('#worksite')[0].selectize;
+  
+                  // Clear all options and re-add based on the selected companies
+                  ws.clearOptions();
+                  if (res.worksite && res.worksite.length > 0) {
+                      res.worksite.forEach(function (item) {
+                          ws.addOption({ value: item[0], text: item[0] });
+                      });
+                  }
+  
+                  // Remove worksites that are selected and don't belong to the selected companies
+                  var currentWorksites = ws.getValue(); // Get currently selected worksites
+                  var validWorksites = res.worksite.map(item => item[0]); // Valid worksites for selected companies
+  
+                  // Update selected worksites to only valid ones
+                  var updatedWorksites = currentWorksites.filter(site => validWorksites.includes(site));
+  
+                  // Set the updated worksites
+                  ws.setValue(updatedWorksites);
+  
+                  // Remove any invalid worksites from the dropdown options (those that belong to removed companies)
+                  ws.clearOptions(); // Clear options before adding valid ones
+                  res.worksite.forEach(function (item) {
+                      ws.addOption({ value: item[0], text: item[0] });
+                  });
+  
+                  ws.refreshOptions(); // Refresh the dropdown options
+  
+              },
+              error: function (err) {
+                  console.error("AJAX Error:", err);
+              },
+          });
+      });
+  });
+  
+    
+  
+</script>
+<script>
+  $('#ur').change(function() {
+      debugger;
+      var selectedValue = $(this).val(); 
+      var type = $('#type').val();
+      if (selectedValue) {
+          $.ajax({
+              url: '/get_access_control',  
+              type: 'POST', 
+              datatype: "json",
+              traditional: true,
+              data: {'ur': selectedValue,'type':type,csrfmiddlewaretoken: '{{ csrf_token }}' },
+              success: function(response) {
+                debugger;
+                  var company = response.company;
+                  var company_id = $('#company_id');
+                  var company_inst = company_id[0].selectize;
+
+                  var worksite = response.worksite;
+                  var worksite_id = $('#worksite');
+                  var worksite_inst = worksite_id[0].selectize;
+                  
+                  if (company_inst) {
+                      company.forEach(function(item) {
+                        company_inst.addOption({ value: item[0], text: item[1] });
+                      });
+  
+                      var company_val = company.map(item => item[0]);
+                      company_inst.setValue(company_val, true); 
+                  } else {
+                    company_id.selectize({valueField: 'value',labelField: 'text',
+                          options: company.map(function(item) {
+                              return { value: item[0], text: item[1] };
+                          }),
+                          items: company.map(item => item[0])  
+                      });
+                  }
+
+                  if (worksite_inst) {
+                    worksite.forEach(function(item) {
+                      worksite_inst.addOption({ value: item[0], text: item[1] });
+                    });
+
+                    var worksite_val = worksite.map(item => item[0]);
+                    worksite_inst.setValue(worksite_val, true); 
+                  } else {
+                    worksite_id.selectize({valueField: 'value',labelField: 'text',
+                          options: worksite.map(function(item) {
+                              return { value: item[0], text: item[1] };
+                          }),
+                          items: worksite.map(item => item[0])  
+                      });
+                  }
+              }
+          });
+      }
+  });
+</script>
  <script>
   document.addEventListener('DOMContentLoaded', function() {
     var formsElement = document.getElementById('forms');
