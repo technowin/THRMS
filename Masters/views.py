@@ -1811,7 +1811,7 @@ def get_worksites(request):
     try:
         user_id = request.session.get('user_id', '')
         selectedCompany = request.POST.get('selectedCompany','')
-        cursor.callproc("stp_get_slot_siteName", [user_id,selectedCompany])
+        cursor.callproc("stp_get_slot_siteName", [selectedCompany,])
         for result in cursor.stored_results():
             companywise_site_names = list(result.fetchall())
 
