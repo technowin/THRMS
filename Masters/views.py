@@ -341,8 +341,8 @@ def masters(request):
                         insertion_status = callproc("stp_post_access_control", [type, ur, company_id, worksite_name, created_by])
                         
 
-                    # Redirect based on insertion status
-                    if insertion_status == "success":
+                    status = insertion_status[0] if insertion_status else 'error'
+                    if status == "success":
                         messages.success(request, 'Data updated successfully!')
                     else:
                         messages.error(request, 'Oops...! Something went wrong!')
@@ -640,22 +640,14 @@ def company_master(request):
                 if request.method == "GET":
                     context = {'company_id':company_id}
             else:
-                company_id1 = request.GET.get('company_id', '')
-                company_id= decrypt_parameter(company_id1)
-                cursor.callproc("stp_edit_company_master", (company_id,))  # Note the comma to make it a tuple
-                for result in cursor.stored_results():
-                    data = result.fetchall()[0]  
+                company_id1 = request.GET.get('id', '')
+                company_id= dec(company_id1)
+                data = callproc("stp_edit_company_master", (company_id,))  # Note the comma to make it a tuple
+    
                         
-                    context = {
-                        'company_id' : data[0],
-                        'company_name': data[1],
-                        'company_address': data[2],
-                        'pincode': data[3],
-                        'contact_person_name': data[4],
-                        'contact_person_email': data[5], 
-                        'contact_person_mobile_no': data[6],
-                        'is_active':data[7]
-                    }
+                context = {
+                    "data":data
+                }
 
         if request.method == "POST" :
             company_id = request.POST.get('company_id', '')
@@ -740,7 +732,7 @@ def employee_master(request):
                     site_name = list(result.fetchall())
             else:
                 site_name = [] 
-            cursor.callproc("stp_get_company_site_name",[user])
+            cursor.callproc("stp_get_dropdown_values",['company'])
             for result in cursor.stored_results():
                 company_names = list(result.fetchall())
             cursor.callproc("stp_get_dropdown_values",('states',))
@@ -1354,7 +1346,7 @@ def designation_master1(request):
         
         if request.method == "GET":
            
-            designation_id = request.GET.get('designation_id', '')
+            designation_id = request.GET.get('id', '')
             if designation_id == "0":
                 if request.method == "GET":
                     context = {'designation_id':designation_id}
@@ -1372,7 +1364,7 @@ def designation_master1(request):
                     }
 
         if request.method == "POST" :
-            id = request.POST.get('designation_id', '')
+            id = request.POST.get('id', '')
             if id == '0':
                 designation_name = request.POST.get('designation_name', '')
                 # is_active = request.POST.get('is_active', '') 

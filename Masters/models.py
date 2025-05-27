@@ -340,5 +340,18 @@ class employee_site(models.Model):
     def __str__(self):
         return self.name
     
+class LevelMaster(models.Model):
+    id =  models.AutoField(primary_key=True)
+    name = models.TextField(null=True, blank=True)
+    designation_id = models.ForeignKey(designation_master, on_delete=models.CASCADE,related_name='designation_relation',blank=True, null=True,db_column='designation_id')
+    created_at = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+    created_by = models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
+    updated_by = models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'level_master'
+    def __str__(self):
+        return self.name
+    
 
 

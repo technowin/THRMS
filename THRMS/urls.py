@@ -232,7 +232,6 @@ urlpatterns = [
     path("view_designation",view_designation, name="view_designation"),
     path("employee_upload",employee_upload, name="employee_upload"),
     path("worksite_upload",worksite_upload, name="employee_upload"),
-    path("designation_master1",designation_master1, name="designation_master1"),
     # path("view_employee",view_employee, name="view_employee"),
     path("view_designation",view_designation, name="view_designation"),
     path("get_worksites",get_worksites, name="get_worksites"),

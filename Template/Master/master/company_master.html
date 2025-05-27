@@ -43,35 +43,35 @@
 
                         <div class="col-md-3" hidden>
                             <label for="site_name" class="form-label">Company Id<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ company_id }}" name="company_id" class="form-control" id="site_name" placeholder="Enter Site Name">
+                            <input type="text" value="{{ data.0 }}" name="company_id" class="form-control" id="site_name" placeholder="Enter Site Name">
                         </div>
 
                         <div class="col-md-3">
                             <label for="site_name" class="form-label">Company Name<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ company_name }}" name="company_name" class="form-control" id="site_name" placeholder="Enter Site Name" required>
+                            <input type="text" value="{{ data.1 }}" name="company_name" class="form-control" id="site_name" placeholder="Enter Site Name" required>
                         </div>
                         <div class="col-md-3">
                             <label for="site_address" class="form-label">Company Address<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ company_address }}" name="company_address" class="form-control" id="site_address" placeholder="Enter Address">
+                            <input type="text" value="{{ data.2 }}" name="company_address" class="form-control" id="site_address" placeholder="Enter Address">
                         </div>
                         <div class="col-md-3">
                             <label for="contactPersonName" class="form-label">Contact Person Name<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ contact_person_name }}" name="contact_person_name" class="form-control" id="contactPersonName" placeholder="Enter Contact Person Name">
+                            <input type="text" value="{{ data.3 }}" name="contact_person_name" class="form-control" id="contactPersonName" placeholder="Enter Contact Person Name">
                         </div>
                         <div class="col-md-3">
                             <label for="contactPersonEmail" class="form-label">Contact Person Email<span style="color:red;"> *</span> :</label>
-                            <input type="email" value="{{ contact_person_email }}" name="contact_person_email" class="form-control" id="contactPersonEmail" placeholder="Enter Email">
+                            <input type="email" value="{{ data.4 }}" name="contact_person_email" class="form-control" id="contactPersonEmail" placeholder="Enter Email">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label for="pincode" class="form-label">Pincode<span style="color:red;"> *</span> :</label>
-                            <input type="text" value="{{ pincode }}" name="pincode" class="form-control" id="pincode" placeholder="Enter Pincode">
+                            <input type="text" value="{{ data.5 }}" name="pincode" class="form-control" id="pincode" placeholder="Enter Pincode">
                         </div>
                         <div class="col-md-3">
                             <label for="Number" class="form-label">Contact Person Mobile<span style="color:red;"> *</span> :</label>
-                            <input type="number" value="{{ contact_person_mobile_no }}" name="contact_person_mobile_no" class="form-control" id="Number" placeholder="Enter Mobile Number">
+                            <input type="number" value="{{ data.6 }}" name="contact_person_mobile_no" class="form-control" id="Number" placeholder="Enter Mobile Number">
                         </div>
                         {% if company_id != '0' %}
                             <div class="col-md-3">  
@@ -79,7 +79,7 @@
                                 <br>
                                 <label class="switch">
                                     <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
-                                           {% if is_active == "1" %} checked {% endif %} onchange="updateStatus()">
+                                           {% if data.7 == "1" %} checked {% endif %} onchange="updateStatus()">
                                     <span class="slider"></span>
                                 </label>
                                 <input type="text" id="statusValue" name="status_value" value="{{ is_active }}" hidden>

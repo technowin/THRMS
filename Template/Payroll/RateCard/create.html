@@ -4,12 +4,27 @@
 {% load static %}
 {% csrf_token %}
 
-<link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css">
-<link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css">
-<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+ <!-- Custom styles for this html-->
+ <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" >
 
-<!DOCTYPE html>
-<html lang="en">
+ <link rel="stylesheet" type="text/css" href="{% static 'css/tooltips.css' %}" />
+
+ <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+ <!-- Include DataTables CSS -->
+ <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+ <!-- Include DataTables JS -->
+ <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
 <head>
     <title>Create Rate Card</title>
     <style>
@@ -44,100 +59,154 @@
 
             <form method="post">
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label for="card_name" class="form-label">Card Name:</label>
-                    {{ form.card_name }} 
+                <div class="row col-md-12">
+
+                    <div class="col-md-3">
+                        <label for="client_name" class="form-label">Client Name</label>
+                            <select name="client_name" id="client_name" class="form-control select">
+                            <option value="">Select Client</option>
+                                {% for client in client_names %}
+                                    <option value="{{ client.company_id }}" >
+                                        {{ client.company_name }}
+                                    </option>
+                                {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="location" class="form-label">Location Name</label>
+                            <select name="location" id="location" class="form-control select">
+                            <option value="">Select Location</option>
+                                {% for location in location_names %}
+                                    <option value="{{ location.site_id }}" >
+                                        {{ location.site_name }}
+                                    </option>
+                                {% endfor %}
+                        </select>
+                    </div>
+                      <div class="col-md-3">
+                        <label for="client_name" class="form-label">Designation</label>
+                            <select name="designation" id="designation" class="form-control select">
+                            <option value="">Select Client</option>
+                                {% for designation in designation_names %}
+                                    <option value="{{ designation.designation_id }}" >
+                                        {{ designation.designation_name }}
+                                    </option>
+                                {% endfor %}
+                        </select>
+                    </div>
+                      <div class="col-md-3">
+                        <label for="level" class="form-label">Level</label>
+                            <select name="level" id="level" class="form-control select">
+                            <option value="">Select Client</option>
+                                {% for client in client_names %}
+                                    <option value="{{ client.company_id }}" >
+                                        {{ client.company_name }}
+                                    </option>
+                                {% endfor %}
+                        </select>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <h4>Select Salary Elements:</h4>
+                <div class="row col-md-12">
+                <div class="mb-4 col-md-10">
+                        <label for="card_name" class="form-label">Card Name:</label>
+                        {{ form.card_name }} 
+
+                </div>
+                </div>
+                
+
+
+                <div class="mb-4">
+                    <h4 class="text-dark">Select Salary Elements:</h4>
     
                     {% for item in form.item_ids.field.queryset %}
-<div class="row g-3 mb-4">
-    <div class="col-md-custom-2 text-center">
-        <div class="border p-3 h-100">
-            <input type="checkbox" name="item_ids" class="form-control" value="{{ item.pk }}" 
-                onclick="toggleAmountFields(this, '{{ item.pk }}')" 
-                style="font-size: 1rem;">
-            <label class="mt-2">{{ item.item_name }}</label>
-        </div>
-    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-custom-2 text-center">
+                            <div class="border p-3 h-100">
+                                <input type="checkbox" name="item_ids" class="form-control" value="{{ item.pk }}" 
+                                    onclick="toggleAmountFields(this, '{{ item.pk }}')" 
+                                    style="font-size: 1rem;">
+                                <label class="mt-2">{{ item.item_name }}</label>
+                            </div>
+                        </div>
 
-    <div class="col-md-custom-2 text-center">
-        <div class="border p-3 h-100">
-            <label for="four_hour_amount_{{ item.pk }}" class="form-label">4-Hour Amount</label>
-            <input type="number" name="four_hour_amount_{{ item.pk }}" 
-                class="form-control amount-field w-100" placeholder="4-Hour Amount" min="0" 
-                id="four_hour_amount_{{ item.pk }}" step="0.01" disabled>
+                        <div class="col-md-custom-2 text-center">
+                            <div class="border p-3 h-100">
+                                <label for="four_hour_amount_{{ item.pk }}" class="form-label">4-Hour Amount</label>
+                                <input type="number" name="four_hour_amount_{{ item.pk }}" 
+                                    class="form-control amount-field w-100" placeholder="4-Hour Amount" min="0" 
+                                    id="four_hour_amount_{{ item.pk }}" step="0.01" disabled>
 
-        </div>
-    </div>
+                            </div>
+                        </div>
 
-    <div class="col-md-custom-2 text-center">
-        <div class="border p-3 h-100">
-            <label for="nine_hour_amount_{{ item.pk }}" class="form-label">9-Hour Amount</label>
-            <input type="number" name="nine_hour_amount_{{ item.pk }}" 
-                class="form-control amount-field w-75" placeholder="9-Hour Amount" min="0" 
-                id="nine_hour_amount_{{ item.pk }}" step="0.01" disabled>
-        </div>
-    </div>
+                        <div class="col-md-custom-2 text-center">
+                            <div class="border p-3 h-100">
+                                <label for="nine_hour_amount_{{ item.pk }}" class="form-label">9-Hour Amount</label>
+                                <input type="number" name="nine_hour_amount_{{ item.pk }}" 
+                                    class="form-control amount-field w-75" placeholder="9-Hour Amount" min="0" 
+                                    id="nine_hour_amount_{{ item.pk }}" step="0.01" disabled>
+                            </div>
+                        </div>
 
-    <div class="col-md-custom-2 text-center">
-        <div class="border p-3 h-100">
-            <label for="pay_type_{{ item.pk }}" class="form-label">Pay Type</label>
-           <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control" disabled>
-             <option value="">Select Pay Type</option>
-                {% for pay in pay_type %}
-                    <option value="{{ pay.id }}" {% if item.pay_type.id == pay.id %}selected{% endif %}>
-                        {{ pay.name }}
-                    </option>
-                {% endfor %}
-            </select>
+                        <div class="col-md-custom-2 text-center">
+                            <div class="border p-3 h-100">
+                                <label for="pay_type_{{ item.pk }}" class="form-label">Pay Type</label>
+                            <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control select" disabled>
+                                <option value="">Select Pay Type</option>
+                                    {% for pay in pay_type %}
+                                        <option value="{{ pay.id }}" {% if item.pay_type.id == pay.id %}selected{% endif %}>
+                                            {{ pay.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
 
-        </div>
-    </div>
+                            </div>
+                        </div>
 
-    <div class="col-md-custom-2 text-center">
-        <div class="border p-3 h-100">
-            <label for="salary_unit_{{ item.pk }}" class="form-label">Classification</label>
-           <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control" disabled>
-            <option value="">Select Classification</option>
-                {% for class in classification %}
-                    <option value="{{ class.id }}" {% if item.classification_id == class.id %}selected{% endif %}>
-                        {{ class.name }}
-                    </option>
-                {% endfor %}
-            </select>
+                        <div class="col-md-custom-2 text-center">
+                            <div class="border p-3 h-100">
+                                <label for="salary_unit_{{ item.pk }}" class="form-label">Classification</label>
+                            <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control select" disabled>
+                                <option value="">Select Classification</option>
+                                    {% for class in classification %}
+                                        <option value="{{ class.id }}" {% if item.classification_id == class.id %}selected{% endif %}>
+                                            {{ class.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
 
-        </div>
-    </div>
+                            </div>
+                        </div>
 
-    <div class="col-md-2 text-center">
-        <div class="border p-3 h-100">
-            <label for="salary_unit_{{ item.pk }}" class="form-label">Unit</label>
-            <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control" disabled>
-                {% for sal in salary_unit %}
-                    <option value="{{ sal.id }}">{{ sal.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
+                        <div class="col-md-2 text-center">
+                            <div class="border p-3 h-100">
+                                <label for="salary_unit_{{ item.pk }}" class="form-label">Unit</label>
+                                <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control select" disabled>
+                                    {% for sal in salary_unit %}
+                                        <option value="{{ sal.id }}">{{ sal.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
 
-    <div class="col-md-2 text-center">
-        <div class="border p-3 h-100">
-            <label for="tax_parameter_{{ item.pk }}" class="form-label">Tax</label>
-            <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control" disabled>
-                 <option value="">Select Tax Parameter</option>
-                {% for tax in tax_parameter %}
-                    <option value="{{ tax.id }}" {% if item.tax_parameter.id == tax.id %}selected{% endif %}>
-                        {{ tax.tax_parameter }}
-                    </option>
-                {% endfor %}
-            </select>
+                        <div class="col-md-2 text-center">
+                            <div class="border p-3 h-100">
+                                <label for="tax_parameter_{{ item.pk }}" class="form-label">Tax</label>
+                                <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control select" disabled>
+                                    <option value="">Select Tax Parameter</option>
+                                    {% for tax in tax_parameter %}
+                                        <option value="{{ tax.id }}" {% if item.tax_parameter.id == tax.id %}selected{% endif %}>
+                                            {{ tax.tax_parameter }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
 
-        </div>
-    </div>
-</div>
-{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
 
                 </div>
                 <div class="text-center">
