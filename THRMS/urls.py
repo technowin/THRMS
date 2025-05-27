@@ -214,7 +214,10 @@ urlpatterns = [
     path("enterthedetails",enterthedetails, name="enterthedetails"),
     path("test_page",test_page, name="test_page"),
     path("result_page",result_page, name="result_page"),
-    path("test_index",test_index, name="test_index"),     
+    path("test_index",test_index, name="test_index"),
+    path("partial_details_index",partial_details_index, name="partial_details_index"),
+    path("partial_details_index_onpageload",partial_details_index_onpageload, name="partial_details_index_onpageload"),
+    path("download_candidate_excel",download_candidate_excel, name="download_candidate_excel"),         
 
 # masters
 
