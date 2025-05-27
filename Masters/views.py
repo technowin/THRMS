@@ -1352,7 +1352,7 @@ def designation_master1(request):
                     context = {'designation_id':designation_id}
 
             else:
-                designation_id = request.GET.get('designation_id', '')
+                designation_id = request.GET.get('id', '')
                 designation_id = decrypt_parameter(designation_id)
                 cursor.callproc("stp_designationedit", (designation_id,))
                 for result in cursor.stored_results():
@@ -1364,7 +1364,7 @@ def designation_master1(request):
                     }
 
         if request.method == "POST" :
-            id = request.POST.get('id', '')
+            id = request.POST.get('designation_id', '')
             if id == '0':
                 designation_name = request.POST.get('designation_name', '')
                 # is_active = request.POST.get('is_active', '') 
@@ -1379,7 +1379,7 @@ def designation_master1(request):
                     messages.success(request, 'Data successfully entered !')
                 else: messages.error(request, datalist[0][0])
             else:
-                designation_id = request.POST.get('designation_id', '')
+                designation_id = request.POST.get('id', '')
                 designation_name = request.POST.get('designation_name', '')
                 # is_active1 = request.POST.get('is_active', '')
                 is_active = 1 if request.POST.get('is_active') == 'on' else 0 
