@@ -18,78 +18,84 @@
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+<style>
+.css_labels{
+  font-size:1.2em;
+  padding-top:3%;
+} 
+</style>
+
  <!-- Begin Page Content -->
 
-   <div class="row">
-       <div class="col-lg-12">
-           <!-- Index Card -->
-           <div class="card mb-4" style="padding: 10px;border: 2px solid #b3b3b3;border-radius: 15px;margin-left:0px;">
-              <div class="row p-1">
-                  <div class="col-md-3" style="margin-top:2%">
-                      <h3> <strong style="color: #4e73df;"> Test Details</strong></h3>
-                  </div>  
-                   <div class="col-sm-2">
-                     {% comment %} <form method="GET" action="{% if entity == 'user' %}/register_new_user {% elif entity == 'form' %}/form_builder{% elif entity == 'wfseq' %}/workflow_mapping{% elif entity == 'action' %}/form_action_builder{% elif entity == 'form_master' %}/form_master{% else %}/masters{% endif %}">
-                         <input type="hidden" name="id" value="0">
-                         <input type="hidden" name="entity" value="{{entity}}">
-                         <input type="hidden" name="type" value="ed">
-                         <button type="submit"  class="btn btn-sm btn-primary">Create</button>
-                      </form> {% endcomment %}
-                   </div>
-               </div> 
-               <div class="card-body">
-                <div class="table-responsive">
-                  <table style="width: 100%;"  class="table"  id="dataTable">   
-                       <thead>
-                        <tr>
-                            <th style="font-weight: bold; color: black;">Candidate Name</th>
-                            <th style="font-weight: bold; color: black;">Mobile</th>
-                            <th style="font-weight: bold; color: black;">Email</th>
-                            <th style="font-weight: bold; color: black;">Post</th>
-                            <th style="font-weight: bold; color: black;">Percentage</th>
-                            <th style="font-weight: bold; color: black;">TimeTaken</th>
-                            <th style="font-weight: bold; color: black;">Status</th>
-                            <th style="font-weight: bold; color: black;">Created At</th>                                                                                    
-                      </tr>
-                      <tr>
-                            <th> </th>
-                            <th> </th>
-                            <th> </th>
-                            <th> </th>
-                            <th> </th>
-                            <th> </th>
-                            <th> </th>
-                            <th> </th>
-                      </tr>
-                      
-                       </thead>
-                       <tbody>
-                        {% for row in data %}
-                            <tr style="color:black">
-                                <td>{{ row.name }}</td>
-                                <td>{{ row.mobile }}</td> 
-                                <td>{{ row.email }}</td> 
-                                <td>{{ row.post }}</td>
-                                <td>{{ row.percentage }}</td>
-                                <td>{{ row.time_taken }}</td>
-                                {% comment %} <td>{{ row.status }}</td> {% endcomment %}
-                                <td>
-                                    {% if row.status == "pass" %}
-                                      <span style="color:green"> PASS </span>
-                                    {% else %}
-                                      <span style="color:red"> FAIL </span>
-                                    {% endif %}
-                                </td>                                 
-                                <td>{{ row.created_at }}</td>                                 
-                            </tr>
+  <div class="row">
+      <div class="col-lg-12">
+          <!-- Index Card -->
+        <div class="card mb-4" style="padding: 10px;border: 2px solid #b3b3b3;border-radius: 15px;margin-left:0px;">
+
+              <div class="row col-md-12">
+                <div class="col-md-3" style="margin-top:2%">
+                    <h3> <strong style="color: #4e73df;"> Test Details</strong></h3>
+                </div>  
+              </div>    
+
+              <form method="POST" action="{% url 'download_candidate_excel' %}">
+                {% csrf_token %}
+                <div class="row col-md-12" style="margin-top:3%;margin-bottom:2%;">
+                    <div class="col-md-1" style="text-align:right;">
+                      <label class="mb-0 css_labels">Post - </label>
+                    </div>
+                    <div class="col-md-2"> 
+                      <select style="border-radius:10em;" name="post" id="dp" class="form-control select">
+                        <option value="" selected>--Select--</option>
+                        {% for item in dpl %}
+                            <option value="{{ item.0 }}">{{ item.1 }}</option>
                         {% endfor %}
-                    </tbody>
-                   </table>
+                      </select>                 
+                    </div>
+                    <div class="col-md-1" style="text-align:right;">
+                      <label class="mb-0 css_labels" >Status - </label>
+                    </div>
+                    <div class="col-md-1"> 
+                      <select style="border-radius:10em;" name="status" id="status" class="form-control select">
+                        <option value="" selected>--Select--</option>
+                        {% for item2 in status_list %}
+                            <option value="{{ item2.0 }}">{{ item2.1 }}</option>
+                        {% endfor %}
+                      </select>                 
+                    </div> 
+                    <div class="col-md-1" style="text-align:right;">
+                      <label class="mb-0 css_labels">Created At - </label>
+                    </div>
+                    <div class="col-md-1"> 
+                      <select style="border-radius:10em;" name="created_at" id="created_at" class="form-control select">
+                        <option value="" selected>--Select--</option>
+                        {% for item1 in created_at %}
+                        <option style="border-radius: 10px; padding: 0.5%; width: 100%" value="{{ item1.0 }}">
+                          {{ item1.1 }}
+                        </option>
+                        {% endfor %}
+                      </select>                 
+                    </div>                      
+                    <div class="col-md-2"> 
+                      <div style="text-align:center;">
+                        <button style="width:50%; padding:3% 2%;border-radius:15px" type="button" onclick="get_results()" class="btn btn-sm btn-primary">View</button>
+                      </div>                
+                    </div>
+                    <div class="col-md-2"> 
+                      <div style="text-align:center;">
+                        <button style="width:50%; padding:3% 2%;border-radius:15px" type="submit" class="btn btn-sm btn-primary">Excel Download</button>
+                      </div>                 
+                    </div>                                                                  
+                    
                 </div>
-               </div>
-           </div>
-       </div>
-   </div>
+              </form> 
+
+              <div class="" id="partial_data" style=" margin-top: 0.5%;">
+
+              </div>
+        </div>
+      </div>  
+  </div>
 
  
  {% load static %}
@@ -120,7 +126,105 @@
     }
   });
 </script>
- <script type="text/javascript">
+
+<script>
+  $(document).ready(function() {
+    get_results_onpageload();
+  });
+</script>  
+
+<script>
+  function get_results() {
+
+    let dp = $("#dp").val();
+    let status = $("#status").val(); 
+    let created_at = $("#created_at").val();
+    
+    if (!dp && !status && !created_at) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing Parameters',
+            text: 'Please enter at least one parameter.',
+            confirmButtonText: 'OK'
+        });
+        return false;
+    }    
+
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      var formData = new FormData();
+      formData.append('dp', dp);
+      formData.append('status', status);
+      formData.append('created_at', created_at);      
+
+
+      $.ajax({
+        url: 'partial_details_index',
+        type: 'POST',
+        data: formData,
+        headers: {
+          'X-CSRFToken': csrftoken 
+        },
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          debugger;
+
+          $('#partial_data').html('');
+          $('#partial_data').html(response.table);
+        },
+        error: function (error) {
+          $('#loader').hide();
+          Swal.fire({
+            title: "Some Error Occurred!",
+            text: "Please Try Again !!",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 3000,
+          });
+        }
+      });
+    }
+
+</script>
+
+<!-- THIS RUNS WHEN PAGE LOADS -->
+
+<script>
+  function get_results_onpageload() {
+
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+ 
+      $.ajax({
+        url: 'partial_details_index_onpageload',
+        type: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken 
+        },
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          debugger;
+
+          $('#partial_data').html('');
+          $('#partial_data').html(response.table);
+        },
+        error: function (error) {
+          $('#loader').hide();
+          Swal.fire({
+            title: "Some Error Occurred!",
+            text: "Please Try Again !!",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 3000,
+          });
+        }
+      });
+    }
+
+</script>
+
+ <!-- <script type="text/javascript">
      $(document).ready(function () {
        $("#dataTable").DataTable({
          //order: [[0, 'desc']],
@@ -164,8 +268,10 @@
          ],
        });
      });
-   </script>
+   </script> -->
  <!-- End of Main Content -->
+
+
  {% endblock %}
  
  

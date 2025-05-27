@@ -58,6 +58,15 @@ from THRMS.encryption import enc, dec
 from django.utils.timezone import now
 from django.db.models import OuterRef, Subquery
 
+from django.db.models.functions import TruncDate
+from django.template.loader import render_to_string
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, Border, Side
+from datetime import datetime
+import io
+from openpyxl.cell.cell import Cell
+import platform
+
 @login_required
 def enterthedetails(request):
     Db.closeConnection()
@@ -306,6 +315,12 @@ def test_index(request):
     try:
         if request.method == "GET": 
             
+            dpl = PostMaster.objects.values_list('id', 'post')            
+            status_list = CandidateTestMaster.objects.values_list('status', 'status').distinct()
+            cursor.callproc("stp_getCreatedAt") # all the types from parameter master
+            for result in cursor.stored_results():
+                created_at = list(result.fetchall())                        
+                        
             # Subquery to fetch post name from PostMaster
             post_name_subquery = PostMaster.objects.filter(
                 id=OuterRef('post')  # both are IntegerFields now
@@ -343,4 +358,230 @@ def test_index(request):
         m.close()
         Db.closeConnection()
         if request.method == "GET":
-            return render(request, "Test/test_index.html",{'data': candidate_data})             
+            return render(request, "Test/test_index.html",{'data': candidate_data,'dpl':dpl,'status_list':status_list,'created_at':created_at})
+
+@login_required
+def partial_details_index(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()    
+    try:
+        if request.method == "POST":
+            post_id = request.POST.get("dp", "") or None
+            status = request.POST.get("status", "") or None
+            created_at = request.POST.get("created_at", "") or None
+            if created_at:
+                # Convert '23-05-2025' to '2025-05-23'
+                created_date = datetime.strptime(created_at, "%d-%m-%Y").date()
+                created_date_str = created_date.strftime('%Y-%m-%d') 
+            else:
+                created_date_str = None                           
+         
+            param = [post_id or None, status or None, created_date_str or None]
+            candidate_details = []
+            cursor.callproc("stp_getTestIndex", param)
+            for result in cursor.stored_results():
+                candidate_details  = list(result.fetchall())             
+
+            candidate_data = [
+                {
+                    'id': row[0],
+                    'name': row[1],
+                    'mobile': row[2],
+                    'email': row[3],
+                    'post': row[4],
+                    'status': row[5],
+                    'percentage': row[6],
+                    'time_taken': row[7],
+                    'created_at': row[8],
+                    'Encryp': enc(str(row[0])),
+                }
+                for row in candidate_details
+            ]
+
+            # Render the HTML partial
+            table = render_to_string(
+                "Test/partial_test_index.html",  # replace with your actual template path
+                {
+                    "result_set": candidate_data,
+                    "displayIndex": 1,
+                },
+            )
+
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),request.user.id]) 
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        if request.method == "POST":
+            return JsonResponse({"table": table}, safe=False)
+        
+@login_required
+def partial_details_index_onpageload(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()    
+    try:
+        if request.method == "POST":
+
+            candidate_details = []
+            cursor.callproc("stp_getTestIndex_onpageload")
+            for result in cursor.stored_results():
+                candidate_details  = list(result.fetchall())             
+
+            candidate_data = [
+                {
+                    'id': row[0],
+                    'name': row[1],
+                    'mobile': row[2],
+                    'email': row[3],
+                    'post': row[4],
+                    'status': row[5],
+                    'percentage': row[6],
+                    'time_taken': row[7],
+                    'created_at': row[8],
+                    'Encryp': enc(str(row[0])),
+                }
+                for row in candidate_details
+            ]
+
+            # Render the HTML partial
+            table = render_to_string(
+                "Test/partial_test_index.html",  # replace with your actual template path
+                {
+                    "result_set": candidate_data,
+                    "displayIndex": 1,
+                },
+            )
+
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),request.user.id]) 
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        if request.method == "POST":
+            return JsonResponse({"table": table}, safe=False)
+
+@login_required        
+def download_candidate_excel(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()      
+    try:
+        if request.method == "POST":
+            post_id = request.POST.get("post", "") or None
+            status = request.POST.get("status", "") or None
+            created_at = request.POST.get("created_at", "") or None
+
+            if created_at:
+                # Convert '23-05-2025' to '2025-05-23'
+                created_date = datetime.strptime(created_at, "%d-%m-%Y").date()
+                created_date_str = created_date.strftime('%Y-%m-%d')
+            else:
+                created_date_str = None
+
+            param = [post_id or None, status or None, created_date_str or None]
+            candidate_details = []
+
+            cursor.callproc("stp_getTestIndex", param)
+            for result in cursor.stored_results():
+                candidate_details = list(result.fetchall())
+
+            # Prepare Excel workbook
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Candidate Test Details"
+
+            # Styles
+            bold_font = Font(bold=True)
+            center_align = Alignment(horizontal='center', vertical='center')
+            thin_border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+
+            # Merge cells from A1 to H1 for title row
+            ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=8)
+
+            # Set title text and style
+            title_cell = ws.cell(row=1, column=1, value="CANDIDATE DETAILS")
+            title_cell.font = Font(bold=True, size=14)
+            title_cell.alignment = center_align
+
+            # Apply thin border to all cells in the merged range A1:H1
+            for col in range(1, 9):  # Columns A to H
+                cell = ws.cell(row=1, column=col)
+                cell.border = thin_border
+
+            # Header Row
+            headers = ['Name', 'Mobile', 'Email', 'Post', 'Status', 'Percentage', 'Time Taken', 'Created At']
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=2, column=col_num, value=header)
+                cell.font = bold_font
+                cell.alignment = center_align
+                cell.border = thin_border
+
+            for row_num, row_data in enumerate(candidate_details, start=3):
+                data_without_id = row_data[1:]  # remove the first element (ID)
+                for col_num, cell_value in enumerate(data_without_id, 1):
+                    # Format "Created At" (now at 8th position)
+                    if col_num == 8 and isinstance(cell_value, datetime):
+                        if platform.system() == 'Windows':
+                            time_str = cell_value.strftime('%B %d, %Y, %#I:%M %p')
+                        else:
+                            time_str = cell_value.strftime('%B %d, %Y, %-I:%M %p')
+                        cell_value = time_str.replace('AM', 'a.m.').replace('PM', 'p.m.')
+
+                    cell = ws.cell(row=row_num, column=col_num, value=cell_value)
+                    cell.alignment = center_align
+                    cell.border = thin_border
+
+            # Adjust column width
+
+            for col in ws.columns:
+                max_length = 0
+                column_letter = None
+
+                for cell in col:
+                    if isinstance(cell, Cell):
+                        if column_letter is None:
+                            column_letter = cell.column_letter
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+
+                if column_letter:
+                    ws.column_dimensions[column_letter].width = max_length + 2
+
+            # Save to in-memory stream
+            output = io.BytesIO()
+            wb.save(output)
+            output.seek(0)
+
+            # Prepare HTTP response
+            response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename="candidate_test_details.xlsx"'
+            return response
+               
+    except Exception as e:
+        try:
+            tb = traceback.extract_tb(e.__traceback__)
+            fun = tb[0].name
+            cursor.callproc("stp_error_log", [fun, str(e), request.user.id])
+        except:
+            pass  # Optional: prevent infinite error loop if error logging fails
+        return HttpResponse("An error occurred while generating the Excel file.", status=500)
+    finally : 
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()                      
