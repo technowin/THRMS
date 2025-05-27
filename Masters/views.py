@@ -722,16 +722,7 @@ def employee_master(request):
             id = request.GET.get('id', '')
             
 
-            cursor.callproc("stp_get_employee_status")
-            for result in cursor.stored_results():
-                employee_status = list(result.fetchall())
-            if id != '0':  
-                id1 = decrypt_parameter(id)
-                cursor.callproc("sto_get_employee_site", [id1,])    
-                for result in cursor.stored_results():
-                    site_name = list(result.fetchall())
-            else:
-                site_name = [] 
+            site_name = callproc("stp_get_dropdown_values",['worksite'])
             cursor.callproc("stp_get_dropdown_values",['company'])
             for result in cursor.stored_results():
                 company_names = list(result.fetchall())
