@@ -643,11 +643,28 @@ def company_master(request):
                 company_id1 = request.GET.get('id', '')
                 company_id= dec(company_id1)
                 data = callproc("stp_edit_company_master", (company_id,))  # Note the comma to make it a tuple
-    
                         
-                context = {
-                    "data":data
-                }
+                company_id1 = request.GET.get('id', '')
+                company_id = dec(company_id1)
+
+                data = callproc("stp_edit_company_master", (company_id,))
+
+                if data and len(data) > 0:
+                    record = data[0]
+                    context = {
+                        'company_id': record[0],
+                        'company_name': record[1],
+                        'company_address': record[2],
+                        'pincode': record[3],
+                        'contact_person_name': record[4],
+                        'contact_person_email': record[5],
+                        'contact_person_mobile_no': record[6],
+                        'is_active': record[7]
+                    }
+                else:
+                    context = {}
+                    messages.error(request, "Company data not found.")
+
 
         if request.method == "POST" :
             company_id = request.POST.get('company_id', '')
@@ -1691,7 +1708,7 @@ def site_master(request):
                 # cursor.callproc("stp_edit_site_master",(site_id, )) 
                 # for result in cursor.stored_results():
                 #     data = result.fetchall()[0]
-                site_id1 = request.GET.get('site_id', '')
+                site_id1 = request.GET.get('id', '')
                 site_id = decrypt_parameter(site_id1)
                 cursor.callproc("stp_edit_site_master", (site_id,)) 
                 for result in cursor.stored_results():

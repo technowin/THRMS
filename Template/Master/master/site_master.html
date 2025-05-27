@@ -109,7 +109,7 @@
                         
                          <div class="col-md-3">
                             <label for="state_id" class="form-label">State <span style="color:red;"> *</span> :</label>
-                            <select name="state_id" id="state_id" class="form-control" required onchange="fetchCities(this.value)">
+                            <select name="state_id" id="state_id" class="form-control select" required onchange="fetchCities(this.value)">
                                 <option value="" disabled {% if site_id == '0' %}selected{% endif %}>Select</option>
                                 {% for item in state_names %}
                                     <option value="{{ item.0 }}" {% if item.0 == state_id %}selected{% endif %}>{{ item.1 }}</option>
@@ -123,7 +123,7 @@
 
                             <div class="col-md-3">
                                 <label for="city_id" class="form-label">City <span style="color:red;"> *</span> :</label>
-                                <select name="city_id" id="city_id" class="form-control" required>
+                                <select name="city_id" id="city_id" class="form-control select" required>
                                     <option value="" disabled {% if site_id == '0' %}selected{% endif %}>Select</option>
                                     {% for item in city_names %}
                                         <option value="{{ item.0 }}" {% if item.0 == city %}selected{% endif %}>{{ item.1 }}</option>

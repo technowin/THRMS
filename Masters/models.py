@@ -201,7 +201,7 @@ class sc_employee_master(models.Model):
     account_no =  models.TextField(null=True,blank=True)
     account_holder_name =  models.TextField(null=True,blank=True)
     company_id = models.ForeignKey('Masters.company_master', on_delete=models.CASCADE,related_name='employee_relation',blank=True, null=True,db_column='company_id')
-    employment_status = models.ForeignKey(parameter_master, on_delete=models.CASCADE,related_name='parameter_data',blank=True, null=True)
+    employment_status_id = models.TextField(null=True,blank=True)
     is_active =models.BooleanField(null=True,blank=True,default=True)
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_created',blank=True, null=True,db_column='created_by')
