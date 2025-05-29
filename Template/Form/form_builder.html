@@ -311,17 +311,17 @@
              });
              commonDropdownHtml += `</select>`;
 
-             let sectiondropdownHtml = `<select id="section-dropdown-${field.id}" class="form-control section-select">`;
+            let sectiondropdownHtml = `<select id="section-dropdown-${field.id}" class="form-control section-select">`;
 
-             // Add placeholder
-             sectiondropdownHtml += `<option value="" disabled ${!field.section ? "selected" : ""}>Select Section</option>`;
-             
-             section.forEach(option => {
-                 const isSelected = String(option.id) === String(field.section) ? "selected" : "";
-                 sectiondropdownHtml += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
-             });
-             
-             sectiondropdownHtml += `</select>`;
+            sectiondropdownHtml += `<option value="" disabled ${!field.section ? "selected" : ""}>Select Section</option>`;
+
+            section.forEach(option => {
+                const isSelected = String(option.id) === String(field.section) ? "selected" : "";
+                sectiondropdownHtml += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
+            });
+
+            sectiondropdownHtml += `</select>`;
+
              
              
 
@@ -618,49 +618,67 @@
     
 
     function captureDropdownStates() {
-        const stateMap = {};
-    
-        $('select[id^="form-dropdown-"]').each(function () {
-            const fieldId = this.id.split('-')[2];
-            const selectedFormValue = $(this).val();
-            const selectedSubFieldValue = $(`select[name="sub_field_${fieldId}"]`).val() || "";
-    
-            stateMap[fieldId] = {
-                formValue: selectedFormValue,
-                subFieldValue: selectedSubFieldValue
-            };
-        });
-    
-        // Capture master dropdowns
-        $('select[id^="option-dropdown-"]').each(function () {
-            const fieldId = this.id.split('-')[2];
-            const selectedMasterValue = $(this).val();
-    
-            if (!stateMap[fieldId]) stateMap[fieldId] = {};
-            stateMap[fieldId].masterValue = selectedMasterValue;
-        });
-    
-        return stateMap;
-    }
+    const stateMap = {};
+
+    // Capture form dropdowns and sub-fields
+    $('select[id^="form-dropdown-"]').each(function () {
+        const fieldId = this.id.split('-')[2];
+        const selectedFormValue = $(this).val();
+        const selectedSubFieldValue = $(`select[name="sub_field_${fieldId}"]`).val() || "";
+
+        stateMap[fieldId] = {
+            formValue: selectedFormValue,
+            subFieldValue: selectedSubFieldValue
+        };
+    });
+
+    // Capture master dropdowns
+    $('select[id^="option-dropdown-"]').each(function () {
+        const fieldId = this.id.split('-')[2];
+        const selectedMasterValue = $(this).val();
+
+        if (!stateMap[fieldId]) stateMap[fieldId] = {};
+        stateMap[fieldId].masterValue = selectedMasterValue;
+    });
+
+    // ✅ Capture section dropdowns
+    $('select[id^="section-dropdown-"]').each(function () {
+        const fieldId = this.id.split('-')[2];
+        const selectedSectionValue = $(this).val();
+
+        if (!stateMap[fieldId]) stateMap[fieldId] = {};
+        stateMap[fieldId].sectionValue = selectedSectionValue;
+    });
+
+    return stateMap;
+}
+
 
     
     function restoreDropdownStates(stateMap) {
-        for (const fieldId in stateMap) {
-            const { formValue, subFieldValue, masterValue } = stateMap[fieldId];
-    
-            // Restore form dropdown
-            if (formValue) {
-                $(`#form-dropdown-${fieldId}`).val(formValue);
-                loadFieldNames(fieldId, formValue, subFieldValue);
-            }
-    
-            // Restore master dropdown
-            if (masterValue !== undefined) {
-                $(`#option-dropdown-${fieldId}`).val(masterValue);
-                updateFields(fieldId, 'masterValue', masterValue);
-            }
+    for (const fieldId in stateMap) {
+        const { formValue, subFieldValue, masterValue, sectionValue } = stateMap[fieldId];
+
+        // Restore form dropdown
+        if (formValue) {
+            $(`#form-dropdown-${fieldId}`).val(formValue);
+            loadFieldNames(fieldId, formValue, subFieldValue);
+        }
+
+        // Restore master dropdown
+        if (masterValue !== undefined) {
+            $(`#option-dropdown-${fieldId}`).val(masterValue);
+            updateFields(fieldId, 'masterValue', masterValue);
+        }
+
+        // ✅ Restore section dropdown
+        if (sectionValue !== undefined) {
+            $(`#section-dropdown-${fieldId}`).val(sectionValue);
+            updateFields(fieldId, 'section', sectionValue); // Optional: update model if needed
         }
     }
+}
+
     
 
      function loadFieldNames(fieldId, combinedValue, selectedSubFieldValue) {
@@ -725,10 +743,6 @@
             }
         }
     }
-    
-    
-    
-
 
     
     
