@@ -1901,3 +1901,4 @@ def get_access_control(request):
         m.close()
         Db.closeConnection()
         return JsonResponse(response)
+    

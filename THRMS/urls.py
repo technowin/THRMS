@@ -59,6 +59,9 @@ urlpatterns = [
     path('delete-file/', delete_file, name='delete_file'),
     path('get_query_data/', get_query_data, name='get_query_data'),
     path('check_field_before_delete/', check_field_before_delete, name='check_field_before_delete'),
+    path('get_field_names/', get_field_names, name='get_field_names'),
+    path('get_regex_pattern/', get_regex_pattern, name='get_regex_pattern'),
+    path('create_new_section/', create_new_section, name='create_new_section'),
     path('get_access_control', get_access_control, name='get_access_control'),
 
 

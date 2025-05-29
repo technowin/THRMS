@@ -40,6 +40,7 @@ class SiteCardRelationForm(forms.ModelForm):
             'site': forms.Select(attrs={'class': 'form-control'}),
             'card': forms.Select(attrs={'class': 'form-control'}),
             'designation': forms.Select(attrs={'class': 'form-control'}),
+            
         }
 
     def __init__(self, *args, **kwargs):

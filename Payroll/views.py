@@ -17,7 +17,7 @@ from django.db.models import Q
 from pyparsing import str_type
 from Account import models
 from Account.models import CustomUser
-from Masters.models import CityMaster, SlotDetails, StateMaster, UserSlotDetails, company_master, parameter_master, sc_employee_master, site_master
+from Masters.models import CityMaster, LevelMaster, SlotDetails, StateMaster, UserSlotDetails, company_master, parameter_master, sc_employee_master, site_master
 from Masters.serializers import PaySlipSerializer, SalaryGeneratedSerializer
 from Payroll.forms import ExcelUploadForm, RateCardMasterForm, SalaryElementMasterForm, SiteCardRelationForm
 from Payroll.models import IncomeTaxCalculation, IncomeTaxMaster, PaySlip, PayoutDetails, RateCardSalaryElement, PayrollStatusMaster, SalaryUnit, basis_type, daily_salary, designation_master, employee_rate_card_details, income_tax_deduction, income_tax_parameter, pay_type
@@ -743,6 +743,12 @@ def rate_card_create(request):
             rate_card.updated_by = request.user
             rate_card.is_active = True
             rate_card.save()
+
+            location = get_object_or_404(site_master, site_id=request.POST.get('location'))
+            client = get_object_or_404(company_master, company_id=request.POST.get('client_name'))
+            designation = get_object_or_404(designation_master, designation_id=request.POST.get('designation'))
+            level = get_object_or_404(LevelMaster, id=request.POST.get('level'))
+
             
             # Save the many-to-many relation with additional fields in the through model
             selected_items = request.POST.getlist('item_ids')  # Get selected item_ids
@@ -772,7 +778,11 @@ def rate_card_create(request):
                     salary_unit = get_object_or_404(SalaryUnit, id = salary_unit)
                 )
 
-            messages.success(request, 'Rate Card created successfully!')
+            site_card = SiteCardRelationForm.objects.all().save(commit=False)
+            site_card.card = rate_card  # Link to just-created rate_card
+            site_card.save()
+
+            messages.success(request, 'Rate Card and Site Relation created successfully!')
             return redirect('rate_card_index')
         else:
             messages.error(request, 'Error creating Rate Card.')
@@ -784,11 +794,12 @@ def rate_card_create(request):
         client_names = company_master.objects.all()
         designation_names = designation_master.objects.all()
         location_names = site_master.objects.all()
+        level_names = LevelMaster.objects.all()
         
         form = RateCardMasterForm()
     
     return render(request, 'Payroll/RateCard/create.html', {'form': form,'tax_parameter':tax_parameter,'salary_unit':salary_unit,'pay_type':pay_types,'classification':classification,
-                "client_names":client_names,"designation_names":designation_names,"location_names":location_names})
+                "client_names":client_names,"designation_names":designation_names,"location_names":location_names,"level_names":level_names})
 
 
 

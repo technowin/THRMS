@@ -1,5 +1,6 @@
 from django.db import connection
 from django.shortcuts import render
+from collections import defaultdict
 
 import json
 import pydoc
@@ -68,79 +69,104 @@ def get_dublicate_name(request):
         return JsonResponse({'exists': exists})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+
 def form_builder(request):
-    form_id = request.GET.get('form_id')
-    # common_options = list(CommonMaster.objects.filter(type='attribute').values("id", "control_value"))
-    common_options = list(AttributeMaster.objects.values("id","control_name", "control_value",))
-    sub_control = list(ValidationMaster.objects.values("id", "control_name", "control_value", "field_type"))
-    regex = list(RegexPattern.objects.values("id", "input_type", "regex_pattern", "description"))  
-    dropdown_options = list(ControlParameterMaster.objects.values("control_name", "control_value"))
-    master_dropdown = list(MasterDropdownData.objects.values("id", "name", "query"))
-    # for item in master_dropdown:
-    #     item["id"] = enc(json.dumps(item["id"]))
-
-
-    if not form_id:  
-        return render(request, "Form/form_builder.html", {
-            "regex":json.dumps(regex),
-            "dropdown_options": json.dumps(dropdown_options),
-            "common_options": json.dumps(common_options),
-            "sub_control": json.dumps(sub_control),
-            "master_dropdown": json.dumps(master_dropdown)
-        })
-
     try:
-        form_id = dec(form_id)  # Decrypt form_id
-        form = get_object_or_404(Form, id=form_id)  # Get form or return 404
-        fields = FormField.objects.filter(form_id=form_id).order_by('order')
-        validations = FieldValidation.objects.filter(form_id=form_id)
+        form_id = request.GET.get('form_id')
+        common_options = list(AttributeMaster.objects.values("id", "control_name", "control_value"))
+        sub_control = list(ValidationMaster.objects.values("id", "control_name", "control_value", "field_type"))
+        regex = list(RegexPattern.objects.values("id", "input_type", "regex_pattern", "description"))
+        dropdown_options = list(ControlParameterMaster.objects.values("control_name", "control_value"))
+        master_dropdown = list(MasterDropdownData.objects.values("id", "name", "query"))
+        form_names = list(Form.objects.values("id","name"))
+        section = list(SectionMaster.objects.values("id","name"))
+        # version_fields = [field.name for field in WorkflowVersionControl._meta.fields if field.name == 'file_name']
+        # version = [name.replace('_', ' ').title() for name in version_fields]
+
+
+        if not form_id:
+            return render(request, "Form/form_builder.html", {
+                "regex": json.dumps(regex),
+                "dropdown_options": json.dumps(dropdown_options),
+                "common_options": json.dumps(common_options),
+                "sub_control": json.dumps(sub_control),
+                "master_dropdown": json.dumps(master_dropdown),
+                "form_names":json.dumps(form_names),
+                "section_names":json.dumps(section),
+            })
+
+        try:
+            form_id = dec(form_id)  # Decrypt form_id
+            form = get_object_or_404(Form, id=form_id)
+            fields = FormField.objects.filter(form_id=form_id).order_by('order')
+            validations = FieldValidation.objects.filter(form_id=form_id)
+            generative = FormGenerativeField.objects.filter(form_id=form_id)
+        except Exception as e:
+            print(f"Error fetching form data: {e}")
+
+        validation_dict = {}
+        try:
+            for validation in validations:
+                field_id = validation.field.id
+
+                if field_id not in validation_dict:
+                    validation_dict[field_id] = []
+
+                validation_entry = {
+                    "validation_type": validation.sub_master.control_value,
+                    "validation_value": validation.value
+                }
+                validation_dict[field_id].append(validation_entry)
+
+        except Exception as e:
+            print(f"Error processing validations: {e}")
+            traceback.print_exc()
+
+        generative_list = {}
+        for generate in generative:
+            field_id = generate.field.id
+
+            if field_id not in generative_list:
+                generative_list[field_id] = []
+
+            generative_list[field_id].append({
+                "prefix": generate.prefix,
+                "selected_field": generate.selected_field_id,
+                "no_of_zero": generate.no_of_zero,
+                "increment": generate.increment,
+            })
+
+
+        form_fields_json = json.dumps([
+            {
+                "id": field.id,
+                "label": field.label,
+                "type": field.field_type,
+                "section":field.section,
+                "options": field.values.split(",") if field.values else [], 
+                "attributes": field.attributes if field.attributes else [],
+                "validation": validation_dict.get(field.id, []),
+                "generative_list": generative_list
+            }
+            for field in fields
+        ])
     except Exception as e:
-        print(f"Error fetching form data: {e}")  # Debugging
-        return render(request, "Form/form_builder.html", {
-            "regex":json.dumps(regex),
-            "dropdown_options": json.dumps(dropdown_options),
-            "common_options": json.dumps(common_options),
-            "sub_control": json.dumps(sub_control),
-            "master_dropdown": json.dumps(master_dropdown),
-            "error": "Invalid form ID"
-        })
-
-    # Organizing validations in a dictionary {field_id: [{validation_type, validation_value}]}
-    validation_dict = {}
-
-    for validation in validations:
-        field_id = validation.field.id
-
-        if field_id not in validation_dict:
-            validation_dict[field_id] = []
-
-        validation_dict[field_id].append({
-            "validation_type": validation.sub_master.control_value,  # Assuming 'control_value' holds validation type
-            "validation_value": validation.value
-        })
-
-    # Convert fields and their validation rules to JSON
-    form_fields_json = json.dumps([
-        {
-            "id": field.id,
-            "label": field.label,
-            "type": field.field_type,
-            "options": field.values.split(",") if field.values else [],
-            "attributes": field.attributes,
-            "validation": validation_dict.get(field.id, [])  # Attach validation rules
-        }
-        for field in fields
-    ])
+        traceback.print_exc()
+        messages.error(request, 'Oops...! Something went wrong!')
+        return JsonResponse({"error": "Something went wrong!"}, status=500)
 
     return render(request, "Form/form_builder.html", {
         "form": form,
-        "regex":json.dumps(regex),
+        "regex": json.dumps(regex),
         "form_fields_json": form_fields_json,
         "dropdown_options": json.dumps(dropdown_options),
         "common_options": json.dumps(common_options),
         "sub_control": json.dumps(sub_control),
-        "master_dropdown": json.dumps(master_dropdown)
+        "master_dropdown": json.dumps(master_dropdown),
+        "form_names":json.dumps(form_names),
+        "section_names":json.dumps(section),
     })
+
 
 def format_label(label):
     """Format label to have proper capitalization."""
@@ -175,7 +201,13 @@ def save_form(request):
                
                 if field.get("type") == "master dropdown":
                     value = field.get("masterValue","")
-
+                elif field.get("type") == "field_dropdown":
+                    dropdown_mappings = field.get("field_dropdown", [])
+                    form_id_selected = dropdown_mappings.get("form_id","")
+                    field_id_selected = dropdown_mappings.get("field_id","")
+                    if form_id_selected and field_id_selected:
+                        value = f"{form_id_selected},{field_id_selected}"
+            
                     # value = dec(value)
                 else:
                     value=",".join(option.strip() for option in field.get("options", []))
@@ -186,17 +218,16 @@ def save_form(request):
 
                 form_field = FormField.objects.create(
                     form=form,
-                    label=formatted_label,  # Use formatted label here
+                    label=formatted_label, 
+                    section = field.get("section",""), # Use formatted label here
                     field_type=field.get("type", ""),
-                    attributes=field.get("attributes", ""),
+                    attributes=field.get("attributes", "[]"),
                     values=value,
                     created_by=request.session.get('user_id', '').strip(),
                     order=order
                 )
                 
                 field_id = form_field.id
-                
-
 
                
                 # Handle regex & max_length validation separately
@@ -251,8 +282,40 @@ def save_form(request):
                                 created_by = request.session.get('user_id', '').strip()
                             )
 
+                if field.get("type") == "generative":
+                    generative_fields.append({
+                        "form_field": form_field,
+                        "prefix": field.get("prefix", ""),
+                        "field_names": field.get("field_name", []),
+                        "no_of_zero": field.get("no_of_zero", ""),
+                        "increment": field.get("increment", "")
+                    })
 
                 
+
+                for gen_field in generative_fields:
+                    
+                    prefix = gen_field["prefix"]
+                    if isinstance(prefix, (list, tuple)):
+                        prefix = prefix[0] if prefix else ""
+
+                    field_ids = FormField.objects.filter(
+                        form=form,
+                        label__in=gen_field["field_names"]
+                    ).values_list("id", flat=True)
+
+                    FormGenerativeField.objects.create(
+                        prefix=gen_field["prefix"],
+                        selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
+                        no_of_zero=gen_field["no_of_zero"],
+                        increment=gen_field["increment"],
+                        form=form,
+                        field=gen_field["form_field"]
+                    )
+
+
+
+
             callproc('create_dynamic_form_views')
             messages.success(request, "Form and fields saved successfully!!")
             new_url = f'/masters?entity=form&type=i'
@@ -291,7 +354,11 @@ def update_form(request, form_id):
             form = get_object_or_404(Form, id=form_id)
             form.name = form_name
             form.description = form_description
+            updated_by = request.session.get('user_id', '').strip()
             form.save()
+            index = 0
+            # existing_field_ids = set(FormField.objects.filter(form=form).values_list("id", flat=True))
+            # incoming_field_ids = set()
 
             existing_field_ids = set(FormField.objects.filter(form=form).values_list("id", flat=True))
             incoming_field_ids = set()
@@ -300,15 +367,35 @@ def update_form(request, form_id):
                 if field.get("id"):
                     incoming_field_ids.add(int(field["id"]))
 
+            generative_fields = [] 
 
             for index,field in enumerate(form_data):
-                attributes_value = field.get("attributes", "")
+                attributes_value = field.get("attributes", "[]")
                 field_id = field.get("id", "")
                 formatted_label = format_label(field.get("label", ""))
                 order = field.get("order","")
 
                 if field.get("type") == "master dropdown":
                     value = field.get("masterValue", "")
+                
+                elif field.get("type") == "field_dropdown":
+                    dropdown_mappings = field.get("field_dropdown", [])
+                    if dropdown_mappings:
+                        form_id_selected = dropdown_mappings.get("form_id","")
+                        field_id_selected = dropdown_mappings.get("field_id","")
+                        if form_id_selected and field_id_selected:
+                            value = f"{form_id_selected},{field_id_selected}"
+
+                    else:
+                        if field.get("options"):
+                            # Assuming options is an array like ["91", "1206"]
+                            value = f"{field['options'][0]},{field['options'][1]}"  # First option as form_id, second as field_id
+                        else:
+                            value = ""
+                    
+                    # Store the value
+                    field["value"] = value
+
                 else:
                     value = ",".join(option.strip() for option in field.get("options", []))
 
@@ -317,6 +404,7 @@ def update_form(request, form_id):
                         form_field = FormField.objects.get(id=field_id)
                         form_field.label = formatted_label
                         form_field.field_type = field.get("type", "")
+                        form_field.section = field.get("section","")
                         form_field.attributes = attributes_value
                         form_field.values = value
                         form_field.order = order
@@ -325,15 +413,29 @@ def update_form(request, form_id):
                     except FormField.DoesNotExist:
                         # Field ID not found, create new
                         form_field = FormField.objects.create(
-                            form=form,label=formatted_label,field_type=field.get("type"),attributes=attributes_value,values=value, created_by=user,
-                            order=order)
+                            form=form,
+                            label=formatted_label,
+                            field_type=field.get("type", ""),
+                            attributes=attributes_value,
+                            values=value,
+                            created_by=user,
+                            order=order
+                        )
                 else:
                     # New field with no ID
                     form_field = FormField.objects.create(
-                        form=form,label=formatted_label,field_type=field.get("type"),attributes=attributes_value,values=value,created_by=user,
-                        order=order)
+                        form=form,
+                        label=formatted_label,
+                        field_type=field.get("type", ""),
+                        attributes=attributes_value,
+                        values=value,
+                        created_by=user,
+                        order=order
+                    )
 
                 field_id = form_field.id
+
+
 
                 # ✅ Ensure 'subValues' exists
                 if "validation" in field and isinstance(field["validation"], list):
@@ -393,11 +495,46 @@ def update_form(request, form_id):
                             updated_by = user
                         )
 
+
+                if field.get("type") == "generative":
+                    generative_fields.append({
+                        "form_field": form_field,
+                        "prefix": field.get("prefix", ""),
+                        "field_ids": field.get("field_name", []),
+                        "no_of_zero": field.get("no_of_zero", ""),
+                        "increment": field.get("increment", "")
+                    })
+
+
+                for gen_field in generative_fields:
+                    prefix = gen_field["prefix"]
+                    if isinstance(prefix, (list, tuple)):
+                        prefix = prefix[0] if prefix else ""
+
+                    field_ids = FormField.objects.filter(
+                        form=form,
+                        label__in=gen_field["field_ids"]
+                    ).values_list("id", flat=True)
+
+                    # Skip if all critical fields are empty
+                    if not prefix and not field_ids and not gen_field["no_of_zero"] and not gen_field["increment"]:
+                        continue
+                    else:
+                        FormGenerativeField.objects.filter(form_id=form.id).delete()
+
+                        FormGenerativeField.objects.create(
+                            prefix=prefix,
+                            selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
+                            no_of_zero=gen_field["no_of_zero"],
+                            increment=gen_field["increment"],
+                            form=form,
+                            field=gen_field["form_field"]
+                        )
+
                 removed_field_ids = existing_field_ids - incoming_field_ids
                 if removed_field_ids:
                     FormField.objects.filter(id__in=removed_field_ids).delete()
-                
-
+           
 
             callproc('create_dynamic_form_views')
             messages.success(request, "Form updated successfully!!")
@@ -618,80 +755,156 @@ def form_master(request):
     try:
 
         if request.method == "POST":
-            form_id = request.POST.get("form")
-            
-            fields = FormField.objects.filter(form_id=form_id).values(
-                "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name"
-            ).order_by("order")
+            try:
+                form_id = request.POST.get("form")
+                form = get_object_or_404(Form, id=form_id)
 
-            fields = list(fields)
+                raw_fields = FormField.objects.filter(form_id=form_id).values(
+                    "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name", "section"
+                ).order_by("order")
 
-            for field in fields:
-    # Clean up values and attributes
-                field["values"] = [v.strip() for v in field["values"].split(",")] if field.get("values") else []
-                field["attributes"] = [a.strip() for a in field["attributes"].split(",")] if field.get("attributes") else []
+                sectioned_fields = {}
 
-                # Fetch validations
-                validations = FieldValidation.objects.filter(
-                    field_id=field["id"], form_id=form_id
-                ).values("value")
-                field["validations"] = list(validations)
+                for field in raw_fields:
+                    # Clean up values and attributes
+                    field["values"] = [v.strip() for v in field["values"].split(",")] if field.get("values") else []
+                    field["attributes"] = [a.strip() for a in field["attributes"].split(",")] if field.get("attributes") else []
 
-                # File/text accept field handling
-                if field["field_type"] in ["file", "file multiple", "text"]:
-                    file_validation = next((v for v in field["validations"]), None)
-                    field["accept"] = file_validation["value"] if file_validation else ""
+                    # Get section name
+                    section_id = field.get("section")
+                    if section_id:
+                        try:
+                            section = SectionMaster.objects.get(id=section_id)
+                            section_name = section.name
+                        except SectionMaster.DoesNotExist:
+                            section_name = ""
+                    else:
+                        section_name = ""
 
-                # Handle master dropdown (fetch dynamic values)
-                if field["field_type"] == "master dropdown" and field["values"]:
-                    dropdown_id = field["values"][0]
-                    try:
-                        master_data = MasterDropdownData.objects.get(id=dropdown_id)
-                        query = master_data.query
-                        result = callproc("stp_get_query_data", [query])
+                    field["section_name"] = section_name
 
-                        # Format as list of dicts
-                        field["values"] = [{"id": row[0], "name": row[1]} for row in result]
-                    except MasterDropdownData.DoesNotExist:
-                        field["values"] = []
+                    # Fetch validations
+                    validations = FieldValidation.objects.filter(
+                        field_id=field["id"], form_id=form_id
+                    ).values("value")
+                    field["validations"] = list(validations)
 
-            context = {"fields": fields, "type": "master"}
-            html = render_to_string("Form/_formfields.html", context)
-            return JsonResponse({'html': html}, safe=False)
+                    # Regex detection
+                    if any("^" in v["value"] for v in field["validations"]):
+                        field["field_type"] = "regex"
+                        pattern_value = field["validations"][0]["value"]
+                        try:
+                            regex_obj = RegexPattern.objects.get(regex_pattern=pattern_value)
+                            field["regex_id"] = regex_obj.id
+                            field["regex_description"] = regex_obj.description
+                        except RegexPattern.DoesNotExist:
+                            field["regex_id"] = None
+                            field["regex_description"] = ""
 
+
+
+                    # Accept type (file/text)
+                    if field["field_type"] in ["file", "file multiple", "text"]:
+                        file_validation = next((v for v in field["validations"]), None)
+                        field["accept"] = file_validation["value"] if file_validation else ""
+
+                    # Field Dropdown (dynamic values)
+                    if field["field_type"] == "field_dropdown":
+                        split_values = field["values"]
+                        if len(split_values) == 2:
+                            dropdown_form_id, dropdown_field_id = split_values
+                            field_values = FormFieldValues.objects.filter(field_id=dropdown_field_id).values("value").distinct()
+                            field["dropdown_data"] = list(field_values)
+
+                    # Master Dropdown
+                    if field["field_type"] == "master dropdown" and field["values"]:
+                        dropdown_id = field["values"][0]
+                        try:
+                            master_data = MasterDropdownData.objects.get(id=dropdown_id)
+                            query = master_data.query
+                            result = callproc("stp_get_query_data", [query])
+                            field["values"] = [{"id": row[0], "name": row[1]} for row in result]
+                        except MasterDropdownData.DoesNotExist:
+                            field["values"] = []
+
+                    # Group by section name
+                    sectioned_fields.setdefault(section_name, []).append(field)
+
+                context = {
+                    "sectioned_fields": sectioned_fields,
+                    "type": "master",
+                    "form_name": form
+                }
+                html = render_to_string("Form/_formfields.html", context)
+                return JsonResponse({'html': html}, safe=False)
+            except Exception as e:
+                traceback.print_exc()
+                messages.error(request, 'Oops...! Something went wrong!')
+                return JsonResponse({"error": "Something went wrong!"}, status=500)
+        
+
+
+        
 
         
         else:
-        
             form_data_id = request.GET.get("form")
-
+        
             if form_data_id:
                 form_data_id = dec(form_data_id)
                 form_instance = FormData.objects.filter(id=form_data_id).values("id","form_id", "action_id").first()
                 
                 if form_instance:
                     form_id = form_instance["form_id"]
-                    form = get_object_or_404(Form,id = form_id)
-                    action_id = form_instance["action_id"]
-                    
-                    fields = FormField.objects.filter(form_id=form_id).values(
-                        "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name"
-                    ).order_by("order")  # Sort by 'order' field
-                    fields = list(fields)
+                    form = get_object_or_404(Form, id=form_id)
 
-                    # Fetch saved values for the form data
+
+                    fields = FormField.objects.filter(form_id=form_id).values(
+                        "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name", "section"
+                    ).order_by("order")
+                    field_values = FormFieldValues.objects.filter(form_data_id=form_data_id).values("field_id", "value")
+                    field_values = list(fields)
                     field_values = FormFieldValues.objects.filter(form_data_id=form_data_id).values("field_id", "value")
                     values_dict = {fv["field_id"]: fv["value"] for fv in field_values}
 
+                    sectioned_fields = defaultdict(list)
+
+
                     for field in fields:
+                        # Split values and attributes
                         field["values"] = field["values"].split(",") if field.get("values") else []
                         field["attributes"] = field["attributes"].split(",") if field.get("attributes") else []
 
-                        # Fetch validation rules
-                        validations = FieldValidation.objects.filter(field_id=field["id"], form_id=form_id).values("value")
+                        # Section name logic
+                        section_id = field.get("section")
+                        if section_id:
+                            try:
+                                section = SectionMaster.objects.get(id=section_id)
+                                section_name = section.name
+                            except SectionMaster.DoesNotExist:
+                                section_name = ""
+                        else:
+                            section_name = ""
+
+                        # Validation rules
+                        validations = FieldValidation.objects.filter(
+                            field_id=field["id"], form_id=form_id
+                        ).values("value")
                         field["validations"] = list(validations)
 
-                        # Extract file format for file fields
+                        # Check for regex
+                        if any("^" in v["value"] for v in field["validations"]):
+                            field["field_type"] = "regex"
+                            pattern_value = field["validations"][0]["value"]
+                            try:
+                                regex_obj = RegexPattern.objects.get(regex_pattern=pattern_value)
+                                field["regex_id"] = regex_obj.id
+                                field["regex_description"] = regex_obj.description
+                            except RegexPattern.DoesNotExist:
+                                field["regex_id"] = None
+                                field["regex_description"] = ""
+
+                        # File field logic
                         if field["field_type"] in ["file", "file multiple"]:
                             file_validation = next((v for v in field["validations"]), None)
                             field["accept"] = file_validation["value"] if file_validation else ""
@@ -699,42 +912,52 @@ def form_master(request):
                             file_exists = FormFile.objects.filter(field_id=field["id"], form_data_id=form_data_id).exists()
                             field["file_uploaded"] = 1 if file_exists else 0
 
-                            # If file exists, remove "required" from attributes
                             if file_exists and "required" in field["attributes"]:
                                 field["attributes"].remove("required")
 
 
-                        # Set existing values if available
+                        # Set saved value
                         saved_value = values_dict.get(field["id"], "")
-
                         if field["field_type"] == "select multiple":
                             field["value"] = [val.strip() for val in saved_value.split(",") if val.strip()]
                         else:
                             field["value"] = saved_value
 
+
+                        # field_dropdown logic
+                        if field["field_type"] == "field_dropdown":
+                            split_values = field["values"]
+                            if len(split_values) == 2:
+                                try:
+                                    dropdown_field_id = int(split_values[1])
+                                    dropdown_field_values = FormFieldValues.objects.filter(field_id=dropdown_field_id)
+                                    field["dropdown_data"] = list(dropdown_field_values.values())
+                                    field["saved_value"] = values_dict.get(field["id"])
+                                except (ValueError, IndexError):
+                                    field["dropdown_data"] = []
+                                    field["saved_value"] = ""
+
+
+
+                        # master dropdown logic
                         if field["field_type"] == "master dropdown" and field["values"]:
-                            dropdown_id = field["values"][0]
                             try:
+                                dropdown_id = field["values"][0]
                                 master_data = MasterDropdownData.objects.get(id=dropdown_id)
                                 query = master_data.query
                                 result = callproc("stp_get_query_data", [query])
-
-                                # Format as list of dicts
                                 field["values"] = [{"id": row[0], "name": row[1]} for row in result]
-                            except MasterDropdownData.DoesNotExist:
+                            except (MasterDropdownData.DoesNotExist, IndexError):
                                 field["values"] = []
 
+                        # Group field by section name
+                        sectioned_fields[section_name].append(field)
+
                     # ✅ Fetch action fields (no validations needed)
-                    action_fields = list(FormActionField.objects.filter(action_id=action_id).values(
-                        "id", "type", "label_name", "button_name", "bg_color", "text_color", 
-                        "button_type", "dropdown_values", "status"
-                    ))
-                    action_fields = list(action_fields)
+                    
+            
 
-                    for af in action_fields:
-                        af["dropdown_values"] = af["dropdown_values"].split(",") if af.get("dropdown_values") else []
-
-                    return render(request, "Form/_formfieldedit.html", {"fields": fields,"action_fields":action_fields,"type":"edit","form":form,"form_data_id":form_data_id})
+                    return render(request, "Form/_formfieldedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id})
             else:
                 type = request.GET.get("type")
                 form = Form.objects.all()
@@ -1264,3 +1487,35 @@ def check_field_before_delete(request):
             return JsonResponse({"success": True})
 
     return JsonResponse({"success": False, "error": "Invalid request method."})
+
+
+def get_regex_pattern(request):
+    if request.method == "POST":
+        regex_id = request.POST.get("regex_id")
+
+        try:
+            regex = RegexPattern.objects.get(id=regex_id)
+            return JsonResponse({
+                "regex_id":regex_id,
+                "pattern": regex.regex_pattern,
+                "description": regex.description
+            })
+        except RegexPattern.DoesNotExist:
+            return JsonResponse({"error": "Pattern not found"}, status=404)
+
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+def create_new_section(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        if name:
+            section = SectionMaster.objects.create(name=name)
+            return JsonResponse({"id": section.id, "name": section.name})
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+def get_field_names(request):
+    if request.method == 'POST':
+        form_id = request.POST.get('form_id')
+        fields = FormField.objects.filter(form_id=form_id).values('id', 'label')
+        return JsonResponse({'fields': list(fields)})

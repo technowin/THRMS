@@ -97,7 +97,7 @@ class site_card_relation(models.Model):
     designation = models.ForeignKey(designation_master, on_delete=models.CASCADE,related_name='site_designation_master',blank=True, null=True,db_column='designation_id')
     relation_name = models.TextField(null=True,blank=True)
     client_id = models.ForeignKey('Masters.company_master', on_delete=models.CASCADE,related_name='site_client_id',blank=True, null=True,db_column='client_id')
-    level = models.ForeignKey('Masters.LevelMaster', on_delete=models.CASCADE,related_name='site_level_id',blank=True, null=True,db_column='level_id')
+    level = models.ForeignKey('Masters.LevelMaster', on_delete=models.CASCADE,related_name='site_level_id',blank=True, null=True,db_column='lev')
     # working_hours =models.BigIntegerField(null=True,blank=False)
     card= models.ForeignKey(rate_card_master, on_delete=models.CASCADE,related_name='rate_card_master_id',blank=True, null=True,db_column='card_id')
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)

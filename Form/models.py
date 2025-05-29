@@ -40,6 +40,7 @@ class FormField(models.Model):
     form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='fields')
     label = models.CharField(max_length=255)
     field_type =  models.CharField(max_length=255,null=True, blank=True)
+    section = models.TextField(max_length=255,null=True, blank=True)
     values = models.TextField(null=True,blank=True)
     attributes = models.TextField(null=True,blank=True)
     order = models.IntegerField(default=0)
@@ -224,6 +225,15 @@ class FormGenerativeField(models.Model):
     updated_by =  models.TextField(null=True, blank=True)
     class Meta:
         db_table = 'form_generative_field'
+
+class SectionMaster(models.Model):
+    name = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'section_master'
 
 
 
