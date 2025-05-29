@@ -322,6 +322,7 @@
 
             sectiondropdownHtml += `</select>`;
 
+
              
              
 
@@ -641,15 +642,6 @@
         stateMap[fieldId].masterValue = selectedMasterValue;
     });
 
-    // ✅ Capture section dropdowns
-    $('select[id^="section-dropdown-"]').each(function () {
-        const fieldId = this.id.split('-')[2];
-        const selectedSectionValue = $(this).val();
-
-        if (!stateMap[fieldId]) stateMap[fieldId] = {};
-        stateMap[fieldId].sectionValue = selectedSectionValue;
-    });
-
     return stateMap;
 }
 
@@ -671,11 +663,7 @@
             updateFields(fieldId, 'masterValue', masterValue);
         }
 
-        // ✅ Restore section dropdown
-        if (sectionValue !== undefined) {
-            $(`#section-dropdown-${fieldId}`).val(sectionValue);
-            updateFields(fieldId, 'section', sectionValue); // Optional: update model if needed
-        }
+      
     }
 }
 
@@ -1410,6 +1398,17 @@
             }
         });
     }
+
+    $(document).on("change", ".section-select", function () {
+        const fieldId = $(this).attr("id").split("-")[2];
+        const selectedValue = $(this).val();
+
+        const field = formFields.find(f => String(f.id) === String(fieldId));
+        if (field) {
+            field.section = selectedValue;  // ✅ Save selected value in formFields
+        }
+    });
+
 
 function validateAndUpdateLabel(inputElement, fieldId) {
     debugger;
