@@ -242,10 +242,10 @@
                            {% if type == "create" %}
                                onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
                             {% elif  type == "reference" %}
-                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }}, {{reference_type}},'{{type}}')"
+                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }})"
         
                            {% else %}
-                               onclick="showScript({{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                               onclick="showScript({{ form_data_id }}, {{ field.id }})"
                            {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}>
                         </i>
                     </div>
@@ -260,10 +260,10 @@
                        {% if type == "create" %}
                            onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
                         {% elif type == "reference"%}
-                           onclick="showScript( {{ matched_form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                           onclick="showScript( {{ matched_form_data_id }}, {{ field.id }})"
                         
                        {% else %}
-                           onclick="showScript( {{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                           onclick="showScript( {{ form_data_id }}, {{ field.id }})"
                        {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
                     </i>
                 </div>
@@ -337,8 +337,7 @@
 <br/>
 <br/>
 
-
-<div class="card shadow" style="border: 2px solid #b3b3b3; border-radius: 15px; padding: 20px;" >
+ {% comment %} <div class="card shadow" style="border: 2px solid #b3b3b3; border-radius: 15px; padding: 20px;" > {% endcomment %}
 <div class="row col-md-12 justify-content-center">
     <input type="hidden" id="clicked_action_id" name="clicked_action_id">
 
@@ -397,9 +396,9 @@
 
 
 </form>
-
+{% comment %} 
 </div>
-
+ {% endcomment %}
 
 
 <script>
@@ -418,10 +417,6 @@
 
 </script>
 
-<script>
-    const readonlyWF = "{{ readonlyWF }}";
-    const viewStepWFSeq = "{{ viewStepWFSeq }}";
-</script>
 
 
 <script>
