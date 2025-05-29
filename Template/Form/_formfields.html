@@ -102,9 +102,24 @@
                 {% elif field.field_type == "select multiple" %}
                     <select class="form-control select_multiple" id="multiple" name="field_{{ field.id }}" multiple {% for attr in field.attributes %}{{ attr }}{% endfor %}>
                         {% for option in field.values %}
-                            <option value="{{ option }}">{{ option }}</option>
+                            <option value="{{ option.id }}">{{ option.name }}</option>
                         {% endfor %}
                     </select>
+
+                {% elif field.field_type == "multiple" %}
+                    <select class="form-control master_multiple" name="field_{{ field.id }}"
+                        {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}
+                        multiple>  <!-- Important: 'multiple' attribute -->
+                        
+                        {% for option in field.values %}
+                            <option value="{{ option.id }}" 
+                                {% if option.id|stringformat:"s" in field.value|stringformat:"s" %} selected {% endif %}>
+                                {{ option.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
 
                 {% elif field.field_type == "radio" %}
                     <div class="d-flex flex-wrap">
@@ -155,17 +170,7 @@
                         <i class="fa-solid fa-eye eye-icon" onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"></i>
                     </div>
 
-                {% elif field.field_type == "file_name" %}
-                    <select class="form-control field_select" name="field_{{ field.id }}"
-                            {% for attr in field.attributes %} {{ attr }} {% endfor %}
-                            {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
-                        <option value="" disabled {% if not field.saved_value %}selected{% endif %}>Select</option>
-                        {% for option in field.file_name_options %}
-                            <option value="{{ option }}" {% if option == field.saved_value %}selected{% endif %}>
-                                {{ option }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                
 
                 {% elif field.field_type == "textarea" %}
                     <textarea class="form-control custom-textarea" name="field_{{ field.id }}" rows="1"
@@ -242,6 +247,25 @@
 <script>
     $(document).ready(function() {
         $('.field_select').selectize({
+            plugins: ['remove_button'],
+            delimiter: ',',
+            placeholder: "--Select--",
+            persist: false,
+            create: false,
+            selectOnTab: false, 
+            maxItems: null,
+            onInitialize: function() {
+                var control = this;
+                control.clear();
+            }
+        });
+    });
+
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.master_multiple').selectize({
             plugins: ['remove_button'],
             delimiter: ',',
             placeholder: "--Select--",

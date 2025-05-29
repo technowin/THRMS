@@ -167,6 +167,21 @@
                     {% endfor %}
                 </select>
 
+            {% elif field.field_type == "multiple" %}
+                <select class="form-control master_multiple" name="field_{{ field.id }}"
+                    {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                    {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}
+                    multiple>  <!-- Important: 'multiple' attribute -->
+                    
+                    {% for option in field.values %}
+                        <option value="{{ option.id }}" 
+                            {% if option.id|stringformat:"s" in field.value|stringformat:"s" %} selected {% endif %}>
+                            {{ option.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+
 
 
 
@@ -192,20 +207,6 @@
                 </select>
 
 
-            {% elif field.field_type == "file_name" %}
-            <select class="form-control field_select" name="field_{{ field.id }}"
-                {% for attr in field.attributes %} {{ attr }} {% endfor %}
-                {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
-                
-                <option value="" disabled {% if not field.saved_value %}selected{% endif %}>Select</option>
-                <option value="New File" {% if field.saved_value == "New File" %}selected{% endif %}>New File</option>
-
-                {% for option in field.file_name_options %}
-                    <option value="{{ option }}" {% if option == field.saved_value %}selected{% endif %}>
-                        {{ option }}
-                    </option>
-                {% endfor %}
-            </select>
 
 
             {% elif field.field_type == "radio" %}
@@ -322,12 +323,15 @@
 
 
 
-        </div> {% if forloop.counter0|add:1|divisibleby:4 or forloop.last %}
+        </div>
+
+            {% if forloop.counter0|add:1|divisibleby:4 or forloop.last %}
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
-{% endif %}
 {% endfor %}
 
-{% endfor %}
 </div>
 
 
@@ -411,7 +415,21 @@
                 create: false,
                 selectOnTab: false,
                 maxItems: null
-                // Do not clear values on initialize!
+            });
+        });
+
+</script>
+
+<script>
+        $(document).ready(function() {
+            $('.master_multiple').selectize({
+                plugins: ['remove_button'],
+                delimiter: ',',
+                placeholder: "-- Select Options --",
+                persist: false,
+                create: false,
+                selectOnTab: false,
+                maxItems: null
             });
         });
 
@@ -424,7 +442,7 @@
 
         let selectedNewFiles = []; // Global array to store new files
 
-        function showScript(form_data_id, field_id,reference_type, type) {
+        function showScript(form_data_id, field_id) {
             debugger;
             
             const inputElement = document.getElementById('file_input_' + field_id);
@@ -440,8 +458,6 @@
                 data: {
                     field_id: field_id,
                     form_data_id: form_data_id,
-                    reference_type:reference_type,
-                    type:type,
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success: function (data) {
@@ -470,7 +486,7 @@
                                 : `--`;
         
                             let deleteIcon = file.status === 1
-                                ? `<a href="javascript:void(0);" onclick="deleteFile('${file.encrypted_url}', '${file.file_id}','${reference_type}','${type}')" ><i class="fa fa-trash" style="color:red;" aria-hidden="true"></i></a>`
+                                ? `<a href="javascript:void(0);" onclick="deleteFile('${file.encrypted_url}', '${file.file_id}')" ><i class="fa fa-trash" style="color:red;" aria-hidden="true"></i></a>`
                                 : `--`;
         
                             tableHTML += `
@@ -562,7 +578,7 @@
   </script>
 
   <script>
-    function deleteFile(encryptedPath, encryptedId,reference_type, type) {
+    function deleteFile(encryptedPath, encryptedId) {
         debugger;
         Swal.fire({
             title: 'Are you sure?',

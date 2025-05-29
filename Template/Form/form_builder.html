@@ -349,13 +349,6 @@
                     </div>`;
 
             }
-            else if (field.type == "file_name") {
-                subControlHtml += `<select class="form-control select" name="column_select">`;
-                version.forEach(function(col) {
-                    subControlHtml += `<option value="${col}">${col}</option>`;
-                });
-                subControlHtml += `</select>`;
-            }
             
             let subControlData = subControls.filter(sub => sub.field_type === field.type);
     
@@ -452,60 +445,22 @@
                     </select>
                 `;
             }
-            else if (field.type === "generative") {
-                const generativeData = field.generative_list?.[field.id]?.[0] || {};
-                let rawSelected = generativeData.selected_field;
-                const selectedFieldIds = Array.isArray(rawSelected)
-                    ? rawSelected
-                    : typeof rawSelected === 'string'
-                        ? rawSelected.split(',').map(id => id.trim())
-                        : rawSelected ? [rawSelected] : [];
-
-                const prefixValue = generativeData.prefix || '';
-                const noOfZeroValue = generativeData.no_of_zero || '';
-                const incrementValue = generativeData.increment || '';
-            
-                // Show all field labels except current one
-                const dropdownOptions = allFieldLabels
-                .filter(f => f.id !== field.id)
-                .map(option =>
-                    `<option value="${option.id}" ${selectedFieldIds.includes(String(option.id)) ? 'selected' : ''}>${option.label}</option>`
-                ).join('');
-
-
-            
+            else if (field.type === "multiple") {
+                const selectedMasterId = field.options?.[0]?.toString() || "";
                 optionDropdownHtml = `
-                <div class="row col-md-12">
-                    <div class="col-md-3 p-1">
-                        <input type="text" class="form-control" placeholder="Prefix" title="Enter a prefix"
-                            name="prefix-${fieldId}" id="prefix-${fieldId}" value="${prefixValue}"
-                            oninput="updateGenerativePreview('${fieldId}')" />
-                    </div>
-            
-                    <div class="col-md-4 p-1">
-                        <select class="form-control field_dropdown" onchange="updateGenerativePreview('${fieldId}')"
-                            multiple name="fielddropdown-${fieldId}" id="fielddropdown-${fieldId}"
-                            title="Select a field from the dropdown">
-                            <option value="">Select Field</option>
-                            ${dropdownOptions}
-                        </select>
-                    </div>
-            
-                    <div class="col-md-2 p-1">
-                        <input type="text" class="form-control" oninput="updateGenerativePreview('${fieldId}')"
-                            placeholder="0-9" name="zeroincrement1-${fieldId}" id="zeroincrement1-${fieldId}"
-                            value="${noOfZeroValue}" minlength="1" maxlength="1"
-                            title="Enter number of Zero" />
-                    </div>
-            
-                    <div class="col-md-3 p-1">
-                        <input type="number" class="form-control" oninput="updateGenerativePreview('${fieldId}')"
-                            placeholder="Value" name="zeroincrement2-${fieldId}" id="zeroincrement2-${fieldId}"
-                            value="${incrementValue}" title="Enter Increment number" />
-                    </div>
-                </div>
+                    <select 
+                        class="form-control select mb-2" 
+                        id="option-dropdown-${fieldId}" 
+                        name="masterDropdown-${fieldId}" 
+                        onchange="updateFields(${fieldId}, 'masterValue', this.value); fetchMasterOptionsmultiple(this.value, '${fieldId}')">
+                        <option value="">Select Master</option>
+                        ${master.map(sub => 
+                            `<option value="${sub.id}" ${selectedMasterId === sub.id.toString() ? 'selected' : ''}>${sub.name}</option>`
+                        ).join('')}
+                    </select>
                 `;
             }
+            
             
     
         
@@ -773,37 +728,7 @@
     
     
     
-    
 
-     function updateGenerativePreview(fieldId) {
-        const prefix = document.getElementById(`prefix-${fieldId}`)?.value || '';
-        const dropdown = document.getElementById(`fielddropdown-${fieldId}`);
-        const selectedLabels = Array.from(dropdown?.selectedOptions || [])
-            .map(opt => opt.text.trim());
-        const selectedValues = Array.from(dropdown?.selectedOptions || [])
-            .map(opt => opt.value);
-    
-        const zeroCountStr = document.getElementById(`zeroincrement1-${fieldId}`)?.value || '';
-        const zeroCount = parseInt(zeroCountStr, 10);
-        const zeroPadding = '0'.repeat(isNaN(zeroCount) ? 0 : zeroCount);
-    
-        const incNum = document.getElementById(`zeroincrement2-${fieldId}`)?.value || '';
-        const previewValue = `${prefix}-${selectedLabels.join('-')}-${zeroPadding}${incNum}`;
-
-        const previewInput = document.getElementById('generatedValue');
-        if (previewInput) previewInput.value = previewValue;
-    
-        // Save to formFields object
-        const field = formFields.find(f => f.id == fieldId);
-        if (field) {
-            field.prefix = prefix;
-            field.field_name = selectedLabels;    // Save label names
-            field.field_id = selectedValues; // If needed
-            field.no_of_zero = zeroCountStr;
-            field.increment = incNum;
-            field.generatefield = previewValue;    // Full preview string
-        }
-    }
 
     
     
@@ -971,6 +896,13 @@
                     </select>
                 `;
             }
+            else if (field.type === "multiple") {
+                    inputHtml = `
+                        <select name="${fieldName}" id="field_${field.id}" class="form-control master_multiple" multiple>
+                        </select>
+                    `;
+                }
+
             
             
             else if (field.type === "textarea") {
@@ -1099,6 +1031,16 @@
                 create: true
             });
         });
+        document.querySelectorAll(".master_multiple").forEach(select => {
+            $(select).selectize({
+                plugins: ["remove_button"],
+                delimiter: ",",
+                placeholder: "Enter options",
+                persist: false,
+                create: false
+            });
+        });
+
     }
 
     function validateRegexInput(inputElement) {

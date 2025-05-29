@@ -375,8 +375,9 @@ def update_form(request, form_id):
                 formatted_label = format_label(field.get("label", ""))
                 order = field.get("order","")
 
-                if field.get("type") == "master dropdown":
+                if field.get("type") == "master dropdown" or field.get("type") == "multiple":
                     value = field.get("masterValue", "")
+
                 
                 elif field.get("type") == "field_dropdown":
                     dropdown_mappings = field.get("field_dropdown", [])
@@ -827,6 +828,16 @@ def form_master(request):
                         except MasterDropdownData.DoesNotExist:
                             field["values"] = []
 
+                    if field["field_type"] == "multiple" and field["values"]:
+                        dropdown_id = field["values"][0]
+                        try:
+                            master_data = MasterDropdownData.objects.get(id=dropdown_id)
+                            query = master_data.query
+                            result = callproc("stp_get_query_data", [query])
+                            field["values"] = [{"id": row[0], "name": row[1]} for row in result]
+                        except MasterDropdownData.DoesNotExist:
+                            field["values"] = []
+
                     # Group by section name
                     sectioned_fields.setdefault(section_name, []).append(field)
 
@@ -949,6 +960,18 @@ def form_master(request):
                                 field["values"] = [{"id": row[0], "name": row[1]} for row in result]
                             except (MasterDropdownData.DoesNotExist, IndexError):
                                 field["values"] = []
+
+                        if field["field_type"] == "multiple":
+                            try:
+                                dropdown_id = field["values"][0]
+                                master_data = MasterDropdownData.objects.get(id=dropdown_id)
+                                query = master_data.query
+                                result = callproc("stp_get_query_data", [query])
+                                field["values"] = [{"id": row[0], "name": row[1]} for row in result]
+                            except (MasterDropdownData.DoesNotExist, IndexError):
+                                field["values"] = []
+
+                        
 
                         # Group field by section name
                         sectioned_fields[section_name].append(field)
@@ -1510,8 +1533,22 @@ def create_new_section(request):
     if request.method == "POST":
         name = request.POST.get("name")
         if name:
+            # Check for duplicate (case insensitive)
+            existing_section = SectionMaster.objects.filter(name__iexact=name).first()
+            if existing_section:
+                return JsonResponse({
+                    "id": existing_section.id,
+                    "name": existing_section.name,
+                    "message": "Section already exists"
+                })
+            
+            # Create new section if not exists
             section = SectionMaster.objects.create(name=name)
-            return JsonResponse({"id": section.id, "name": section.name})
+            return JsonResponse({
+                "id": section.id,
+                "name": section.name,
+                "message": "Section created"
+            })
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 def get_field_names(request):
