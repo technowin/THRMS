@@ -24,7 +24,7 @@
         <div class="card">
             <div class="card-body">
                 <h2 class="text-center text-primary">
-                    <u>{% if company_id == '0' %} Create {% else %} Edit {% endif %} Company Master</u>
+                    <u>{% if company_id == '0' %} Create {% else %} Edit {% endif %} Client Master</u>
                 </h2>
                 <br>
 
@@ -42,16 +42,16 @@
                     <div class="row mb-3">
 
                         <div class="col-md-3" hidden>
-                            <label for="site_name" class="form-label">Company Id<span style="color:red;"> *</span> :</label>
+                            <label for="site_name" class="form-label">Client Id<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ company_id }}" name="company_id" class="form-control" id="site_name" placeholder="Enter Site Name">
                         </div>
 
                         <div class="col-md-3">
-                            <label for="site_name" class="form-label">Company Name<span style="color:red;"> *</span> :</label>
+                            <label for="site_name" class="form-label">Client Name<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ company_name }}" name="company_name" class="form-control" id="site_name" placeholder="Enter Site Name" required>
                         </div>
                         <div class="col-md-3">
-                            <label for="site_address" class="form-label">Company Address<span style="color:red;"> *</span> :</label>
+                            <label for="site_address" class="form-label">Client Address<span style="color:red;"> *</span> :</label>
                             <input type="text" value="{{ company_address }}" name="company_address" class="form-control" id="site_address" placeholder="Enter Address">
                         </div>
                         <div class="col-md-3">
