@@ -942,7 +942,7 @@ def form_master(request):
                                 field["regex_description"] = ""
 
                         # File field logic
-                        if field["field_type"] in ["file", "file multiple"]:
+                        if field["field_type"] in ["file", "file multiple","text"]:
                             file_validation = next((v for v in field["validations"]), None)
                             field["accept"] = file_validation["value"] if file_validation else ""
 
