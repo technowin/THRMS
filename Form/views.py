@@ -1051,7 +1051,7 @@ def common_form_post(request):
                 field = get_object_or_404(FormField, id=field_id)
 
 
-                if field.field_type == "select multiple":
+                if field.field_type == "select multiple" or field.field_type == "multiple":
                     selected_values = request.POST.getlist(f"field_{field_id}")
                     input_value = ','.join([val.strip() for val in selected_values if val.strip()])
                 else:
@@ -1103,7 +1103,7 @@ def common_form_edit(request):
                 field_id = value.strip()
                 field = get_object_or_404(FormField, id=field_id)
 
-                if field.field_type == "select multiple":
+                if field.field_type == "select multiple"  or field.field_type == "multiple":
                     selected_values = request.POST.getlist(f"field_{field_id}")
                     input_value = ','.join([val.strip() for val in selected_values if val.strip()])
                 else:
