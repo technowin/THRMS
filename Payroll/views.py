@@ -734,12 +734,14 @@ def rate_card_index(request):
 
 @login_required
 def rate_card_create(request):
+    user = request.session.get('user_id', '')
     if request.method == "POST":
         form = RateCardMasterForm(request.POST)
         if form.is_valid():
             # Save the rate card instance first
             rate_card = form.save(commit=False)
             rate_card.created_by = request.user
+            rate_card.card_name = request.POST.get('card_name_hidden')
             rate_card.updated_by = request.user
             rate_card.is_active = True
             rate_card.save()
@@ -778,9 +780,14 @@ def rate_card_create(request):
                     salary_unit = get_object_or_404(SalaryUnit, id = salary_unit)
                 )
 
-            site_card = SiteCardRelationForm.objects.all().save(commit=False)
-            site_card.card = rate_card  # Link to just-created rate_card
-            site_card.save()
+            site_card_relation.objects.create(
+                card = rate_card,
+                site= location,
+                client_id=client,
+                designation= designation,
+                level = level,
+                created_by = get_object_or_404(CustomUser,id = user)
+            )
 
             messages.success(request, 'Rate Card and Site Relation created successfully!')
             return redirect('rate_card_index')
@@ -853,11 +860,16 @@ def rate_card_edit(request, card_id):
         salary_unit = SalaryUnit.objects.all()
         pay_types = pay_type.objects.all()
         classification = basis_type.objects.all()
+        client_names = company_master.objects.all()
+        designation_names = designation_master.objects.all()
+        location_names = site_master.objects.all()
+        level_names = LevelMaster.objects.all()
 
     selected_item_ids = rate_card.item_ids.values_list('item_id', flat=True)
 
     # Prepare pre-filled data for each item
     existing_relations = RateCardSalaryElement.objects.filter(rate_card=rate_card)
+    site_relation = site_card_relation.objects.filter(card=rate_card)
 
     prefilled_data = {}
     for relation in existing_relations:
@@ -867,7 +879,7 @@ def rate_card_edit(request, card_id):
             'tax_parameter':relation.tax_parameter,
             'salary_unit':relation.salary_unit,
             'pay_type':relation.pay_type,
-            'classification':relation.classification
+            'classification':relation.classification,
         }
 
     return render(request, 'Payroll/RateCard/edit.html', {
@@ -877,8 +889,11 @@ def rate_card_edit(request, card_id):
         'pay_type':pay_types,
         'classification':classification,
         'rate_card': rate_card,
+        'site_relation':site_relation,
         'selected_item_ids': list(selected_item_ids),
-        'prefilled_data': prefilled_data,  # Pass the prefilled amounts
+        'prefilled_data': prefilled_data, 
+        'client_names':client_names,'location_names':location_names,
+        'designation_names':designation_names,'level_names':level_names 
     })
 
  

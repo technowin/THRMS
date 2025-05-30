@@ -28,7 +28,7 @@ class RateCardMasterForm(forms.ModelForm):
         model = rate_card_master
         fields = ['card_name', 'item_ids']
         widgets = {
-            'card_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter card name'}),  # Override Textarea to TextInput
+            'card_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter card name', 'id':'card_name','disabled': 'disabled'}),  # Override Textarea to TextInput
         }
 
 class SiteCardRelationForm(forms.ModelForm):

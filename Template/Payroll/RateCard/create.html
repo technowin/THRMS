@@ -64,25 +64,25 @@
                     <div class="col-md-3">
                         <label for="client_name" class="form-label">Client Name</label>
                             <select name="client_name" id="client_name" class="form-control select">
-                            <option value="" selected disabled>Select Client</option>
-                                {% for client in client_names %}
-                                    <option value="{{ client.company_id }}" >
-                                        {{ client.company_name }}
-                                    </option>
-                                {% endfor %}
-                        </select>
+                                <option value="" selected disabled>Select Client</option>
+                                    {% for client in client_names %}
+                                        <option value="{{ client.company_id }}" >
+                                            {{ client.company_name }}
+                                        </option>
+                                    {% endfor %}
+                            </select>
                     </div>
 
                     <div class="col-md-3">
                         <label for="location" class="form-label">Location Name</label>
                             <select name="location" id="location" class="form-control select">
-                            <option value="" selected disabled>Select Location</option>
-                                {% for location in location_names %}
-                                    <option value="{{ location.site_id }}" >
-                                        {{ location.site_name }}
-                                    </option>
-                                {% endfor %}
-                        </select>
+                                <option value="" selected disabled>Select Location</option>
+                                    {% for location in location_names %}
+                                        <option value="{{ location.site_id }}" >
+                                            {{ location.site_name }}
+                                        </option>
+                                    {% endfor %}
+                            </select>
                     </div>
                       <div class="col-md-3">
                         <label for="client_name" class="form-label">Designation</label>
@@ -109,9 +109,11 @@
                     </div>
                 </div>
                 <div class="row col-md-12">
-                <div class="mb-4 col-md-10">
+                <div class="mb-4 col-md-4">
                         <label for="card_name" class="form-label">Card Name:</label>
                         {{ form.card_name }} 
+    
+                        <input type="hidden" name="card_name_hidden" id="card_name_hidden">
 
                 </div>
                 </div>
@@ -327,6 +329,44 @@
         }
         
     </script>
+
+   <script>
+    function generateCardName() {
+        const client = document.getElementById('client_name');
+        const location = document.getElementById('location');
+        const designation = document.getElementById('designation');
+        const level = document.getElementById('level');
+        const card = document.getElementById('card_name');
+        const hiddenCard = document.getElementById('card_name_hidden');
+
+        const clientText = client.options[client.selectedIndex]?.text.trim() || '';
+        const locationText = location.options[location.selectedIndex]?.text.trim() || '';
+        const designationText = designation.options[designation.selectedIndex]?.text.trim() || '';
+        const levelText = level.options[level.selectedIndex]?.text.trim() || '';
+
+        if (client.value && location.value && designation.value && level.value) {
+            const cardName = (
+                clientText.substring(0, 3) + '-' +
+                locationText.substring(0, 2) + '-' +
+                designationText.substring(0, 5) + '-' +
+                levelText
+            ).toUpperCase();
+
+            card.value = cardName;
+            hiddenCard.value = cardName;
+        } else {
+            card.value = '';
+            hiddenCard.value = '';
+        }
+    }
+
+    document.getElementById('client_name').addEventListener('change', generateCardName);
+    document.getElementById('location').addEventListener('change', generateCardName);
+    document.getElementById('designation').addEventListener('change', generateCardName);
+    document.getElementById('level').addEventListener('change', generateCardName);
+</script>
+
+
 
 
 
