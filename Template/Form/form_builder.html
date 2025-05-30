@@ -1125,7 +1125,6 @@
                 value = value.replace(/[^\w@.]/g, "").substring(0, 50);
                 break;
             case 16: // Credit Card
-                // Remove all non-digit characters and format
                 value = numericOnly(value).substring(0, 16);
                 value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
                 break;

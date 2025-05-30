@@ -188,7 +188,7 @@
 
                 {% elif field.field_type == "text" %}
                     <input type="text" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
-                        {% if field.accept %}maxlength="{{ field.accept }}"{% endif %}
+                        {% if field.accept %} maxlength="{{ field.accept }}"{% endif %}
                         placeholder="{% if field.accept %}Enter up to {{ field.accept }} characters{% else %}Enter text{% endif %}"
                         {% for attr in field.attributes %}{{ attr }}{% endfor %}>
 
@@ -390,35 +390,35 @@
             case 3: // IFSC
                 value = alnumUpper(value).substring(0, 11);
                 break;
-            case 4: // Mobile Number
+            case 5: // Mobile Number
                 value = numericOnly(value).substring(0, 10);
                 break;
-            case 5: // Pincode
+            case 6: // Pincode
                 value = numericOnly(value).substring(0, 6);
                 break;
-            case 6: // Passport
+            case 7: // Passport
                 value = alnumUpper(value).substring(0, 8);
                 break;
-            case 7: // Voter ID
+            case 8: // Voter ID
                 value = alnumUpper(value).substring(0, 10);
                 break;
-            case 8: // Driving License
+            case 9: // Driving License
                 value = alnumUpper(value).substring(0, 16);
                 break;
-            case 9: // UPI
+            case 10: // UPI
                 value = value.replace(/[^\w@.]/g, "").substring(0, 50);
                 break;
-            case 10: // Credit Card
+            case 16: // Credit Card
                 value = numericOnly(value).substring(0, 16);
                 value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
                 break;
-            case 11: // Landline Number (XXX-XXXXXXX)
+            case 17: // Landline Number (XXX-XXXXXXX)
                 // Remove all non-digit characters
                 value = numericOnly(value).substring(0, 11);
                 // Format as XXX-XXXXXXX
                 value = value.replace(/^(\d{3})(\d{0,8})/, "$1-$2");
                 break;
-            case 12: // PNR
+            case 20: // PNR
                 // Allow only numeric values, limit to 10 digits
                 value = numericOnly(value).substring(0, 10);
                 break;

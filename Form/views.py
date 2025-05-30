@@ -907,12 +907,29 @@ def form_master(request):
                             section_name = ""
 
                         # Validation rules
+                        # validations = FieldValidation.objects.filter(
+                        #     field_id=field["id"], form_id=form_id
+                        # ).values("value")
+                        # field["validations"] = list(validations)
+
+                        # # Check for regex
+                        # if any("^" in v["value"] for v in field["validations"]):
+                        #     field["field_type"] = "regex"
+                        #     pattern_value = field["validations"][0]["value"]
+                        #     try:
+                        #         regex_obj = RegexPattern.objects.get(regex_pattern=pattern_value)
+                        #         field["regex_id"] = regex_obj.id
+                        #         field["regex_description"] = regex_obj.description
+                        #     except RegexPattern.DoesNotExist:
+                        #         field["regex_id"] = None
+                        #         field["regex_description"] = ""
+
                         validations = FieldValidation.objects.filter(
                             field_id=field["id"], form_id=form_id
                         ).values("value")
                         field["validations"] = list(validations)
 
-                        # Check for regex
+                        # Regex detection
                         if any("^" in v["value"] for v in field["validations"]):
                             field["field_type"] = "regex"
                             pattern_value = field["validations"][0]["value"]
