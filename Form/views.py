@@ -200,7 +200,11 @@ def save_form(request):
             for  index,field in enumerate(form_data):
                
                 if field.get("type") == "master dropdown":
-                    value = field.get("masterValue","")
+                    value = field.get("masterValue")
+
+                elif field.get("type") == "multiple":
+                    value = field.get("multiMasterValue")
+
                 elif field.get("type") == "field_dropdown":
                     dropdown_mappings = field.get("field_dropdown", [])
                     form_id_selected = dropdown_mappings.get("form_id","")
@@ -349,6 +353,8 @@ def update_form(request, form_id):
                 form_data = json.loads(form_data_json)
             except json.JSONDecodeError:
                 return JsonResponse({"error": "Invalid JSON data"}, status=400)
+            
+            FieldValidation.objects.filter(form=form_id).delete()
 
             
             form = get_object_or_404(Form, id=form_id)
@@ -375,8 +381,11 @@ def update_form(request, form_id):
                 formatted_label = format_label(field.get("label", ""))
                 order = field.get("order","")
 
-                if field.get("type") == "master dropdown" or field.get("type") == "multiple":
-                    value = field.get("masterValue", "")
+                if field.get("type") == "master dropdown" :
+                    value = field.get("masterValue")
+
+                elif field.get("type") == "multiple":
+                    value = field.get("multiMasterValue")
 
                 
                 elif field.get("type") == "field_dropdown":

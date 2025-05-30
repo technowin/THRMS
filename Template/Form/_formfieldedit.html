@@ -777,9 +777,8 @@ function formatInputByPattern(inputElement, regexId) {
             value = numericOnly(value).substring(0, 10);
             break;
         case 5: // Pincode (✅ Fix here)
-            // Allow input but limit to 6 digits
             value = numericOnly(value);
-            if (value.length > 6) value = value.slice(0, 6);
+            if (value.length > 6) value = value.slice(0, 4);
             break;
         case 6: // Passport
             value = alnumUpper(value).substring(0, 8);

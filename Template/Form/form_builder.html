@@ -217,6 +217,7 @@
             generatefield: "",
             section:"",
             masterValue: "",
+            multiMasterValue: "",
             order: formFields.length + 1
         };
     
@@ -245,7 +246,7 @@
             options: [],
             generatefield: "",
             section: "",
-            masterValue: "",
+            multiMasterValue: "",
             order: formFields.length + 1
         };
     
@@ -434,12 +435,12 @@
             else if (field.type === "master dropdown") {
                 const selectedMasterId = field.options?.[0]?.toString() || "";
                 optionDropdownHtml = `
+                    <input type="hidden" name="masterDropdown-${fieldId}" value="${selectedMasterId}" id="hidden-master-${fieldId}">
                     <select 
                         class="form-control select mb-2" 
                         id="option-dropdown-${fieldId}" 
-                        name="masterDropdown-${fieldId}" 
-                        onchange="updateFields(${fieldId}, 'masterValue', this.value); fetchMasterOptions(this.value, '${fieldId}')">
-                        <option value="">Select Master</option>
+                        onchange="document.getElementById('hidden-master-${fieldId}').value = this.value; updateFields(${fieldId}, 'masterValue', this.value); fetchMasterOptions(this.value, '${fieldId}')">
+                        <option value="">Select</option>
                         ${master.map(sub => 
                             `<option value="${sub.id}" ${selectedMasterId === sub.id.toString() ? 'selected' : ''}>${sub.name}</option>`
                         ).join('')}
@@ -449,18 +450,19 @@
             else if (field.type === "multiple") {
                 const selectedMasterId = field.options?.[0]?.toString() || "";
                 optionDropdownHtml = `
+                    <input type="hidden" name="multimasterDropdown-${fieldId}" value="${selectedMasterId}" id="hidden-multi-master-${fieldId}">
                     <select 
                         class="form-control select mb-2" 
-                        id="option-dropdown-${fieldId}" 
-                        name="masterDropdown-${fieldId}" 
-                        onchange="updateFields(${fieldId}, 'masterValue', this.value); fetchMasterOptionsmultiple(this.value, '${fieldId}')">
-                        <option value="">Select Master</option>
+                        id="multi-option-dropdown-${fieldId}" 
+                        onchange="document.getElementById('hidden-multi-master-${fieldId}').value = this.value; updateFields(${fieldId}, 'multiMasterValue', this.value); fetchMasterOptionsmultiple(this.value, '${fieldId}')">
+                        <option value="">Select</option>
                         ${master.map(sub => 
                             `<option value="${sub.id}" ${selectedMasterId === sub.id.toString() ? 'selected' : ''}>${sub.name}</option>`
                         ).join('')}
                     </select>
                 `;
             }
+
             
             
     
@@ -521,6 +523,14 @@
                     const selectedMasterId = field.options[0]; // Get selected master ID
                     if (selectedMasterId) {
                         fetchMasterOptions(selectedMasterId, field.id); 
+                    }
+                }
+            });
+            formFields.forEach(field => {
+                if (field.type === "multiple" && Array.isArray(field.options) && field.options.length > 0) {
+                    const selectedMasterId = field.options[0]; // Get selected master ID
+                    if (selectedMasterId) {
+                        fetchMasterOptionsmultiple(selectedMasterId, field.id); 
                     }
                 }
             });
@@ -632,14 +642,21 @@
             subFieldValue: selectedSubFieldValue
         };
     });
-
-    // Capture master dropdowns
+    
     $('select[id^="option-dropdown-"]').each(function () {
         const fieldId = this.id.split('-')[2];
         const selectedMasterValue = $(this).val();
 
         if (!stateMap[fieldId]) stateMap[fieldId] = {};
         stateMap[fieldId].masterValue = selectedMasterValue;
+    });
+
+     $('select[id^="multi-option-dropdown-"]').each(function () {
+        const fieldId = this.id.split('-')[2];
+        const selectedMultiMasterValue = $(this).val();
+
+        if (!stateMap[fieldId]) stateMap[fieldId] = {};
+        stateMap[fieldId].multiMasterValue = selectedMultiMasterValue;
     });
 
     return stateMap;
@@ -661,6 +678,11 @@
         if (masterValue !== undefined) {
             $(`#option-dropdown-${fieldId}`).val(masterValue);
             updateFields(fieldId, 'masterValue', masterValue);
+        }
+
+        if (selectedMultiMasterValue !== undefined) {
+            $(`#multi-option-dropdown-${fieldId}`).val(masterValue);
+            updateFields(fieldId, 'multiMasterValue', masterValue);
         }
 
       
@@ -1126,7 +1148,7 @@
     }
    
 
-    function syncFormValidationsBeforeSubmit() {
+    {% comment %} function syncFormValidationsBeforeSubmit() {
         formFields.forEach(field => {
             // For file and file multiple
             if (field.type === "file" || field.type === "file multiple") {
@@ -1162,8 +1184,93 @@
                     }
                 }
             }
+
+            if (field.type === "master dropdown") {
+                    debugger;
+                    const dropdown = document.getElementById(`option-dropdown-${field.id}`);
+                    const selectedValue = dropdown ? dropdown.value : field.options?.[0]?.toString() || "";
+                    field.options = [selectedValue]; // Ensure it gets saved even if unchanged
+                }
+
+                // 🔹 Multiple Dropdown
+                if (field.type === "multiple") {
+                    debugger;
+                    const dropdown = document.getElementById(`multi-option-dropdown-${field.id}`);
+                    const selectedValue = dropdown ? dropdown.value : field.options?.[0]?.toString() || "";
+                    field.options = [selectedValue];
+                }
         });
-    }
+    } {% endcomment %}
+
+    function syncFormValidationsBeforeSubmit() {
+    formFields.forEach(field => {
+        // 🔹 File / File multiple
+        if (field.type === "file" || field.type === "file multiple") {
+            const dropdown = document.querySelector(`#dropdown`);
+            if (dropdown) {
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const value = selectedOption.value;
+                const id = selectedOption.dataset.id;
+
+                if (value) {
+                    field.validation = [{ id: id, validation_value: value }];
+                }
+            }
+        }
+
+        // 🔹 Text field
+        if (field.type === "text") {
+            const dropdown = document.querySelector(`#text-dropdown-${field.id}`);
+            if (dropdown) {
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const value = selectedOption.value;
+                const id = selectedOption.dataset.id;
+
+                if (value) {
+                    let dynamicInput = document.querySelector(`#max-length-${field.id}`) || document.querySelector(`#regex-${field.id}`);
+                    const inputValue = dynamicInput?.value || "";
+
+                    field.validation = [{
+                        id: id,
+                        validation_type: value,
+                        validation_value: inputValue
+                    }];
+                }
+            }
+        }
+
+        // 🔹 Master Dropdown
+        if (field.type === "master dropdown") {
+            const dropdown = document.getElementById(`option-dropdown-${field.id}`);
+            let selectedValue = "";
+
+            if (dropdown) {
+                selectedValue = dropdown.value || "";
+            } else if (field.options && field.options.length > 0) {
+                selectedValue = field.options[0];
+            }
+
+            field.options = [selectedValue];               // for UI reloads
+            field.masterValue = selectedValue;             // 🔥 for Django backend
+        }
+
+        // 🔹 Multiple Dropdown
+        if (field.type === "multiple") {
+            const dropdown = document.getElementById(`multi-option-dropdown-${field.id}`);
+            let selectedValue = "";
+
+            if (dropdown) {
+                selectedValue = dropdown.value || "";
+            } else if (field.options && field.options.length > 0) {
+                selectedValue = field.options[0];
+            }
+
+            field.options = [selectedValue];               // for UI reloads
+            field.multiMasterValue = selectedValue;        // 🔥 for Django backend
+        }
+    });
+}
+
 
 
     function syncGenerativeDataBeforeSubmit() {
@@ -1363,6 +1470,67 @@
             }
         });
     }
+
+    function fetchMasterOptionsmultiple(query, fieldId) {
+        debugger;
+        $.ajax({
+            url: "{% url 'get_query_data' %}",
+            type: "POST",
+            data: {
+                'query': query,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) {
+                    debugger;
+                    let optionsHtml = ``; // Don't use default 'Select' for multiple
+
+                    const fieldIndex = formFields.findIndex(f => f.id === fieldId);
+
+                    if (Array.isArray(response)) {
+                        response.forEach((opt) => {
+                            optionsHtml += `<option value="${opt[0]}">${opt[1]}</option>`;
+                        });
+                    }
+
+                    const previewDropdown = document.getElementById(`field_${fieldId}`);
+                    if (previewDropdown) {
+                        debugger;
+
+                        // Ensure the select allows multiple selection
+                        previewDropdown.setAttribute("multiple", "multiple");
+
+                        previewDropdown.innerHTML = optionsHtml;
+
+                        // Restore previously selected values
+                        const previousValues = formFields[fieldIndex]?.selectedValue || [];
+                        if (Array.isArray(previousValues)) {
+                            [...previewDropdown.options].forEach(option => {
+                                if (previousValues.includes(option.value)) {
+                                    option.selected = true;
+                                }
+                            });
+                        }
+
+                        // ✅ Listen for changes and update multiple selected values
+                        previewDropdown.onchange = function () {
+                            const selectedVals = Array.from(this.selectedOptions).map(opt => opt.value);
+                            if (fieldIndex !== -1) {
+                                formFields[fieldIndex].selectedValue = selectedVals; // ✅ SAVE multiple
+                            }
+                        };
+                    }
+
+                    // ✅ Save selected master query
+                    if (fieldIndex !== -1) {
+                        formFields[fieldIndex].query = query;
+                    }
+                },
+
+            error: function (xhr) {
+                console.error("AJAX error:", xhr.responseText);
+            }
+        });
+    }
     
     
     
@@ -1444,7 +1612,7 @@ function validateAndUpdateLabel(inputElement, fieldId) {
 
 
 
-    document.getElementById("main-form").addEventListener("submit", function () {
+    {% comment %} document.getElementById("main-form").addEventListener("submit", function () {
         debugger;
         syncFormValidationsBeforeSubmit();
        // syncGenerativeDataBeforeSubmit()
@@ -1481,7 +1649,50 @@ function validateAndUpdateLabel(inputElement, fieldId) {
         // Save reordered + updated fields
         document.getElementById("form-data-input").value = JSON.stringify(orderedFormFields);
     });
-    
+     {% endcomment %}
+
+
+     document.getElementById("main-form").addEventListener("submit", function () {
+        debugger;
+        syncFormValidationsBeforeSubmit();
+
+        const fieldsInDom = document.querySelectorAll('#form-builder .draggable-field');
+        const orderedFormFields = [];
+
+        fieldsInDom.forEach((fieldEl, index) => {
+            const fieldId = fieldEl.dataset.id;
+            const originalField = formFields.find(f => String(f.id) === String(fieldId));
+            if (!originalField) return;
+
+            // Set the order
+            originalField.order = index + 1;
+
+            // --- Correctly get selected dropdown value ---
+            if (originalField.type === "master dropdown") {
+                const dropdownEl = document.getElementById(`option-dropdown-${fieldId}`);
+                if (dropdownEl) {
+                    originalField.selectedValue = dropdownEl.value;
+                }
+            } else if (originalField.type === "multiple") {
+                const dropdownEl = document.getElementById(`multi-option-dropdown-${fieldId}`);
+                if (dropdownEl) {
+                    originalField.selectedValue = dropdownEl.value;
+                }
+            }
+
+            // Section dropdown
+            const sectionSelect = document.getElementById(`section-dropdown-${fieldId}`);
+            if (sectionSelect && sectionSelect.selectize) {
+                const selectedSection = sectionSelect.selectize.getValue();
+                originalField.section = selectedSection;
+            }
+
+            orderedFormFields.push(originalField);
+        });
+
+    // Save reordered + updated fields
+    document.getElementById("form-data-input").value = JSON.stringify(orderedFormFields);
+});
 
     
 </script>
