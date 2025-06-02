@@ -313,6 +313,13 @@
 
                        {% for attr in field.attributes %} {{ attr }} {% endfor %}>
 
+            {% elif field.field_type == "email" %}
+                <input type="{{ field.field_type }}" class="form-control"
+                       name="field_{{ field.id }}"
+                       value="{{ field.value }}" placeholder="Enter your email address"
+                       {% for attr in field.attributes %}{{ attr }} {% endfor %}
+                       {% if readonlyWF == '1' or viewStepWFSeq == '3' %}readonly{% endif %}/>
+
             {% else %}
                 <input type="{{ field.field_type }}" class="form-control"
                        name="field_{{ field.id }}"
