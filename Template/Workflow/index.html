@@ -369,7 +369,7 @@
           url: "/partial_table",
           data: {'dt': dt,'ca': ca,'dp': dp,'su': su,'bh': bh,'sh': sh,},
           success: function (data) {
-            debugger;
+            
               $("#dataTable").DataTable().destroy();
               document.getElementById("loderDiv").style.display = "none";
               $("#tbl_div").empty().append(data.html);

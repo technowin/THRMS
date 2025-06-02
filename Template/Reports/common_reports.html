@@ -902,7 +902,7 @@
                                 sub_fil_arr = sub_fil.includes(',') ? sub_fil.split(',') : [sub_fil];
                             }
                             else {
-                                debugger;
+                                
                                 sub_fil = sf[i].replace(/\|/g, ',');
                                 sub_fil_arr = sub_fil.includes(',') ? sub_fil.split(',').map(item => item.replace(/\|/g, ',')) : [sub_fil];
                             }

@@ -934,7 +934,7 @@
             }
 
             else if (field.type === "generative"){
-                debugger;
+                
                 inputHtml= `<input type="text" class="form-control mt-2" id="generatedValue" readonly placeholder="Generated Value" />`;
             }
             
@@ -1012,7 +1012,7 @@
                                      placeholder="Enter up to ${maxLengthValue} characters only">`;
                     }
                     else if (field.selectedValue === "regex") {
-                        debugger;
+                        
                         inputHtml = `<input type="text" class="form-control w-100 regex-preview-${field.id}"
                                             name="${field.label}" 
                                             data-regex="${field.pattern || ''}" 
@@ -1088,7 +1088,7 @@
 
 
      function formatInputByPattern(inputElement, regexId) {
-        debugger;
+        
         let value = inputElement.value;
     
         const numericOnly = v => v.replace(/\D/g, "");
@@ -1185,7 +1185,7 @@
             }
 
             if (field.type === "master dropdown") {
-                    debugger;
+                    
                     const dropdown = document.getElementById(`option-dropdown-${field.id}`);
                     const selectedValue = dropdown ? dropdown.value : field.options?.[0]?.toString() || "";
                     field.options = [selectedValue]; // Ensure it gets saved even if unchanged
@@ -1193,7 +1193,7 @@
 
                 // 🔹 Multiple Dropdown
                 if (field.type === "multiple") {
-                    debugger;
+                    
                     const dropdown = document.getElementById(`multi-option-dropdown-${field.id}`);
                     const selectedValue = dropdown ? dropdown.value : field.options?.[0]?.toString() || "";
                     field.options = [selectedValue];
@@ -1420,7 +1420,7 @@
  
 
     function fetchMasterOptions(query, fieldId) {
-        debugger;
+        
         $.ajax({
             url: "{% url 'get_query_data' %}",
             type: "POST",
@@ -1429,7 +1429,7 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function (response) {
-                debugger;
+                
                 let optionsHtml = `<option value="">Select</option>`;
                 const fieldIndex = formFields.findIndex(f => f.id === fieldId);
     
@@ -1441,7 +1441,7 @@
     
                 const previewDropdown = document.getElementById(`field_${fieldId}`);
                 if (previewDropdown) {
-                    debugger;
+                    
                     previewDropdown.innerHTML = optionsHtml;
     
                     // Restore previously selected value if it exists
@@ -1471,7 +1471,7 @@
     }
 
     function fetchMasterOptionsmultiple(query, fieldId) {
-        debugger;
+        
         $.ajax({
             url: "{% url 'get_query_data' %}",
             type: "POST",
@@ -1480,7 +1480,7 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function (response) {
-                    debugger;
+                    
                     let optionsHtml = ``; // Don't use default 'Select' for multiple
 
                     const fieldIndex = formFields.findIndex(f => f.id === fieldId);
@@ -1493,7 +1493,7 @@
 
                     const previewDropdown = document.getElementById(`field_${fieldId}`);
                     if (previewDropdown) {
-                        debugger;
+                        
 
                         // Ensure the select allows multiple selection
                         previewDropdown.setAttribute("multiple", "multiple");
@@ -1578,7 +1578,7 @@
 
 
 function validateAndUpdateLabel(inputElement, fieldId) {
-    debugger;
+    
 
     // Remove special characters
     let cleanedValue = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '');
@@ -1612,7 +1612,7 @@ function validateAndUpdateLabel(inputElement, fieldId) {
 
 
     {% comment %} document.getElementById("main-form").addEventListener("submit", function () {
-        debugger;
+        
         syncFormValidationsBeforeSubmit();
        // syncGenerativeDataBeforeSubmit()
         const fieldsInDom = document.querySelectorAll('#form-builder .draggable-field');
@@ -1652,7 +1652,7 @@ function validateAndUpdateLabel(inputElement, fieldId) {
 
 
      document.getElementById("main-form").addEventListener("submit", function () {
-        debugger;
+        
         syncFormValidationsBeforeSubmit();
 
         const fieldsInDom = document.querySelectorAll('#form-builder .draggable-field');

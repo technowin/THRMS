@@ -318,7 +318,7 @@
       });
   
       company.on('change', async function () {
-        debugger;
+        
           var worksite = $('#worksite')[0].selectize;
           var selectedCompanies = $('#company_id').val(); // Get selected companies
           var type = $('#type').val();
@@ -380,7 +380,7 @@
 </script>
 <script>
   $('#ur').change(function() {
-      debugger;
+      
       var selectedValue = $(this).val(); 
       var type = $('#type').val();
       if (selectedValue) {
@@ -391,7 +391,7 @@
               traditional: true,
               data: {'ur': selectedValue,'type':type,csrfmiddlewaretoken: '{{ csrf_token }}' },
               success: function(response) {
-                debugger;
+                
                   var company = response.company;
                   var company_id = $('#company_id');
                   var company_inst = company_id[0].selectize;
