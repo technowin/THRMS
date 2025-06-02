@@ -285,28 +285,26 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
                 where_clause1[b] = where_clause1[b].replace("BindPara1", SubFilterId[sub])
             b += 1
         
-        column_name = callproc("stp_get_dispay_names",[entity])        
-        callproc("stp_error_log",[columnName,str(1),user])  
+        column_name = callproc("stp_get_dispay_names",[entity])          
                 
         if columnName == '' or columnName is None or columnName == ' ': 
             column_name_arr = [col[0] for col in column_name] 
             display_name_arr = [col[1] for col in column_name]
             columns = " , ".join(column_name_arr)
-            callproc("stp_error_log",[columnName,str(2),user])  
+  
         else :
             column_name_arr = columnName.split(',')
             for i, col in enumerate(column_name_arr):
                 column_name_arr[i] = col.replace('|', ',')
             display_name_arr = []
-            callproc("stp_error_log",[columnName,str(3),user])  
+  
             for item in column_name:
                 if item[0] in column_name_arr:
                     display_name_arr.append(item[1])
 
             columns = " , ".join(column_name_arr)
 
-        display_names = " , ".join(display_name_arr)
-        callproc("stp_error_log",[columnName,str(4),user])  
+        display_names = " , ".join(display_name_arr)  
         for dr in column_join_list:
             check = dr[0]
             if check in columns:
@@ -342,8 +340,7 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
             if result_data and result_data[0]:
                 data_list = preprocess_data_list(result_data)
       
-        display_name_list = list(display_name_arr)
-        callproc("stp_error_log",[columnName,str(5),user])  
+        display_name_list = list(display_name_arr)  
         if len(data_list) > 0:
             emptycheck = 0
         else : emptycheck = 1
