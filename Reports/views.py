@@ -286,18 +286,19 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
             b += 1
         
         column_name = callproc("stp_get_dispay_names",[entity])        
-        
+        callproc("stp_error_log",[columnName,str(1),user])  
                 
         if columnName == '' or columnName is None or columnName == ' ': 
             column_name_arr = [col[0] for col in column_name] 
             display_name_arr = [col[1] for col in column_name]
             columns = " , ".join(column_name_arr)
+            callproc("stp_error_log",[columnName,str(2),user])  
         else :
             column_name_arr = columnName.split(',')
             for i, col in enumerate(column_name_arr):
                 column_name_arr[i] = col.replace('|', ',')
             display_name_arr = []
-
+            callproc("stp_error_log",[columnName,str(3),user])  
             for item in column_name:
                 if item[0] in column_name_arr:
                     display_name_arr.append(item[1])
@@ -305,7 +306,7 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
             columns = " , ".join(column_name_arr)
 
         display_names = " , ".join(display_name_arr)
-
+        callproc("stp_error_log",[columnName,str(4),user])  
         for dr in column_join_list:
             check = dr[0]
             if check in columns:
@@ -342,7 +343,7 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
                 data_list = preprocess_data_list(result_data)
       
         display_name_list = list(display_name_arr)
-
+        callproc("stp_error_log",[columnName,str(5),user])  
         if len(data_list) > 0:
             emptycheck = 0
         else : emptycheck = 1
