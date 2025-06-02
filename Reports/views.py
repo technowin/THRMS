@@ -288,7 +288,7 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
         column_name = callproc("stp_get_dispay_names",[entity])        
         
                 
-        if columnName == '': 
+        if columnName == '' or columnName is None or columnName == ' ': 
             column_name_arr = [col[0] for col in column_name] 
             display_name_arr = [col[1] for col in column_name]
             columns = " , ".join(column_name_arr)
