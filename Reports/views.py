@@ -535,9 +535,9 @@ def report_xlsx(request):
                 output.seek(0)
                 response.write(output.read())
     except Exception as e:
-        tb = traceback.format_exc()
-        # fun = tb[0].name
-        callproc("stp_error_log",[tb.splitlines()[-1],str(e),request.user.id])  
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        callproc("stp_error_log",[fun,str(e),request.user.id])  
         messages.error(request, 'Oops...! Something went wrong!')
     finally:
         return response
