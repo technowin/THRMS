@@ -367,8 +367,7 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        # callproc("stp_error_log",[fun,str(e),user]) 
-        callproc("stp_error_log", [tb.splitlines()[-1], str(e),user])  
+        callproc("stp_error_log",[fun,str(e),user])  
     finally:
           return data
 
@@ -498,7 +497,7 @@ def report_xlsx(request):
                 worksheet = workbook.add_worksheet(str(entity))
             
                 # Inserting the logo with a reduced size, ensuring it doesn't overlap
-                worksheet.insert_image('A1', 'static/images/technologo.png', {'x_offset': 1, 'y_offset': 1, 'x_scale': 0.04, 'y_scale': 0.04})  # Reduced size
+                worksheet.insert_image('A1', 'static/images/technologo.png', {'x_offset': 1, 'y_offset': 1, 'x_scale': 0.04, 'y_scale': 0.04})   # Reduced size
             
                 # Header Format
                 header_format = workbook.add_format({'align': 'center', 'bold': True, 'font_size': 14})
@@ -537,7 +536,7 @@ def report_xlsx(request):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        callproc("stp_error_log", [tb.splitlines()[-1], str(e), request.user.id])  
+        callproc("stp_error_log",[fun,str(e),request.user.id])  
         messages.error(request, 'Oops...! Something went wrong!')
     finally:
         return response
