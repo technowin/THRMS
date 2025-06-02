@@ -287,8 +287,13 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
         
         column_name = callproc("stp_get_dispay_names",[entity])        
         callproc("stp_error_log",[columnName,str(1),user])  
-
-        if columnName and columnName.strip():
+                
+        if columnName == '' or columnName is None or columnName == ' ': 
+            column_name_arr = [col[0] for col in column_name] 
+            display_name_arr = [col[1] for col in column_name]
+            columns = " , ".join(column_name_arr)
+            callproc("stp_error_log",[columnName,str(2),user])  
+        else :
             column_name_arr = columnName.split(',')
             for i, col in enumerate(column_name_arr):
                 column_name_arr[i] = col.replace('|', ',')
@@ -299,12 +304,6 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
                     display_name_arr.append(item[1])
 
             columns = " , ".join(column_name_arr)
-        else :
-            column_name_arr = [col[0] for col in column_name] 
-            display_name_arr = [col[1] for col in column_name]
-            columns = " , ".join(column_name_arr)
-            callproc("stp_error_log",[columnName,str(2),user])  
-            
 
         display_names = " , ".join(display_name_arr)
         callproc("stp_error_log",[columnName,str(4),user])  
