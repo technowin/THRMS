@@ -68,7 +68,7 @@ document.getElementById('site_id').addEventListener('change', function() {
         var cardSelect = document.getElementById('card_id');
         cardSelect.innerHTML = '<option value="">Select Card</option>';  // Clear options
         data.cards.forEach(function(card) {
-            debugger;
+            
             var option = document.createElement('option');
             option.value = card.card_id;
             option.text = card.card_name;

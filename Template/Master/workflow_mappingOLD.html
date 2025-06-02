@@ -242,14 +242,14 @@
         });
 
         function updateActionDropdown(buttonTypeId, actionDropdown) {
-            debugger;
+            
             fetch(`/get_actions_by_button_type/?button_type_id=${buttonTypeId}`)
                 .then(response => response.json())
                 .then(data => {
-                    debugger;
+                    
                     actionDropdown.innerHTML = ""; // Clear existing options
                     data.forEach(actions => {
-                        debugger;
+                        
                         let option = document.createElement("option");
                         
                         option.value = actions.id; // Set the option value to the action ID

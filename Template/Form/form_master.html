@@ -65,7 +65,7 @@
 <script>
     $(document).ready(function () {
         $('#dropdown').on('change', function () {
-            debugger;
+            
             let formId = $(this).val();
             let Submit = $('#btnSubmit');
             let $dynamicForm = $('#dynamic_form');
@@ -83,7 +83,7 @@
                         'csrfmiddlewaretoken': '{{ csrf_token }}'
                     },
                     success: function (data) {
-                        debugger;
+                        
                         $dynamicForm.html(data.html);
 
                         let selectedText = $('#dropdown option:selected').text();

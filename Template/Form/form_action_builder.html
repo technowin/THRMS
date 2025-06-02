@@ -96,7 +96,7 @@
 <script>
 
     $('#dropdown').change(function() {
-        debugger;
+        
         var selectedValue = $(this).val(); 
     
         if (selectedValue) {
@@ -108,7 +108,7 @@
                     csrfmiddlewaretoken: '{{ csrf_token }}' 
                 },
                 success: function(response) {
-                    debugger;
+                    
                     formFields = response.formFields;
                     renderFormBuilder();
                     renderFormPreview();
@@ -190,7 +190,7 @@ function renderFormBuilder() {
         let fieldHtml = "";
 
         if (field.type === "button") {
-            debugger;
+            
             fieldHtml = `
                 <div class="col-md-1 mb-3">
                     <label>Type</label>
@@ -285,7 +285,7 @@ function renderFormBuilder() {
 }
 
 function validateAndUpdateLabel(inputElement, fieldId) {
-    debugger;
+    
 let newLabel = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '').trim();
 
 // Check for duplicates (excluding current field)
@@ -307,7 +307,7 @@ updateField(fieldId, 'label', newLabel);
 
 
 function renderFormPreview() {
-    debugger;
+    
     let preview = document.getElementById("dynamic-form");
     preview.innerHTML = "";
     
