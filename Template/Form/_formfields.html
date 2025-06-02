@@ -192,6 +192,13 @@
                         placeholder="{% if field.accept %}Enter up to {{ field.accept }} characters{% else %}Enter text{% endif %}"
                         {% for attr in field.attributes %}{{ attr }}{% endfor %}>
 
+                {% elif field.field_type == "email" %}
+                <input type="{{ field.field_type }}" class="form-control"
+                       name="field_{{ field.id }}"
+                       value="{{ field.value }}" placeholder="Enter your email address"
+                       {% for attr in field.attributes %}{{ attr }} {% endfor %}
+                       {% if readonlyWF == '1' or viewStepWFSeq == '3' %}readonly{% endif %}/>
+
                 {% elif field.field_type == "regex" %}
                     <input type="text" class="form-control"
                         name="field_{{ field.id }}"
