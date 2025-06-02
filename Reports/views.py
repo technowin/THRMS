@@ -367,7 +367,8 @@ def common_fun(columnName,filterid,SubFilterId,sft,entity,user):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        callproc("stp_error_log",[fun,str(e),user])  
+        # callproc("stp_error_log",[fun,str(e),user]) 
+        callproc("stp_error_log", [tb.splitlines()[-1], str(e),user])  
     finally:
           return data
 
