@@ -23,7 +23,6 @@ from django.http import HttpResponse
 import os
 import time
 import xlsxwriter
-from xlsxwriter.utility import xl_range
 
 import io
 import os
@@ -506,7 +505,7 @@ def report_xlsx(request):
                 data_format = workbook.add_format({'border': 1})
                 filter_format = workbook.add_format({'bold': True})
                 column_header_format = workbook.add_format({'bold': True, 'bg_color': '#7f9cf0', 'font_color': 'black'})
-            
+                from xlsxwriter.utility import xl_range
                 merged_range = xl_range(1, 0, 1, len(column_list) - 1)  # A4 to ??4
                 worksheet.merge_range(merged_range, title, header_format)
             
