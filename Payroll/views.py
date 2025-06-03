@@ -56,6 +56,7 @@ from io import BytesIO
 from django.core.files.base import ContentFile
 from dateutil.relativedelta import relativedelta
 from django.http import HttpResponse
+from django.db.models import Prefetch
 
 from Tax.models import ActMaster, SlabMaster, TaxCalculation
 # from openpyxl.styles import Font
@@ -725,12 +726,23 @@ def view(request, pk):
     return render(request, 'Payroll/SalaryElement/view.html', {'salary_element': salary_element})
 
 
+# @login_required
+# def rate_card_index(request):
+#     rate_cards = rate_card_master.objects.all()
+#     for record in rate_cards:
+#         record.pk = enc(str(record.card_id))
+#     return render(request, 'Payroll/RateCard/index.html', {'rate_cards': rate_cards})
+
 @login_required
 def rate_card_index(request):
-    rate_cards = rate_card_master.objects.all()
+    rate_cards = rate_card_master.objects.prefetch_related('rate_card_master_id')  # <== use this
+
     for record in rate_cards:
         record.pk = enc(str(record.card_id))
+        record.related_sites = record.rate_card_master_id.all()  # <== use this
+
     return render(request, 'Payroll/RateCard/index.html', {'rate_cards': rate_cards})
+
 
 @login_required
 def rate_card_create(request):
@@ -820,6 +832,7 @@ def rate_card_edit(request, card_id):
         form = RateCardMasterForm(request.POST, instance=rate_card)
         if form.is_valid():
             rate_card = form.save(commit=False)
+            rate_card.card_name = request.POST.get('card_name_hidden')
             rate_card.updated_by = request.user
             rate_card.save()
 
@@ -870,6 +883,7 @@ def rate_card_edit(request, card_id):
     # Prepare pre-filled data for each item
     existing_relations = RateCardSalaryElement.objects.filter(rate_card=rate_card)
     site_relation = site_card_relation.objects.filter(card=rate_card)
+    relation = site_relation.first()
 
     prefilled_data = {}
     for relation in existing_relations:
@@ -889,7 +903,7 @@ def rate_card_edit(request, card_id):
         'pay_type':pay_types,
         'classification':classification,
         'rate_card': rate_card,
-        'site_relation':site_relation,
+        'relation':relation,
         'selected_item_ids': list(selected_item_ids),
         'prefilled_data': prefilled_data, 
         'client_names':client_names,'location_names':location_names,

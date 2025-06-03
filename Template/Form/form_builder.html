@@ -1147,60 +1147,6 @@
     }
    
 
-    {% comment %} function syncFormValidationsBeforeSubmit() {
-        formFields.forEach(field => {
-            // For file and file multiple
-            if (field.type === "file" || field.type === "file multiple") {
-                const dropdown = document.querySelector(`#dropdown`);
-                if (dropdown) {
-                    const selectedOption = dropdown.options[dropdown.selectedIndex];
-                    const value = selectedOption.value;
-                    const id = selectedOption.dataset.id;
-    
-                    if (value) {
-                        field.validation = [{ id: id, validation_value: value }];
-                    }
-                }
-            }
-    
-            // For text fields
-            if (field.type === "text") {
-                const dropdown = document.querySelector(`#text-dropdown-${field.id}`);
-                if (dropdown) {
-                    const selectedOption = dropdown.options[dropdown.selectedIndex];
-                    const value = selectedOption.value;
-                    const id = selectedOption.dataset.id;
-    
-                    if (value) {
-                        let dynamicInput = document.querySelector(`#max-length-${field.id}`) || document.querySelector(`#regex-${field.id}`);
-                        const inputValue = dynamicInput?.value || "";
-    
-                        field.validation = [{
-                            id: id,
-                            validation_type: value,
-                            validation_value: inputValue
-                        }];
-                    }
-                }
-            }
-
-            if (field.type === "master dropdown") {
-                    
-                    const dropdown = document.getElementById(`option-dropdown-${field.id}`);
-                    const selectedValue = dropdown ? dropdown.value : field.options?.[0]?.toString() || "";
-                    field.options = [selectedValue]; // Ensure it gets saved even if unchanged
-                }
-
-                // 🔹 Multiple Dropdown
-                if (field.type === "multiple") {
-                    
-                    const dropdown = document.getElementById(`multi-option-dropdown-${field.id}`);
-                    const selectedValue = dropdown ? dropdown.value : field.options?.[0]?.toString() || "";
-                    field.options = [selectedValue];
-                }
-        });
-    } {% endcomment %}
-
     function syncFormValidationsBeforeSubmit() {
     formFields.forEach(field => {
         // 🔹 File / File multiple

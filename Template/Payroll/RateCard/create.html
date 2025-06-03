@@ -10,6 +10,7 @@
  <link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" >
 
  <link rel="stylesheet" type="text/css" href="{% static 'css/tooltips.css' %}" />
+  <link href="{% static 'css/salarycheckbox.css' %}" rel="stylesheet" type="text/css" >
 
  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
  <!-- Include DataTables CSS -->
@@ -29,7 +30,7 @@
     <title>Create Rate Card</title>
     <style>
         .form-control {
-            width: 100%;
+            {% comment %} width: 100%; {% endcomment %}
             padding: 8px;
             font-size: 14px;
             margin-bottom: 10px;
@@ -38,13 +39,37 @@
             margin-bottom: 10px;
         }
         .amount-field {
-            width: 80px;
+            width: 50px;
             margin-left: 10px;
         }
         #id_card_name {
             width: 40%; 
         }
-        .col-md-custom-2 { flex: 0 0 13%; max-width: 13%; padding: 0 15px; }
+       /* Base: Mobile-first default (stacked full width on small screens) */
+            [class^="col-md-custom-"],
+            [class*=" col-md-custom-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding: 0 10px;
+            }
+
+            /* Tablet and up (≥ 768px) */
+            @media (min-width: 768px) {
+            .col-md-custom-0\.5 { flex: 0 0 5.33%; max-width: 5.33%; }
+            .col-md-custom-1   { flex: 0 0 5%;    max-width: 4%; }
+            .col-md-custom-2   { flex: 0 0 12%;   max-width: 12%; }
+            .col-md-custom-3   { flex: 0 0 20%;   max-width: 20%; }
+            .col-md-custom-4   { flex: 0 0 33.33%; max-width: 33.33%; }
+            .col-md-custom-5   { flex: 0 0 41.66%; max-width: 41.66%; }
+            .col-md-custom-6   { flex: 0 0 50%;   max-width: 50%; }
+            .col-md-custom-7   { flex: 0 0 58.33%; max-width: 58.33%; }
+            .col-md-custom-8   { flex: 0 0 66.66%; max-width: 66.66%; }
+            .col-md-custom-9   { flex: 0 0 75%;   max-width: 75%; }
+            .col-md-custom-10  { flex: 0 0 83.33%; max-width: 83.33%; }
+            .col-md-custom-11  { flex: 0 0 91.66%; max-width: 91.66%; }
+            .col-md-custom-12  { flex: 0 0 100%;  max-width: 100%; }
+            }
+
 
     </style>
 </head>
@@ -52,16 +77,16 @@
 
     <div class="card">
         <div class="card-body">
-            <div class="card-header">
-                <h1>Create Rate Card</h1>
-            </div>
+            {% comment %} <div class="card-header"> {% endcomment %}
+              <h3 class="card-title text-center text-primary">Create Rate Card</h3>
+            {% comment %} </div> {% endcomment %}
             <br>
 
             <form method="post">
                 {% csrf_token %}
                 <div class="row col-md-12">
 
-                    <div class="col-md-3">
+                    <div class="col-md-custom-3">
                         <label for="client_name" class="form-label">Client Name</label>
                             <select name="client_name" id="client_name" class="form-control select">
                                 <option value="" selected disabled>Select Client</option>
@@ -73,7 +98,7 @@
                             </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-custom-3">
                         <label for="location" class="form-label">Location Name</label>
                             <select name="location" id="location" class="form-control select">
                                 <option value="" selected disabled>Select Location</option>
@@ -84,7 +109,7 @@
                                     {% endfor %}
                             </select>
                     </div>
-                      <div class="col-md-3">
+                      <div class="col-md-custom-3">
                         <label for="client_name" class="form-label">Designation</label>
                             <select name="designation" id="designation" class="form-control select">
                             <option value="" selected disabled>Select Client</option>
@@ -95,7 +120,7 @@
                                 {% endfor %}
                         </select>
                     </div>
-                      <div class="col-md-3">
+                      <div class="col-md-custom-3">
                         <label for="level" class="form-label">Level</label>
                             <select name="level" id="level" class="form-control select">
                             <option value="" selected disabled>Select Level</option>
@@ -107,27 +132,25 @@
                                 
                         </select>
                     </div>
-                </div>
-                <div class="row col-md-12">
-                <div class="mb-4 col-md-4">
-                        <label for="card_name" class="form-label">Card Name:</label>
-                        {{ form.card_name }} 
-    
-                        <input type="hidden" name="card_name_hidden" id="card_name_hidden">
+                    <div class="col-md-custom-3">
+                            <label for="card_name" class="form-label">Card Name:</label>
+                            {{ form.card_name }} 
+        
+                            <input type="hidden" name="card_name_hidden" id="card_name_hidden">
 
-                </div>
-                </div>
-                
-
+                    </div>
+                    
+                    <br>
 
                 <div class="mb-4">
-                    <h4 class="text-dark">Select Salary Elements:</h4>
+                    <h4 class="text-primary">Select Salary Elements:</h4>
+                    <br>
     
-                    {% for item in form.item_ids.field.queryset %}
+                    {% comment %} {% for item in form.item_ids.field.queryset %}
                     <div class="row g-3 mb-4">
                         <div class="col-md-custom-2 text-center">
                             <div class="border p-3 h-100">
-                                <input type="checkbox" name="item_ids" class="form-control" value="{{ item.pk }}" 
+                                <input type="checkbox" name="item_ids" class="form-control salary-checkbox" value="{{ item.pk }}" 
                                     onclick="toggleAmountFields(this, '{{ item.pk }}')" 
                                     style="font-size: 1rem;">
                                 <label class="mt-2">{{ item.item_name }}</label>
@@ -209,7 +232,95 @@
                             </div>
                         </div>
                     </div>
+                    {% endfor %} {% endcomment %}
+
+                    <table class="table table-bordered">
+    <thead>
+        <tr class="text-center align-middle">
+            <th>Item</th>
+            <th>4-Hour Amount</th>
+            <th>9-Hour Amount</th>
+            <th>Pay Type</th>
+            <th>Classification</th>
+            <th>Unit</th>
+            <th>Tax</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in form.item_ids.field.queryset %}
+        <tr class="text-center align-middle">
+            <!-- Checkbox and Item Name -->
+            <td>
+                <div class="d-flex flex-column align-items-center">
+                    <input type="checkbox" name="item_ids" class="form-control salary-checkbox" value="{{ item.pk }}"
+                        onclick="toggleAmountFields(this, '{{ item.pk }}')">
+                    <label class="mt-2 d-block">{{ item.item_name }}</label>
+                </div>
+            </td>
+
+            <!-- 4-Hour Amount -->
+            <td>
+                <input type="number" name="four_hour_amount_{{ item.pk }}"
+                    class="form-control amount-field w-50 mx-auto" placeholder="4-Hour" min="0"
+                    id="four_hour_amount_{{ item.pk }}" step="0.01" disabled>
+            </td>
+
+            <!-- 9-Hour Amount -->
+            <td>
+                <input type="number" name="nine_hour_amount_{{ item.pk }}"
+                    class="form-control amount-field w-50 mx-auto" placeholder="9-Hour" min="0"
+                    id="nine_hour_amount_{{ item.pk }}" step="0.01" disabled>
+            </td>
+
+            <!-- Pay Type -->
+            <td>
+                <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control select" disabled>
+                    <option value="">Select Pay Type</option>
+                    {% for pay in pay_type %}
+                    <option value="{{ pay.id }}" {% if item.pay_type.id == pay.id %}selected{% endif %}>
+                        {{ pay.name }}
+                    </option>
                     {% endfor %}
+                </select>
+            </td>
+
+            <!-- Classification -->
+            <td>
+                <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control select" disabled>
+                    <option value="">Select Classification</option>
+                    {% for class in classification %}
+                    <option value="{{ class.id }}" {% if item.classification_id == class.id %}selected{% endif %}>
+                        {{ class.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </td>
+
+            <!-- Salary Unit -->
+            <td>
+                <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control select" disabled>
+                    {% for sal in salary_unit %}
+                    <option value="{{ sal.id }}">{{ sal.name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+
+            <!-- Tax Parameter -->
+            <td>
+                <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control select" disabled>
+                    <option value="">Select Tax Parameter</option>
+                    {% for tax in tax_parameter %}
+                    <option value="{{ tax.id }}" {% if item.tax_parameter.id == tax.id %}selected{% endif %}>
+                        {{ tax.tax_parameter }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 
                 </div>
                 <div class="text-center">
@@ -346,9 +457,9 @@
 
         if (client.value && location.value && designation.value && level.value) {
             const cardName = (
-                clientText.substring(0, 3) + '-' +
-                locationText.substring(0, 2) + '-' +
-                designationText.substring(0, 5) + '-' +
+                clientText.substring(0, 3) + '_' +
+                locationText.substring(0, 2) + '_' +
+                designationText.substring(0, 5) + '_' +
                 levelText
             ).toUpperCase();
 

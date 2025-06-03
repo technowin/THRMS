@@ -42,7 +42,7 @@
     
     <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a> {% endcomment %}
 
-    <div class="container mt-4" style="max-width: 800px;">
+    <div class="container mt-4" style="max-width: 1000px;">
         <div class="card">
             <div class="card-header">
                 <h2>View Rate Card - {{ rate_card.card_name }}</h2>
@@ -54,6 +54,10 @@
                             <th>Salary Element</th>
                             <th>4-Hour Amount</th>
                             <th>9-Hour Amount</th>
+                            <th>Pay Type</th>
+                            <th>Classification</th>
+                            <th>Tax Paramter</th>
+                            <th>Salary Unit</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,6 +66,10 @@
                                 <td>{{ element.item_name }}</td>
                                 <td>{{ element.four_hour_amount }}</td>
                                 <td>{{ element.nine_hour_amount }}</td>
+                                <td>{{ element.pay_type }}</td>
+                                <td>{{ element.classification }}</td>
+                                <td>{{ element.tax_parameter }}</td>
+                                <td>{{ element.salary_unit }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
