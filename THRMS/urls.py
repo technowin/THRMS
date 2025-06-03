@@ -220,7 +220,9 @@ urlpatterns = [
     path("test_index",test_index, name="test_index"),
     path("partial_details_index",partial_details_index, name="partial_details_index"),
     path("partial_details_index_onpageload",partial_details_index_onpageload, name="partial_details_index_onpageload"),
-    path("download_candidate_excel",download_candidate_excel, name="download_candidate_excel"),         
+    path("download_candidate_excel",download_candidate_excel, name="download_candidate_excel"),
+    path("candidate_index",candidate_index, name="candidate_index"),
+    path("edit_candidate",edit_candidate, name="edit_candidate"),             
 
 # masters
 

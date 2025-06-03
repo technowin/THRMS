@@ -53,16 +53,27 @@
                       </select>                 
                     </div>
                     <div class="col-md-1" style="text-align:right;">
-                      <label class="mb-0 css_labels" >Status - </label>
+                      <label class="mb-0 css_labels" >Skillset - </label>
                     </div>
                     <div class="col-md-1"> 
-                      <select style="border-radius:10em;" name="status" id="status" class="form-control select">
+                      <select style="border-radius:10em;" name="skillset" id="skillset" class="form-control select">
                         <option value="" selected>--Select--</option>
-                        {% for item2 in status_list %}
+                        {% for item2 in performance_level_list %}
                             <option value="{{ item2.0 }}">{{ item2.1 }}</option>
                         {% endfor %}
                       </select>                 
                     </div> 
+                    <div class="col-md-2" style="text-align:right;">
+                      <label class="mb-0 css_labels" style="margin-bottom:4%;">IT Performance - </label>
+                    </div>
+                    <div class="col-md-1"> 
+                      <select style="border-radius:10em;" name="it_performance" id="it_performance" class="form-control select">
+                        <option value="" selected>--Select--</option>
+                        {% for item2 in performance_level_list %}
+                            <option value="{{ item2.0 }}">{{ item2.1 }}</option>
+                        {% endfor %}
+                      </select>                 
+                    </div>                     
                     <div class="col-md-1" style="text-align:right;">
                       <label class="mb-0 css_labels">Created At - </label>
                     </div>
@@ -76,7 +87,7 @@
                         {% endfor %}
                       </select>                 
                     </div>                      
-                    <div class="col-md-2"> 
+                    <!-- <div class="col-md-2"> 
                       <div style="text-align:center;">
                         <button style="width:50%; padding:3% 2%;border-radius:15px" type="button" onclick="get_results()" class="btn btn-sm btn-primary">View</button>
                       </div>                
@@ -85,9 +96,25 @@
                       <div style="text-align:center;">
                         <button style="width:50%; padding:3% 2%;border-radius:15px" type="submit" class="btn btn-sm btn-primary">Excel Download</button>
                       </div>                 
-                    </div>                                                                  
-                    
+                    </div>                                                                   -->
+
+                   
+
                 </div>
+
+                <div class="row col-md-12" style="margin-top:3%;margin-bottom:2%;">
+                    <div class="col-md-6"> 
+                      <div style="text-align:right;">
+                        <button style="width:25%; padding:0.8% 0.5%;border-radius:15px" type="button" onclick="get_results()" class="btn btn-sm btn-primary">View</button>
+                      </div>                
+                    </div>
+                    <div class="col-md-5"> 
+                      <div style="text-align:left;">
+                        <button style="width:25%; padding:1% 0.5%;border-radius:15px" type="submit" class="btn btn-sm btn-primary">Excel Download</button>
+                      </div>                 
+                    </div>                     
+                </div> 
+
               </form> 
 
               <div class="" id="partial_data" style=" margin-top: 0.5%;">
@@ -137,10 +164,11 @@
   function get_results() {
 
     let dp = $("#dp").val();
-    let status = $("#status").val(); 
+    let skillset = $("#skillset").val();
+    let it_performance = $("#it_performance").val();     
     let created_at = $("#created_at").val();
     
-    if (!dp && !status && !created_at) {
+    if (!dp && !skillset && !it_performance && !created_at) {
         Swal.fire({
             icon: 'warning',
             title: 'Missing Parameters',
@@ -154,7 +182,8 @@
 
       var formData = new FormData();
       formData.append('dp', dp);
-      formData.append('status', status);
+      formData.append('skillset', skillset);
+      formData.append('it_performance', it_performance);      
       formData.append('created_at', created_at);      
 
 
@@ -168,7 +197,7 @@
         processData: false,
         contentType: false,
         success: function (response) {
-          
+          debugger;
 
           $('#partial_data').html('');
           $('#partial_data').html(response.table);
@@ -204,7 +233,7 @@
         processData: false,
         contentType: false,
         success: function (response) {
-          
+          debugger;
 
           $('#partial_data').html('');
           $('#partial_data').html(response.table);

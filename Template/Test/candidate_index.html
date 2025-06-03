@@ -1,0 +1,204 @@
+{% extends "Shared/Layout.html" %} {% block username %}{{username}}{% endblock %}
+{% block content %}
+{% load static %}
+{% csrf_token %}
+
+ <!-- Custom styles for this html-->
+ <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/uploadModal.css' %}" rel="stylesheet" type="text/css" >
+ <link rel="stylesheet" type="text/css" href="{% static 'css/tooltips.css' %}" />
+
+ <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+ <!-- Include DataTables CSS -->
+ <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+ <!-- Include DataTables JS -->
+ <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+.css_labels{
+  font-size:1.2em;
+  padding-top:3%;
+} 
+</style>
+
+ <!-- Begin Page Content -->
+
+  <div class="row">
+      <div class="col-lg-12">
+          <!-- Index Card -->
+        <div class="card mb-4" style="padding: 10px;border: 2px solid #b3b3b3;border-radius: 15px;margin-left:0px;">
+
+              <div class="row col-md-12">
+                <div class="col-md-3" style="margin-top:2%">
+                    <h3> <strong style="color: #4e73df;"> Candidate Details</strong></h3>
+                </div>  
+              </div>    
+
+              <form method="POST" action="{% url 'download_candidate_excel' %}">
+                {% csrf_token %}
+                <div class="row col-md-12" style="margin-top:3%;margin-bottom:2%;">
+                    <div class="col-md-7">
+
+                    </div>                     
+                    <div class="col-md-3">                         
+                      {% if last_status != 1 and last_status != 2 %}
+                          <a href="/enterthedetails" class="btn btn-primary" style="width:60%;border-radius:15px;padding:2% 2%;">
+                              Fill Form
+                          </a> 
+                      {% endif %}                      
+
+                      <!-- <div style="text-align:center;">
+                        <button style="width:60%; padding:2% 2%;border-radius:15px;font-size:1.1em" type="button" onclick="get_results()" class="btn btn-sm btn-primary">Fill Form</button>
+                      </div>                 -->
+                    </div>
+                                                                                  
+                </div>
+              </form> 
+
+               <div class="card-body">
+                <div class="table-responsive">
+                  <table style="width: 100%;"  class="table"  id="dataTable">   
+                       <thead>
+                        <tr>
+                            <th style="font-weight: bold; color: black;">Candidate Name</th>
+                            <th style="font-weight: bold; color: black;">Mobile</th>
+                            <th style="font-weight: bold; color: black;">Email</th>
+                            <th style="font-weight: bold; color: black;">Post</th>
+                            <!-- <th style="font-weight: bold; color: black;">Percentage</th>
+                            <th style="font-weight: bold; color: black;">TimeTaken</th>
+                            <th style="font-weight: bold; color: black;">Status</th> -->
+                            <th style="font-weight: bold; color: black;">Action</th>                                                                                    
+                      </tr>
+                      <tr>
+                            <th> </th>
+                            <th> </th>
+                            <th> </th>
+                            <th> </th>
+                            <th> </th>
+                            <!--<th> </th>
+                            <th> </th>
+                            <th> </th> -->
+                      </tr>
+                      
+                       </thead>
+                       <tbody>
+                        {% for row in data %}
+                            <tr style="color:black">
+                                <td>{{ row.name }}</td>
+                                <td>{{ row.mobile }}</td> 
+                                <td>{{ row.email }}</td> 
+                                <td>{{ row.post }}</td>
+                                <!-- <td>{{ row.percentage }}</td>
+                                <td>{{ row.time_taken }}</td>                                
+                                <td>
+                                    {% if row.status == "pass" %}
+                                      <span style="color:green"> PASS </span>
+                                    {% else %}
+                                      <span style="color:red"> FAIL </span>
+                                    {% endif %}
+                                </td>                                  -->
+                                <td>
+                                    <a href="/edit_candidate?id={{ row.Encryp }}" class="btn btn-sm btn-primary" style="margin-right:3%;">Edit</a> 
+                                    <a href="/test_page?id={{ row.Encryp }}&post_id={{row.post}}" class="btn btn-sm btn-primary">Start Test</a>                                   
+                                </td>                                 
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                   </table>
+                </div>
+               </div>
+
+
+              <!-- <div class="" id="partial_data" style=" margin-top: 0.5%;">
+
+              </div> -->
+        </div>
+      </div>  
+  </div>
+
+ 
+ {% load static %}
+ 
+ 
+ {% if messages %}
+   {% for message in messages %}
+     <script>
+     Swal.fire({
+       title: "{{ message.tags }}",
+       text: "{{ message }}",
+       icon: "{{ message.tags }}",
+       confirmButtonText: "OK",
+     });
+   </script>
+   {% endfor %}
+ {% endif %}
+ <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var formsElement = document.getElementById('forms');
+    if (formsElement) {
+      formsElement.addEventListener('change', function() {
+        var selectedEntity = this.value;
+        window.location.href = '/masters?entity=form_master&sf=' + encodeURIComponent(selectedEntity);
+      });
+    } else {
+      console.error("Element with ID 'forms' not found on this page.");
+    }
+  });
+</script>
+
+
+ <script type="text/javascript">
+     $(document).ready(function () {
+       $("#dataTable").DataTable({
+         //order: [[0, 'desc']],
+         "ordering": false,
+         initComplete: function () {
+           this.api()
+             .columns()
+             .every(function () {
+               var column = this;
+               var select = $(
+                 '<select style="width:100%;border-radius: 10px;background-color:whitesmoke ;color: black;"><option value="">All</option></select>'
+               )
+                 .appendTo($(column.header()).empty())
+                 .on("change", function () {
+                   var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                   column.search(val ? "^" + val + "$" : "", true, false).draw();
+                 });
+               column
+                 .data()
+                 .unique()
+                 .sort()
+                 .each(function (d, j) {
+                   var ce = d;
+                   if (
+                     ce.includes("<a") ||
+                     ce.includes("span") ||
+                     ce.includes("<input") ||
+                     ce.includes("select") ||
+                     ce.includes("textarea")
+                   ) {
+                   } else {
+                     select.append('<option value="' + d + '">' + d + "</option>");
+                   }
+                 });
+             });
+         },
+         pageLength: 10,
+         lengthMenu: [
+           [5, 10, 25, 50, 100, 200, 300, 400, 500, -1],
+           [5, 10, 25, 50, 100, 200, 300, 400, 500, "All"],
+         ],
+       });
+     });
+   </script>
+ <!-- End of Main Content -->
+
+
+ {% endblock %}
+ 
+ 

@@ -83,52 +83,56 @@ def enterthedetails(request):
             name1 = request.POST.get("text_name", "")
             email1 = request.POST.get("email", "")
             mobile1 = request.POST.get("mobile", "")
-            post1 = request.POST.get("post", "")                                              
-            noq1 = request.POST.get("noq", "")
-            noq = int(noq1)
+            post1 = request.POST.get("post", "")
+            post_id = int(post1)
+            
+            status1 = 2 if post_id in [4, 7] else 1           
+                                                          
+            # noq1 = request.POST.get("noq", "")
+            # noq = int(noq1)
             # Get and shuffle questions
-            all_questions = list(QuestionAnswerMaster.objects.filter(post=post1))
-            if not all_questions:
-                questions_var = "no_questions"
-            else:
-                questions_var = "questions_exist" 
+            # all_questions = list(QuestionAnswerMaster.objects.filter(post=post1))
+            # if not all_questions:
+            #     questions_var = "no_questions"
+            # else:
+            #     questions_var = "questions_exist" 
                 
-            if all_questions:                
-                shuffle(all_questions)
-                selected_questions = all_questions[:min(noq, len(all_questions))]
+            # if all_questions:                
+            #     shuffle(all_questions)
+            #     selected_questions = all_questions[:min(noq, len(all_questions))]
 
-                # Extract question IDs
-                question_ids = [str(q.question_id) for q in selected_questions]
-                ids_str1 = ",".join(question_ids)
-                ids_str = enc(str(ids_str1))
+            #     # Extract question IDs
+            #     question_ids = [str(q.question_id) for q in selected_questions]
+            #     ids_str1 = ",".join(question_ids)
+            #     ids_str = enc(str(ids_str1))
 
-                # exists = CandidateTestMaster.objects.filter(name=name1, mobile=mobile1).exists()
-                # if not exists:
-                CandidateTestMaster.objects.create(
-                    name=name1,
-                    email=email1,
-                    mobile=mobile1,
-                    post=post1,
-                    created_at=timezone.now(),
-                    created_by=user
-                )  
-                    
-                # candidate_id2 = CandidateTestMaster.objects.filter(name=name1, mobile=mobile1).values_list('id', flat=True).first()
-                candidate_id2 = (
-                    CandidateTestMaster.objects
-                    .filter(name=name1, mobile=mobile1)
-                    .order_by('-id')  # or use '-created_at' if available
-                    .values_list('id', flat=True)
-                    .first()
-                )
+            CandidateTestMaster.objects.create(
+                name=name1,
+                email=email1,
+                mobile=mobile1,
+                post=post1,
+                created_at=timezone.now(),
+                created_by=user,
+                status=status1
+            )  
+                                    
+                # candidate_id2 = (
+                #     CandidateTestMaster.objects
+                #     .filter(name=name1, mobile=mobile1)
+                #     .order_by('-id')  # or use '-created_at' if available
+                #     .values_list('id', flat=True)
+                #     .first()
+                # )
                 
-                candidate_id = enc(str(candidate_id2))                
+                # candidate_id = enc(str(candidate_id2))                
                                                                 
     except Exception as e:
         print("error-" + e)
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
-        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])          
+        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])
+        messages.error(request,"Some Error Occurred !!") 
+        return redirect('enterthedetails')                  
     finally:
         cursor.close()
         m.commit()
@@ -137,139 +141,141 @@ def enterthedetails(request):
         if request.method == "GET":
             return render(request, "Test/enter_details.html", {'dpl': dpl})
         elif request.method == "POST":
-            if questions_var == "no_questions":
-                messages.error(request,"No Questions Found For This Post !!!!") 
-                return redirect('enterthedetails')
-            else:                
-                return redirect(f'/test_page?zparqwwq={ids_str}&candidate_id={candidate_id}')                     
+            messages.success(request,"Details Submitted Successfully !") 
+            return redirect('candidate_index')            
+            # if questions_var == "no_questions":
+            #     messages.error(request,"No Questions Found For This Post !!!!") 
+            #     return redirect('candidate_index')
+            # else:                
+            #     return redirect(f'/test_page?zparqwwq={ids_str}&candidate_id={candidate_id}')                     
         
-@login_required
-def test_page(request):
-    Db.closeConnection()
-    m = Db.get_connection()
-    cursor = m.cursor()
+# @login_required
+# def test_page(request):
+#     Db.closeConnection()
+#     m = Db.get_connection()
+#     cursor = m.cursor()
     
-    try:
-        user = request.user.id 
-        if request.method == "GET":
-            start_time1 = timezone.now()
-            start_time = enc(str(start_time1))
-            candidate_id1 = request.GET.get("candidate_id", "")
-            # candidate_id=dec(candidate_id1)
-            ids_str1 = request.GET.get("zparqwwq", "") #this are question ids 
-            ids_str=dec(ids_str1)
-            id_list = [int(qid) for qid in ids_str.split(",") if qid.isdigit()]  
+#     try:
+#         user = request.user.id 
+#         if request.method == "GET":
+#             start_time1 = timezone.now()
+#             start_time = enc(str(start_time1))
+#             candidate_id1 = request.GET.get("candidate_id", "")
+#             # candidate_id=dec(candidate_id1)
+#             ids_str1 = request.GET.get("zparqwwq", "") #this are question ids 
+#             ids_str=dec(ids_str1)
+#             id_list = [int(qid) for qid in ids_str.split(",") if qid.isdigit()]  
             
-            questions_raw = QuestionAnswerMaster.objects.filter(question_id__in=id_list)
-            questions_raw = sorted(questions_raw, key=lambda q: id_list.index(q.question_id))  
+#             questions_raw = QuestionAnswerMaster.objects.filter(question_id__in=id_list)
+#             questions_raw = sorted(questions_raw, key=lambda q: id_list.index(q.question_id))  
             
-            questions = []
-            for q in questions_raw:
-                options = [
-                    {"text": q.choice1},
-                    {"text": q.choice2},
-                    {"text": q.choice3},
-                    {"text": q.choice4},
-                ]
-                random.shuffle(options)  # shuffle in-place
+#             questions = []
+#             for q in questions_raw:
+#                 options = [
+#                     {"text": q.choice1},
+#                     {"text": q.choice2},
+#                     {"text": q.choice3},
+#                     {"text": q.choice4},
+#                 ]
+#                 random.shuffle(options)  # shuffle in-place
 
-                questions.append({
-                    "question_id": q.question_id,
-                    "question": q.question,
-                    "options": options,
-                })                     
+#                 questions.append({
+#                     "question_id": q.question_id,
+#                     "question": q.question,
+#                     "options": options,
+#                 })                     
 
-        if request.method == "POST":
+#         if request.method == "POST":
 
-            question_ids = request.POST.getlist("question_ids")
-            candidate_id1 = request.POST.get("candidate_id", "")
-            candidate_id=dec(candidate_id1)
+#             question_ids = request.POST.getlist("question_ids")
+#             candidate_id1 = request.POST.get("candidate_id", "")
+#             candidate_id=dec(candidate_id1)
                          
-            start_time1 = request.POST.get("start_time", "")
-            start_time_str=dec(start_time1)             
+#             start_time1 = request.POST.get("start_time", "")
+#             start_time_str=dec(start_time1)             
 
             
-# GET CANDIDATE DETAILS            
-            candidate_data = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'post').first()
-            candidate_name = candidate_data['name']
-            post1 = candidate_data['post']
-            start_time = enc(str(start_time1))
+# # GET CANDIDATE DETAILS            
+#             candidate_data = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'post').first()
+#             candidate_name = candidate_data['name']
+#             post1 = candidate_data['post']
+#             start_time = enc(str(start_time1))
 
 
-# TIME TAKEN BY CANDIDATE
+# # TIME TAKEN BY CANDIDATE
             
-            start_time = datetime.fromisoformat(start_time_str)
-            end_time = now()
-            time_taken = end_time - start_time
-            # Convert to minutes and seconds
-            seconds_taken = int(time_taken.total_seconds())
-            hours = seconds_taken // 3600
-            minutes = (seconds_taken % 3600) // 60
-            seconds = seconds_taken % 60
+#             start_time = datetime.fromisoformat(start_time_str)
+#             end_time = now()
+#             time_taken = end_time - start_time
+#             # Convert to minutes and seconds
+#             seconds_taken = int(time_taken.total_seconds())
+#             hours = seconds_taken // 3600
+#             minutes = (seconds_taken % 3600) // 60
+#             seconds = seconds_taken % 60
 
-            # Optional: format as string "mm:ss"
-            time_taken_str = f"{hours:02}:{minutes:02}:{seconds:02}"  # HH:MM:SS           
+#             # Optional: format as string "mm:ss"
+#             time_taken_str = f"{hours:02}:{minutes:02}:{seconds:02}"  # HH:MM:SS           
 
-# SCORE CALCULATION OF CANDIDATE 
-            score = 0
-            total = len(question_ids)
-            result_details = []            
-            for qid in question_ids:
-                question = QuestionAnswerMaster.objects.get(pk=int(qid))
-                user_answer = request.POST.get(f"answer_{qid}", "")
-                is_correct = (user_answer == question.correct_answer) 
+# # SCORE CALCULATION OF CANDIDATE 
+#             score = 0
+#             total = len(question_ids)
+#             result_details = []            
+#             for qid in question_ids:
+#                 question = QuestionAnswerMaster.objects.get(pk=int(qid))
+#                 user_answer = request.POST.get(f"answer_{qid}", "")
+#                 is_correct = (user_answer == question.correct_answer) 
 
-                if is_correct:
-                    isright1 = "Yes"
-                    score += 1 
-                else:
-                    isright1 = "No"     
+#                 if is_correct:
+#                     isright1 = "Yes"
+#                     score += 1 
+#                 else:
+#                     isright1 = "No"     
                     
-                candidate_answer = CandidateAnswer(
-                    candidate_id=candidate_id,
-                    post=post1,
-                    question_id=qid,
-                    candidates_answer=user_answer,
-                    is_right=isright1,
-                    created_at=timezone.now(),
-                    created_by=user
-                )
+#                 candidate_answer = CandidateAnswer(
+#                     candidate_id=candidate_id,
+#                     post=post1,
+#                     question_id=qid,
+#                     candidates_answer=user_answer,
+#                     is_right=isright1,
+#                     created_at=timezone.now(),
+#                     created_by=user
+#                 )
 
-                candidate_answer.save()
+#                 candidate_answer.save()
                 
-# PERCENTAGE CALCULATION & STATUS
-            percentage = (score / total) * 100 
-            if percentage >= 40:
-                status = "pass"
-            else:
-                status = "fail"   
+# # PERCENTAGE CALCULATION & STATUS
+#             percentage = (score / total) * 100 
+#             if percentage >= 40:
+#                 status = "pass"
+#             else:
+#                 status = "fail"   
                 
-            CandidateTestMaster.objects.filter(id=candidate_id).update(
-                marks_received=score,
-                out_of=total,
-                time_taken=time_taken_str,
-                percentage=percentage,
-                status=status,
-                updated_by=user,
-                updated_at=timezone.now(),
-                test_start_time=start_time,
-                test_end_time=end_time
-            )                                                                                                       
+#             CandidateTestMaster.objects.filter(id=candidate_id).update(
+#                 marks_received=score,
+#                 out_of=total,
+#                 time_taken=time_taken_str,
+#                 percentage=percentage,
+#                 status=status,
+#                 updated_by=user,
+#                 updated_at=timezone.now(),
+#                 test_start_time=start_time,
+#                 test_end_time=end_time
+#             )                                                                                                       
             
-    except Exception as e:
-        print("error-" + e)
-        tb = traceback.extract_tb(e.__traceback__)
-        fun = tb[0].name
-        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])          
-    finally:
-        cursor.close()
-        m.commit()
-        m.close()
-        Db.closeConnection()
-        if request.method == "GET":
-            return render(request, "Test/test_page.html",{"questions": questions,"candidate_id":candidate_id1,"start_time":start_time})
-        elif request.method == "POST":
-            return redirect(f'/result_page?cname={candidate_id1}')     
+#     except Exception as e:
+#         print("error-" + e)
+#         tb = traceback.extract_tb(e.__traceback__)
+#         fun = tb[0].name
+#         cursor.callproc("stp_error_log",[fun,str(e),request.user.id])          
+#     finally:
+#         cursor.close()
+#         m.commit()
+#         m.close()
+#         Db.closeConnection()
+#         if request.method == "GET":
+#             return render(request, "Test/test_page.html",{"questions": questions,"candidate_id":candidate_id1,"start_time":start_time})
+#         elif request.method == "POST":
+#             return redirect(f'/result_page?cname={candidate_id1}')     
         
 @login_required
 def result_page(request):
@@ -282,7 +288,7 @@ def result_page(request):
             candidate_id1 = request.GET.get("cname", "") 
             candidate_id=dec(candidate_id1)       
             # Fetch the candidate record by ID and get specific fields
-            candidate = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'time_taken', 'percentage', 'status').first()
+            candidate = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'time_taken', 'percentage', 'performance_level', 'it_percentage', 'it_performance_level').first()
 
             # Initialize variables to None in case no record is found
             name = time_taken = percentage = status = None
@@ -292,7 +298,9 @@ def result_page(request):
                 name = candidate['name']
                 time_taken = candidate['time_taken']
                 percentage = candidate['percentage']
-                status = candidate['status']                 
+                performance_level = candidate['performance_level']
+                it_percentage = candidate['it_percentage'] 
+                it_performance_level = candidate['it_performance_level']                                                              
     except Exception as e:
         print("error-" + e)
         tb = traceback.extract_tb(e.__traceback__)
@@ -304,7 +312,7 @@ def result_page(request):
         m.close()
         Db.closeConnection()
         if request.method == "GET":
-            return render(request, "Test/result_page.html",{"candidate_name":name,"time_taken":time_taken,"percentage":percentage,"status":status})
+            return render(request, "Test/result_page.html",{"candidate_name":name,"time_taken":time_taken,"percentage":percentage,"performance_level":performance_level,"it_percentage":it_percentage,"it_performance_level":it_performance_level})
         
 @login_required
 def test_index(request):
@@ -317,6 +325,8 @@ def test_index(request):
             
             dpl = PostMaster.objects.values_list('id', 'post')            
             status_list = CandidateTestMaster.objects.values_list('status', 'status').distinct()
+            performance_level_list = PerformanceMaster.objects.values_list('performance_level', 'performance_level').distinct()
+            
             cursor.callproc("stp_getCreatedAt") # all the types from parameter master
             for result in cursor.stored_results():
                 created_at = list(result.fetchall())                        
@@ -358,7 +368,7 @@ def test_index(request):
         m.close()
         Db.closeConnection()
         if request.method == "GET":
-            return render(request, "Test/test_index.html",{'data': candidate_data,'dpl':dpl,'status_list':status_list,'created_at':created_at})
+            return render(request, "Test/test_index.html",{'data': candidate_data,'dpl':dpl,'status_list':status_list,'created_at':created_at,'performance_level_list':performance_level_list})
 
 @login_required
 def partial_details_index(request):
@@ -368,7 +378,8 @@ def partial_details_index(request):
     try:
         if request.method == "POST":
             post_id = request.POST.get("dp", "") or None
-            status = request.POST.get("status", "") or None
+            skillset = request.POST.get("skillset", "") or None
+            it_performance = request.POST.get("it_performance", "") or None            
             created_at = request.POST.get("created_at", "") or None
             if created_at:
                 # Convert '23-05-2025' to '2025-05-23'
@@ -377,7 +388,7 @@ def partial_details_index(request):
             else:
                 created_date_str = None                           
          
-            param = [post_id or None, status or None, created_date_str or None]
+            param = [post_id or None, skillset or None, created_date_str or None,it_performance or None]
             candidate_details = []
             cursor.callproc("stp_getTestIndex", param)
             for result in cursor.stored_results():
@@ -394,6 +405,8 @@ def partial_details_index(request):
                     'percentage': row[6],
                     'time_taken': row[7],
                     'created_at': row[8],
+                    'performance_level': row[9],
+                    'it_performance_level': row[10],                    
                     'Encryp': enc(str(row[0])),
                 }
                 for row in candidate_details
@@ -444,6 +457,8 @@ def partial_details_index_onpageload(request):
                     'percentage': row[6],
                     'time_taken': row[7],
                     'created_at': row[8],
+                    'performance_level': row[9],
+                    'it_performance_level': row[10],
                     'Encryp': enc(str(row[0])),
                 }
                 for row in candidate_details
@@ -478,7 +493,8 @@ def download_candidate_excel(request):
     try:
         if request.method == "POST":
             post_id = request.POST.get("post", "") or None
-            status = request.POST.get("status", "") or None
+            skillset = request.POST.get("skillset", "") or None
+            it_performance = request.POST.get("it_performance", "") or None
             created_at = request.POST.get("created_at", "") or None
 
             if created_at:
@@ -488,10 +504,10 @@ def download_candidate_excel(request):
             else:
                 created_date_str = None
 
-            param = [post_id or None, status or None, created_date_str or None]
+            param = [post_id or None, skillset or None, created_date_str or None, it_performance or None]
             candidate_details = []
 
-            cursor.callproc("stp_getTestIndex", param)
+            cursor.callproc("stp_getTestIndexForExcel", param)
             for result in cursor.stored_results():
                 candidate_details = list(result.fetchall())
 
@@ -524,7 +540,7 @@ def download_candidate_excel(request):
                 cell.border = thin_border
 
             # Header Row
-            headers = ['Name', 'Mobile', 'Email', 'Post', 'Status', 'Percentage', 'Time Taken', 'Created At']
+            headers = ['Name', 'Mobile', 'Email', 'Post', 'Time Taken','Skillset', 'IT Performance', 'Created At']
             for col_num, header in enumerate(headers, 1):
                 cell = ws.cell(row=2, column=col_num, value=header)
                 cell.font = bold_font
@@ -584,4 +600,333 @@ def download_candidate_excel(request):
         cursor.close()
         m.commit()
         m.close()
-        Db.closeConnection()                      
+        Db.closeConnection()
+        
+@login_required
+def candidate_index(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+    
+    try:
+        if request.method == "GET":
+            if request.user.is_authenticated ==True:                
+                user = request.user.id              
+                TemporaryQuestion.objects.filter(user_id=user).delete()
+                                            
+            # Subquery to fetch post name from PostMaster
+            post_name_subquery = PostMaster.objects.filter(
+                id=OuterRef('post') 
+            ).values('post')[:1]
+
+            # Annotate queryset with post name
+            # queryset = CandidateTestMaster.objects.annotate(
+            #     post_name=Subquery(post_name_subquery)
+            # )            
+
+            # Get the latest candidate record (by ID) for created_by=24 and status=2
+            queryset = CandidateTestMaster.objects.filter(
+                created_by=user,
+                status='1'  # Use 2 if it's an IntegerField, '2' if it's CharField
+            ).order_by('-id').annotate(
+                post_name=Subquery(post_name_subquery)
+            )[:1]  # Limit to 1 record
+                                               
+            candidate_data = []
+            last_status=0
+            for item in queryset:
+                row = {
+                    'id': item.id,
+                    'name': item.name,
+                    'mobile':item.mobile,
+                    'email': item.email,
+                    'post': item.post_name,                    
+                    'status': item.status,
+                    'percentage': item.percentage,
+                    'time_taken': item.time_taken,
+                    'status': item.status,
+                    'created_at': item.created_at,
+                    'Encryp': enc(str(item.id)),
+                    'created_at': item.created_at,                                        
+                }
+                candidate_data.append(row) 
+                last_status = item.status                        
+    except Exception as e:
+        print("error-" + e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])          
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        if request.method == "GET":
+            return render(request, "Test/candidate_index.html",{'data': candidate_data,'last_status':last_status})
+        
+@login_required
+def test_page(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+    
+    try:
+        user = request.user.id 
+        if request.method == "GET":
+            redir_path=None
+            start_time1 = timezone.now()
+            start_time = enc(str(start_time1))
+            candidate_id1 = request.GET.get("id", "")
+            candidate_id=dec(candidate_id1)
+                        
+            candidate = CandidateTestMaster.objects.get(id=candidate_id)
+            po_id = candidate.post          
+            
+            existing = TemporaryQuestion.objects.filter(candidate_id=candidate_id, status=1).exists()            
+            if not existing:            
+                param_post=[po_id]
+                cursor.callproc("stp_getPostTopicQuestions", param_post)
+                for result in cursor.stored_results():
+                    post_topic_questions = list(result.fetchall())  # returns tuples            
+                if post_topic_questions:
+                    topic_question_map = {}
+                    for row in post_topic_questions:
+                        _, topic_id, question_id, no_of_questions = row
+                        if topic_id not in topic_question_map:
+                            topic_question_map[topic_id] = {"limit": no_of_questions, "questions": []}
+                        topic_question_map[topic_id]["questions"].append(question_id)
+                        
+                    final_question_ids = []
+
+                    for topic_id, data in topic_question_map.items():
+                        q_ids = data["questions"]
+                        shuffle(q_ids)
+                        final_question_ids.extend(q_ids[:data["limit"]])                
+
+                    csv_question_ids = ",".join(map(str, final_question_ids))
+
+                    # Create entry in temporary_questions table
+                    if not TemporaryQuestion.objects.filter(candidate_id=candidate_id, status=1).exists():            
+                        TemporaryQuestion.objects.create(
+                            user_id=request.user.id, 
+                            candidate_id=candidate_id,  # or request.user.id
+                            question_ids=csv_question_ids,
+                            status=1,
+                            created_by=request.user.id,  # same or admin/creator ID
+                            created_at=datetime.now()
+                        )
+                    temp_q = TemporaryQuestion.objects.get(candidate_id=candidate_id, status=1)
+                    final_question_ids = list(map(int, temp_q.question_ids.split(',')))
+                else:
+                    redir_path='nodata'                    
+                    return redirect(f'/candidate_index')                      
+            else:
+                temp_q = TemporaryQuestion.objects.get(candidate_id=candidate_id, status=1)
+                final_question_ids = list(map(int, temp_q.question_ids.split(',')))                    
+            
+            questions_raw = list(QuestionAnswerMaster.objects.filter(question_id__in=final_question_ids))
+            # Maintain original order
+            questions_raw = sorted(questions_raw, key=lambda q: final_question_ids.index(q.question_id))
+
+            questions = []
+            for q in questions_raw:
+                options = [
+                    {"text": q.choice1},
+                    {"text": q.choice2},
+                    {"text": q.choice3},
+                    {"text": q.choice4},
+                ]
+                shuffle(options)
+
+                questions.append({
+                    "question_id": q.question_id,
+                    "question": q.question,
+                    "options": options,
+                })                  
+
+        if request.method == "POST":
+
+            question_ids = request.POST.getlist("question_ids")
+            candidate_id1 = request.POST.get("candidate_id", "")
+            candidate_id=dec(candidate_id1)
+                         
+            start_time1 = request.POST.get("start_time", "")
+            start_time_str=dec(start_time1)             
+
+            
+# GET CANDIDATE DETAILS            
+            candidate_data = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'post').first()
+            candidate_name = candidate_data['name']
+            post1 = candidate_data['post']
+            start_time = enc(str(start_time1))
+
+
+# TIME TAKEN BY CANDIDATE
+            
+            start_time = datetime.fromisoformat(start_time_str)
+            end_time = now()
+            time_taken = end_time - start_time
+            # Convert to minutes and seconds
+            seconds_taken = int(time_taken.total_seconds())
+            hours = seconds_taken // 3600
+            minutes = (seconds_taken % 3600) // 60
+            seconds = seconds_taken % 60
+
+            # Optional: format as string "mm:ss"
+            time_taken_str = f"{hours:02}:{minutes:02}:{seconds:02}"  # HH:MM:SS           
+
+# SCORE CALCULATION OF CANDIDATE 
+            it_topic_id = 5
+            it_score = 0
+            it_total = 0
+            other_score = 0
+            other_total = 0       
+
+            for qid in question_ids:
+                try:
+                    question = QuestionAnswerMaster.objects.get(pk=int(qid))
+                except QuestionAnswerMaster.DoesNotExist:
+                    continue
+
+                user_answer = request.POST.get(f"answer_{qid}", "")
+                is_correct = (user_answer == question.correct_answer)
+
+                isright1 = "Yes" if is_correct else "No"
+
+                # Update IT / Other scores
+                if question.topic_id == it_topic_id:
+                    it_total += 1
+                    if is_correct:
+                        it_score += 1
+                else:
+                    other_total += 1
+                    if is_correct:
+                        other_score += 1            
+                    
+                candidate_answer = CandidateAnswer(
+                    candidate_id=candidate_id,
+                    post=post1,
+                    question_id=qid,
+                    candidates_answer=user_answer,
+                    is_right=isright1,
+                    created_at=timezone.now(),
+                    created_by=user
+                )
+
+                candidate_answer.save()
+                
+# PERCENTAGE CALCULATION & STATUS
+            # Compute percentages
+            it_percentage = round((it_score / it_total) * 100, 2) if it_total else 0
+            other_percentage = round((other_score / other_total) * 100, 2) if other_total else 0
+
+            # Get performance levels
+            def get_performance(percentage):
+                perf = PerformanceMaster.objects.filter(
+                    percentage_from__lte=percentage,
+                    percentage_upto__gte=percentage
+                ).first()
+                return perf.performance_level if perf else "Unknown"
+
+            it_performance = get_performance(it_percentage)
+            other_performance = get_performance(other_percentage)
+                
+            # Update CandidateTestMaster
+            CandidateTestMaster.objects.filter(id=candidate_id).update(
+                it_marks_received=it_score,
+                it_out_of=it_total,
+                it_percentage=it_percentage,
+                it_performance_level=it_performance,
+                marks_received=other_score,
+                out_of=other_total,
+                percentage=other_percentage,
+                performance_level=other_performance,
+                time_taken=time_taken_str,
+                status=2,
+                test_start_time=start_time,
+                test_end_time=end_time,
+                updated_by=user,
+                updated_at=timezone.now()
+            )
+
+            TemporaryQuestion.objects.filter(candidate_id=candidate_id).delete()                                                                                                     
+            
+    except Exception as e:
+        print("error-" + e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])          
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        if request.method == "GET":
+            if redir_path == "nodata":
+                messages.warning(request,"Questions Not Assigned for the Post !!")                
+                return redirect(f'/candidate_index')            
+            else:    
+                return render(request, "Test/test_page.html",{"questions": questions,"candidate_id":candidate_id1,"start_time":start_time})
+        elif request.method == "POST":
+            return redirect(f'/result_page?cname={candidate_id1}')
+        
+@login_required
+def edit_candidate(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+    
+    try:
+        user = request.user.id 
+        if request.method == "GET":
+            ErrorMessage =request.GET.get('ErrorMessage', '')
+            SuccessMessage =request.GET.get('SuccessMessage', '')
+            candidate_id1 = request.GET.get("id", "")
+            candidate_id=dec(candidate_id1)                                    
+            dpl = PostMaster.objects.values_list('id', 'post')
+            candidate_data = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'email', 'mobile', 'post').first()
+
+            context = {
+                "name": candidate_data['name'] if candidate_data else None,
+                "email": candidate_data['email'] if candidate_data else None,
+                "mobile": candidate_data['mobile'] if candidate_data else None,
+                "post": candidate_data['post'] if candidate_data else None,
+            }
+            context['dpl'] = dpl
+            context['candidate_id1'] = candidate_id1
+                        
+        if request.method == "POST":
+            name1 = request.POST.get("text_name", "")
+            email1 = request.POST.get("email", "")
+            mobile1 = request.POST.get("mobile", "")
+            post1 = request.POST.get("post", "")
+            post_id = int(post1)
+            candidate_id2 = request.POST.get("candidate_id", "")
+            candidate_idd=dec(candidate_id2)            
+                     
+            CandidateTestMaster.objects.filter(id=candidate_idd).update(
+                name=name1,
+                email=email1,
+                mobile=mobile1,
+                post=post1,
+                updated_at=timezone.now(),
+                updated_by=user,
+            ) 
+                                                                                
+    except Exception as e:
+        print("error-" + e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])
+        messages.error(request,"Some Error Occurred !!") 
+        return redirect('candidate_index')                  
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        if request.method == "GET":
+            return render(request, "Test/edit_candidate.html", context)
+        elif request.method == "POST":
+            messages.success(request,"Details Submitted Successfully !") 
+            return redirect('candidate_index')                                                   
