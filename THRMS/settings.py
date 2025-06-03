@@ -17,8 +17,8 @@ ALLOWED_HOSTS = ['43.204.250.53']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
-DEBUG = True   
+DEBUG = False
+# DEBUG = True   
 
 DATABASES = {
     'default': {
@@ -39,7 +39,7 @@ DATABASES = {
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'D:/Python Projects/Documents/')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'D:/Python Project/Documents/')
 MEDIA_ROOT = os.path.join(BASE_DIR, '/home/ubuntu/Documents/')
 MEDIA_URL = '/media/'
 X_FRAME_OPTIONS = 'SAMEORIGIN'
@@ -148,7 +148,7 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            # 'filename': os.path.join(BASE_DIR, 'D:/Python Projects/THRMS Logs', 'django.log'),  
+            # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/THRMS Logs', 'django.log'),  
             'filename': os.path.join(BASE_DIR, '/home/ubuntu/THRMS Logs', 'django.log'),  
         },
     },

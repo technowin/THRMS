@@ -67,7 +67,7 @@
       <div class=" col-md-7 mb-1 shadow " style="background-color:#F7F7FF;margin-top:7%;padding: 10px;border: 2px solid #b3b3b3;border-radius: 15px;">
           <div class="p-4">
             <div class="text-center" style="margin-bottom:5%" >
-              <h1 class="h4 text-gray-900 mb-3" style="font-size:25px;">RESULT </h1>
+              <h1 class="mb-3" style="font-size:30px;color:#2e59d9;font-weight:bold">RESULT </h1>
             </div>
               <div class="row">
                 <div class="col-md-6 lab-class">
@@ -87,7 +87,7 @@
               </div> 
               <div class="row">
                 <div class="col-md-6 lab-class">
-                  <label> Percentage :-</label>
+                  <label>Skillset Percentage :-</label>
                 </div>
                 <div class="col-md-6 val-class">
                   <p>{{ percentage }}% &nbsp;&nbsp;<span style="color:black;font-size:0.9em;">( passing criteria = 40% )</span></p>
@@ -95,20 +95,64 @@
               </div>
               <div class="row">
                 <div class="col-md-6 lab-class">
-                  <label> Status :-</label>
+                  <label> Skillset Performance Level:-</label>
                 </div>
                 <div class="col-md-6 val-class">
-                  <!-- <p>{{ status }}</p> -->
-                  {% if status == "pass" %}
-                    <p style="color:green;">PASS</p>
-                  {% else %}
-                    <p style="color:red;">FAIL</p>
-                  {% endif %}                   
+                  <p 
+                    {% if performance_level == "Excellent" %}
+                      style="color: #2ecc71;"
+                    {% elif performance_level == "Very Good" %}
+                      style="color: #27ae60;"
+                    {% elif performance_level == "Good" %}
+                      style="color: #f1c40f;"
+                    {% elif performance_level == "Average" %}
+                      style="color: #e67e22;"
+                    {% elif performance_level == "Below Average" %}
+                      style="color: #d35400;"
+                    {% elif performance_level == "Poor" %}
+                      style="color: #e74c3c;"
+                    {% endif %}
+                  >
+                    {{ performance_level }}
+                  </p>
                 </div>
               </div> 
+              <div class="row">
+                <div class="col-md-6 lab-class">
+                  <label>IT Percentage :-</label>
+                </div>
+                <div class="col-md-6 val-class">
+                  <p>{{ it_percentage }}% &nbsp;&nbsp;<span style="color:black;font-size:0.9em;">( passing criteria = 40% )</span></p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 lab-class">
+                  <label>IT Performance Level :-</label>
+                </div>
+                <div class="col-md-6 val-class">
+                  <!-- <p>{{ it_performance_level }}</p> -->
+                  <p 
+                    {% if it_performance_level == "Excellent" %}
+                      style="color: #2ecc71;"
+                    {% elif it_performance_level == "Very Good" %}
+                      style="color: #27ae60;"
+                    {% elif it_performance_level == "Good" %}
+                      style="color: #f1c40f;"
+                    {% elif it_performance_level == "Average" %}
+                      style="color: #e67e22;"
+                    {% elif it_performance_level == "Below Average" %}
+                      style="color: #d35400;"
+                    {% elif it_performance_level == "Poor" %}
+                      style="color: #e74c3c;"
+                    {% endif %}
+                  >
+                    {{ it_performance_level }}
+                  </p>                   
+                </div>
+              </div>                            
               
               <div style ="text-align:center;margin-top:3%">
-                <button style="width:15%;padding:0.7%" type="button"  class="btn btn-sm btn-primary" onclick="window.location.href='{% url 'enterthedetails' %}'">Done</button>
+                <button style="width:15%;padding:0.7%" type="button"  class="btn btn-sm btn-primary" onclick="window.location.href='{% url 'logout' %}'">Done</button>
               </div>              
 
           </div>
