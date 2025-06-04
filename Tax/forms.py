@@ -32,7 +32,7 @@ class CityMasterForm(forms.ModelForm):
 
     city_status = forms.ChoiceField(
         choices=CITY_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control select'})
     )
 
     class Meta:
@@ -50,7 +50,7 @@ class ActMasterForm(forms.ModelForm):
 
     act_status = forms.ChoiceField(
         choices=ACT_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control select'})
     )
 
     class Meta:
@@ -105,17 +105,17 @@ class SlabForm(forms.ModelForm):
             'special_employer_contribution', 'employer_min_amount', 'Lwf_Type', 'slab_applicable', 'slab_status'
         ]
         widgets = {
-            'salary_from': forms.NumberInput(attrs={'class': 'form-control'}),
-            'salary_to': forms.NumberInput(attrs={'class': 'form-control'}),
-            'salary_deduct': forms.NumberInput(attrs={'class': 'form-control'}),
-            'effective_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'applicable_designation': forms.TextInput(attrs={'class': 'form-control'}),
-            'lwf_applicable': forms.NumberInput(attrs={'class': 'form-control'}),
-            'employee_min_amount': forms.NumberInput(attrs={'class': 'form-control'}),
-            'special_LWF_calculation': forms.NumberInput(attrs={'class': 'form-control'}),
-            'special_employer_contribution': forms.NumberInput(attrs={'class': 'form-control'}),
-            'employer_min_amount': forms.NumberInput(attrs={'class': 'form-control'}),
-            'slab_status': forms.Select(choices=SLAB_STATUS_CHOICES, attrs={'class': 'form-control'}),
+            'salary_from': forms.NumberInput(attrs={'class': 'form-control select'}),
+            'salary_to': forms.NumberInput(attrs={'class': 'form-control select'}),
+            'salary_deduct': forms.NumberInput(attrs={'class': 'form-control select'}),
+            'effective_date': forms.DateInput(attrs={'class': 'form-control select', 'type': 'date'}),
+            'applicable_designation': forms.TextInput(attrs={'class': 'form-control select'}),
+            'lwf_applicable': forms.NumberInput(attrs={'class': 'form-control select'}),
+            'employee_min_amount': forms.NumberInput(attrs={'class': 'form-control select'}),
+            'special_LWF_calculation': forms.NumberInput(attrs={'class': 'form-control select'}),
+            'special_employer_contribution': forms.NumberInput(attrs={'class': 'form-control select'}),
+            'employer_min_amount': forms.NumberInput(attrs={'class': 'form-control select'}),
+            'slab_status': forms.Select(choices=SLAB_STATUS_CHOICES, attrs={'class': 'form-control select'}),
         }
 
     # Custom fields to handle the dropdowns
@@ -126,7 +126,7 @@ class SlabMasterForm(forms.ModelForm):
     slab_year = forms.ModelChoiceField(
         queryset=FinancialYear.objects.all(),
         empty_label="Select a year",
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select'}),
         label="Slab Year",
         to_field_name='year' 
     )
@@ -134,7 +134,7 @@ class SlabMasterForm(forms.ModelForm):
     slab_freq = forms.ModelChoiceField(
         queryset=parameter_master.objects.filter(parameter_name='Frequency'),
         empty_label="Select Frequency",
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select'}),
         label="Slab Frequency",
         to_field_name='parameter_value'
     )
@@ -142,7 +142,7 @@ class SlabMasterForm(forms.ModelForm):
     period = forms.ModelChoiceField(
         queryset=parameter_master.objects.filter(parameter_name='Period'),
         empty_label="Select Period",
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select'}),
         label="Period",
         to_field_name='parameter_value'
     )
@@ -150,7 +150,7 @@ class SlabMasterForm(forms.ModelForm):
     act_by = forms.ModelChoiceField(
         queryset=parameter_master.objects.filter(parameter_name='act_by'),
         empty_label="Select Act",
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select'}),
         label="Act By",
         to_field_name='parameter_value'
     )
@@ -158,14 +158,14 @@ class SlabMasterForm(forms.ModelForm):
     # Choice field for is_slab
     is_slab = forms.ChoiceField(
         choices=[('Yes', 'Yes'), ('No', 'No')],
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select'}),
         label="Is Slab Applicable"
     )
 
 
     slab_status = forms.ChoiceField(
         choices=[(1.0, 'Active'), (0.0, 'Inactive')],  # Float values for choices
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control select'}),
         label="Slab Status"
     )
 
@@ -174,9 +174,9 @@ class SlabMasterForm(forms.ModelForm):
         model = SlabMaster
         fields = ['slab_year', 'act_id', 'state', 'city', 'is_slab', 'slab_freq','period','act_by','is_slab','slab_status']
         widgets = {
-            'act_id': forms.Select(attrs={'class': 'form-control'}),
-            'state': forms.Select(attrs={'class': 'form-control'}),
-            'city': forms.Select(attrs={'class': 'form-control'}),
+            'act_id': forms.Select(attrs={'class': 'form-control select'}),
+            'state': forms.Select(attrs={'class': 'form-control select'}),
+            'city': forms.Select(attrs={'class': 'form-control select'}),
         }
 
 
@@ -185,7 +185,7 @@ class IncomeTaxMasterForm(forms.ModelForm):
     financial_year = forms.ModelChoiceField(
         queryset=FinancialYear.objects.all(),
         empty_label="Select a year",
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control  select'}),
         label="Slab Year",
         to_field_name='year' 
     )

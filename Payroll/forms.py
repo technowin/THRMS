@@ -11,9 +11,9 @@ class SalaryElementMasterForm(forms.ModelForm):
         fields = ['item_name', 'pay_type', 'classification','tax_parameter']
         widgets = {
             'item_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'pay_type': forms.Select(attrs={'class': 'form-control'}),
-            'classification': forms.Select(attrs={'class': 'form-control'}),
-            'tax_parameter': forms.Select(attrs={'class': 'form-control'}),
+            'pay_type': forms.Select(attrs={'class': 'form-control select'}),
+            'classification': forms.Select(attrs={'class': 'form-control select'}),
+            'tax_parameter': forms.Select(attrs={'class': 'form-control select'}),
         }
 
 
@@ -37,9 +37,9 @@ class SiteCardRelationForm(forms.ModelForm):
         fields = ['site', 'relation_name', 'card', 'designation']
         widgets = {
             'relation_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'site': forms.Select(attrs={'class': 'form-control'}),
-            'card': forms.Select(attrs={'class': 'form-control'}),
-            'designation': forms.Select(attrs={'class': 'form-control'}),
+            'site': forms.Select(attrs={'class': 'form-control select'}),
+            'card': forms.Select(attrs={'class': 'form-control select'}),
+            'designation': forms.Select(attrs={'class': 'form-control select'}),
             
         }
 

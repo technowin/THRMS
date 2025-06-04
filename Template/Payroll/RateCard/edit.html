@@ -9,6 +9,7 @@
  <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
  <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
  <link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/salarycheckbox.css' %}" rel="stylesheet" type="text/css" >
 
  <link rel="stylesheet" type="text/css" href="{% static 'css/tooltips.css' %}" />
 
@@ -38,13 +39,37 @@
             margin-bottom: 10px;
         }
         .amount-field {
-            width: 80px;
+            width: 100px;
             margin-left: 10px;
         }
         #id_card_name {
             width: 40%; 
         }
-         .col-md-custom-2 { flex: 0 0 12%; max-width: 12%; padding: 0 15px; }
+       /* Base: Mobile-first default (stacked full width on small screens) */
+[class^="col-md-custom-"],
+[class*=" col-md-custom-"] {
+  flex: 0 0 100%;
+  max-width: 100%;
+  padding: 0 10px;
+}
+
+/* Tablet and up (≥ 768px) */
+@media (min-width: 768px) {
+  .col-md-custom-0\.5 { flex: 0 0 5.33%; max-width: 5.33%; }
+  .col-md-custom-1   { flex: 0 0 5%;    max-width: 4%; }
+  .col-md-custom-2   { flex: 0 0 12.7%;   max-width: 12.7%; }
+  .col-md-custom-3   { flex: 0 0 20%;   max-width: 20%; }
+  .col-md-custom-4   { flex: 0 0 33.33%; max-width: 33.33%; }
+  .col-md-custom-5   { flex: 0 0 41.66%; max-width: 41.66%; }
+  .col-md-custom-6   { flex: 0 0 50%;   max-width: 50%; }
+  .col-md-custom-7   { flex: 0 0 58.33%; max-width: 58.33%; }
+  .col-md-custom-8   { flex: 0 0 66.66%; max-width: 66.66%; }
+  .col-md-custom-9   { flex: 0 0 75%;   max-width: 75%; }
+  .col-md-custom-10  { flex: 0 0 83.33%; max-width: 83.33%; }
+  .col-md-custom-11  { flex: 0 0 91.66%; max-width: 91.66%; }
+  .col-md-custom-12  { flex: 0 0 100%;  max-width: 100%; }
+}
+
     </style>
 
     
@@ -53,75 +78,84 @@
     <div>
         <div class="card" >
             <div class="card-body">
-                <div class="card-header">
-                <h1 class="card-title">Edit Rate Card</h1>
-                </div>
+                {% comment %} <div class="card-header"> {% endcomment %}
+                <h3 class="card-title text-center text-primary">Edit Rate Card</h3>
+                {% comment %} </div> {% endcomment %}
                 <br>
                 <form method="post">
                     {% csrf_token %}
                     
                      <div class="row col-md-12">
 
-                    <div class="col-md-3">
+                    <div class="col-md-custom-3">
                         <label for="client_name" class="form-label">Client Name</label>
                             <select name="client_name" id="client_name" class="form-control select">
-                                <option value="" selected disabled>Select Client</option>
-                                    {% for client in client_names %}
-                                        <option value="{{ client.company_id }}" >
-                                            {{ client.company_name }}
-                                        </option>
-                                    {% endfor %}
+                                <option value="" disabled {% if not relation %}selected{% endif %}>Select Client</option>
+                                {% for client in client_names %}
+                                    <option value="{{ client.company_id }}"
+                                        {% if relation and client.company_id == relation.client.company_id %}selected{% endif %}>
+                                        {{ client.company_name }}
+                                    </option>
+                                {% endfor %}
                             </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-custom-3">
                         <label for="location" class="form-label">Location Name</label>
-                            <select name="location" id="location" class="form-control select">
-                                <option value="" selected disabled>Select Location</option>
+                               <select name="location" id="location" class="form-control select">
+                                    <option value="" disabled {% if not relation %}selected{% endif %}>Select Location</option>
                                     {% for location in location_names %}
-                                        <option value="{{ location.site_id }}" >
+                                        <option value="{{ location.site_id }}"
+                                            {% if relation and location.site_id == relation.site.site_id %}selected{% endif %}>
                                             {{ location.site_name }}
                                         </option>
                                     {% endfor %}
-                            </select>
+                                </select>
                     </div>
-                      <div class="col-md-3">
+                      <div class="col-md-custom-3">
                         <label for="client_name" class="form-label">Designation</label>
-                            <select name="designation" id="designation" class="form-control select">
-                            <option value="" selected disabled>Select Client</option>
+                           <select name="designation" id="designation" class="form-control select">
+                                <option value="" disabled {% if not relation %}selected{% endif %}>Select Designation</option>
                                 {% for designation in designation_names %}
-                                    <option value="{{ designation.designation_id }}" >
+                                    <option value="{{ designation.designation_id }}"
+                                        {% if relation and designation.designation_id == relation.designation.designation_id %}selected{% endif %}>
                                         {{ designation.designation_name }}
                                     </option>
                                 {% endfor %}
-                        </select>
+                            </select>
                     </div>
-                      <div class="col-md-3">
+                      <div class="col-md-custom-3">
                         <label for="level" class="form-label">Level</label>
                             <select name="level" id="level" class="form-control select">
-                            <option value="" selected disabled>Select Level</option>
+                                <option value="" disabled {% if not relation %}selected{% endif %}>Select Level</option>
                                 {% for level in level_names %}
-                                        <option value="{{ level.id }}" >
-                                            {{ level.name }}
-                                        </option>
+                                    <option value="{{ level.id }}"
+                                        {% if relation and level.id == relation.level.id %}selected{% endif %}>
+                                        {{ level.name }}
+                                    </option>
                                 {% endfor %}
-                                
-                        </select>
+                            </select>
+                    </div>
+                    <div class="col-md-custom-3">
+                            <label for="card_name">Card Name:</label>
+                            {{ form.card_name }} 
+
+                            <input type="hidden" name="card_name_hidden" id="card_name_hidden" >
                     </div>
                 </div>
 
-                    <div class="row col-md-12">
+                    {% comment %} <div class="row col-md-12">
                         <div class="col-md-4">
                             <label for="card_name">Card Name:</label>
                             {{ form.card_name }} 
                         </div>
-                    </div>
+                    </div> {% endcomment %}
                     
                     <br>
                     
                     
                     <!-- Salary Elements Section -->
-                    <div>
+                    {% comment %} <div>
                         <h4>Select Salary Elements:</h4>
                         {% for item in form.item_ids.field.queryset %}
                             <div class="checkbox-container row">
@@ -137,8 +171,6 @@
                                     <br>
                                     <label class="form-label">{{ item.item_name }}</label>
                                 </div>
-                                
-                                <!-- Four Hour Amount -->
                                 <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
                                     <label for="four_hour_amount_{{ item.pk }}" class="form-label">Four Hour Amount</label>
                                     <input type="number" 
@@ -154,8 +186,6 @@
                                                disabled value="" 
                                            {% endif %}>
                                 </div>
-                                
-                                <!-- Nine Hour Amount -->
                                 <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
                                     <label for="nine_hour_amount_{{ item.pk }}" class="form-label">Nine Hour Amount</label>
                                     <input type="number" 
@@ -171,7 +201,6 @@
                                                disabled value="" 
                                            {% endif %}>
                                 </div>
-
                                 <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
                                     <label for="pay_type_{{ item.pk }}" class="form-label">Pay type</label>
                                     <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control pay_type select" style="width: 90%;">
@@ -183,9 +212,7 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-
-                                </div>
-
+                            </div>
                                 <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
                                     <label for="classification_{{ item.pk }}" class="form-label">Classification</label>
                                    <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control classification select" style="width: 90%;">
@@ -197,9 +224,7 @@
                                             </option>
                                         {% endfor %}
                                     </select>
-
                                 </div>
-
                                 <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
                                     <label for="tax_parameter_{{ item.pk }}" class="form-label">Tax Parameter</label>
                                     <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control tax_parameter select" style="width: 90%;">
@@ -211,13 +236,11 @@
                                             </option>
                                         {% endfor %}
                                     </select>
-                                    
                                 </div>
-
                                 <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
                                     <label for="salary_unit_{{ item.pk }}" class="form-label">Salary Unit</label>
                                     <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control salary_unit select" style="width: 90%;">
-                                        {% comment %} <option value="">Select Pay Type</option>  {% endcomment %}
+                                      
                                         {% for sal in salary_unit %}
                                             <option value="{{ sal.id }}"
                                                     {% if prefilled_data|get_item:item.pk|get_item:'salary_unit' == sal %} selected {% endif %}>
@@ -225,14 +248,137 @@
                                             </option>
                                         {% endfor %}
                                     </select>
-                                </div>
-
-                                
-                                
-                            </div>
+                                </div></div>
                         {% endfor %}
-                    </div>
-                    
+                    </div> {% endcomment %}
+
+                    <h4 class="text-primary">Select Salary Elements:</h4>
+                    <div class="table-responsive">
+<table id="salaryTable" class="table table-bordered">
+    <thead class="text-center">
+        <tr>
+            <th style="width:15%">Select</th>
+            <th style="width:10%">4-Hour Amount</th>
+            <th style="width:10%">9-Hour Amount</th>
+            <th style="width:15%">Pay Type</th>
+            <th style="width:15%">Classification</th>
+            <th style="width:15%">Tax Parameter</th>
+            <th style="width:15%">Salary Unit</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in form.item_ids.field.queryset %}
+        <tr>
+            <!-- Checkbox -->
+            <td class="text-center align-middle">
+                <input type="checkbox" 
+                       id="checkbox_{{ item.pk }}"
+                       name="item_ids" 
+                       class="form-check-input salary-checkbox" 
+                       value="{{ item.pk }}"
+                       {% if item.pk in selected_item_ids %} checked {% endif %}>
+                <br>
+                <label for="checkbox_{{ item.pk }}">{{ item.item_name }}</label>
+            </td>
+
+            <!-- 4-Hour Amount -->
+            <td class="text-center">
+                <input type="number" 
+                       name="four_hour_amount_{{ item.pk }}" 
+                       class="amount-field form-control four-hour-input" 
+                       placeholder="4-Hour" 
+                       min="0" 
+                       step="0.01"
+                       {% if item.pk in selected_item_ids %}
+                           value="{% if prefilled_data|get_item:item.pk %}{% with prefilled_data|get_item:item.pk as data %}{{ data.four_hour_amount }}{% endwith %}{% else %}0.00{% endif %}"
+                       {% else %}
+                           disabled value=""
+                       {% endif %}>
+            </td>
+
+            <!-- 9-Hour Amount -->
+            <td class="text-center">
+                <input type="number" 
+                       name="nine_hour_amount_{{ item.pk }}" 
+                       class="amount-field form-control nine-hour-input" 
+                       placeholder="9-Hour" 
+                       min="0" 
+                       step="0.01"
+                       {% if item.pk in selected_item_ids %}
+                           value="{% if prefilled_data|get_item:item.pk %}{% with prefilled_data|get_item:item.pk as data %}{{ data.nine_hour_amount }}{% endwith %}{% else %}0.00{% endif %}"
+                       {% else %}
+                           disabled value=""
+                       {% endif %}>
+            </td>
+
+            <!-- Pay Type -->
+            <td>
+                <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control pay_type select">
+                    <option value="">Select Pay Type</option>
+                    {% for pay in pay_type %}
+                        {% if prefilled_data|get_item:item.pk|get_item:'pay_type' == pay.id|stringformat:"s" %}
+                            <option value="{{ pay.id }}" selected>{{ pay.name }}</option>
+                        {% elif item.pay_type.id == pay.id %}
+                            <option value="{{ pay.id }}" selected>{{ pay.name }}</option>
+                        {% else %}
+                            <option value="{{ pay.id }}">{{ pay.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+
+                </select>
+            </td>
+
+            <!-- Classification -->
+            <td>
+                <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control classification select">
+                    <option value="">Select Classification</option>
+                    {% for class in classification %}
+                       {% if prefilled_data|get_item:item.pk|get_item:'classification' == class.id|stringformat:"s" %}
+                            <option value="{{ class.id }}" selected>{{ class.name }}</option>
+                        {% elif item.classification_id == class.id %}
+                            <option value="{{ class.id }}" selected>{{ class.name }}</option>
+                        {% else %}
+                            <option value="{{ class.id }}">{{ class.name }}</option>
+                        {% endif %}
+
+                    {% endfor %}
+                </select>
+            </td>
+
+            <!-- Tax Parameter -->
+            <td>
+                <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control tax_parameter select">
+                    <option value="">Select Tax</option>
+                    {% for tax in tax_parameter %}
+                        {% if prefilled_data|get_item:item.pk|get_item:'tax_parameter' == tax %}
+                            <option value="{{ tax.id }}" selected>{{ tax.tax_parameter }}</option>
+                        {% elif item.tax_parameter.id == tax.id %}
+                            <option value="{{ tax.id }}" selected>{{ tax.tax_parameter }}</option>
+                        {% else %}
+                            <option value="{{ tax.id }}">{{ tax.tax_parameter }}</option>
+                        {% endif %}
+                    {% endfor %}
+
+                </select>
+            </td>
+
+            <!-- Salary Unit -->
+            <td>
+                <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control salary_unit select">
+                    {% for sal in salary_unit %}
+                        <option value="{{ sal.id }}"
+                                {% if prefilled_data|get_item:item.pk|get_item:'salary_unit' == sal %}selected{% endif %}>
+                            {{ sal.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+                   
                     <!-- Submit and Back Buttons -->
                     <div class="text-center mt-3">
                         <button type="submit" class="btn btn-primary">Update</button>
@@ -285,7 +431,7 @@
 
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+{% comment %} document.addEventListener('DOMContentLoaded', function () {
 
     function handleSalaryCheckboxChange(checkbox) {
         const container = checkbox.closest('.checkbox-container');
@@ -328,8 +474,69 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-});
+}); {% endcomment %}
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    function handleSalaryCheckboxChange(checkbox) {
+        const row = checkbox.closest('tr'); // find the parent <tr>
+        const fourHourInput = row.querySelector('.four-hour-input');
+        const nineHourInput = row.querySelector('.nine-hour-input');
+        const taxParameter = row.querySelector('.tax_parameter');
+        const salaryUnit = row.querySelector('.salary_unit');
+        const payType = row.querySelector('.pay_type');
+        const classification = row.querySelector('.classification');
+
+        if (checkbox.checked) {
+            fourHourInput.disabled = false;
+            nineHourInput.disabled = false;
+            taxParameter.disabled = false;
+            salaryUnit.disabled = false;
+            payType.disabled = false;
+            classification.disabled = false;
+
+            if (!fourHourInput.value) fourHourInput.value = 0;
+            if (!nineHourInput.value) nineHourInput.value = 0;
+        } else {
+            fourHourInput.disabled = true;
+            nineHourInput.disabled = true;
+            taxParameter.disabled = true;
+            salaryUnit.disabled = true;
+            payType.disabled = true;
+            classification.disabled = true;
+
+            fourHourInput.value = '';
+            nineHourInput.value = '';
+        }
+    }
+
+    // Initialize on page load and bind change events
+    document.querySelectorAll('.salary-checkbox').forEach(function (checkbox) {
+        handleSalaryCheckboxChange(checkbox); // On load
+        checkbox.addEventListener('change', function () {
+            handleSalaryCheckboxChange(this); // On change
+        });
+    });
+
+});
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#salaryTable').DataTable({
+            pageLength: 25, // Default entries per page
+            lengthChange: true, // Allow user to change this
+            searching: true,
+            ordering: false,
+            info: true,
+            autoWidth: false
+        });
+    });
+</script>
+
 
 
 </html>
