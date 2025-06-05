@@ -44,6 +44,8 @@ class FormField(models.Model):
     values = models.TextField(null=True,blank=True)
     attributes = models.TextField(null=True,blank=True)
     order = models.IntegerField(default=0)
+    is_primary = models.BooleanField(null=True,blank=True)
+    foriegn_key_form_id = models.IntegerField(null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)

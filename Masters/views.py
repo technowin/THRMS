@@ -289,69 +289,6 @@ def masters(request):
                 messages.success(request, 'Data updated successfully !')
             elif datalist1[0][0] == 'exist':
                 messages.error(request, 'Data already exist !')
-            if entity == 'urm' and (type == 'acu' or type == 'acr'):
-                try:
-                    created_by = request.session.get('user_id', '')
-                    ur = request.POST.get('ur', '')
-                    selected_worksite = request.POST.getlist('worksite', [])
-                    company_worksite_map = {}
-
-                    # Validate input
-                    if not selected_worksite:
-                        messages.error(request, 'Worksite data is missing!')
-                        return redirect(f'/masters?entity={entity}&type=urm')
-
-                    if type not in ['acu', 'acr'] or not ur:
-                        messages.error(request, 'Invalid data received.')
-                        return redirect(f'/masters?entity={entity}&type=urm')
-
-                    # Parse selected worksites into company-worksite pairs
-                    selected_worksite_pairs = [
-                        tuple(ws.split(" - ", 1)) for ws in selected_worksite if " - " in ws
-                    ]
-                    if not selected_worksite_pairs:
-                        messages.error(request, 'Invalid worksite format. Expected "Company Name - Worksite Name".')
-                        return redirect(f'/masters?entity={entity}&type=urm')
-
-                    valid_combinations = []
-                    for company_name, worksite_name in selected_worksite_pairs:
-                        try:
-                            # Fetch company_id using ORM
-                            company = com.objects.get(company_name=company_name)
-                            company_id = company.company_id
-                        except com.DoesNotExist:
-                            messages.error(request, f'Company "{company_name}" does not exist.')
-                            continue
-
-                        # Check if the worksite exists for the company in SiteMaster
-                        if sit.objects.filter(company_id=company_id, site_name=worksite_name).exists():
-                            valid_combinations.append((company_id, worksite_name))
-                        else:
-                            messages.error(request, f'Worksite "{worksite_name}" does not exist for company "{company_name}".')
-
-                    if not valid_combinations:
-                        messages.error(request, 'No valid company-worksite combinations found.')
-
-                    # Remove existing mappings
-                    callproc("stp_delete_access_control", [type, ur])
-
-                    # Insert new mappings
-                    insertion_status = "failure"
-                    for company_id, worksite_name in valid_combinations:
-                        insertion_status = callproc("stp_post_access_control", [type, ur, company_id, worksite_name, created_by])
-                        
-
-                    status = insertion_status[0] if insertion_status else 'error'
-                    if status == "success":
-                        messages.success(request, 'Data updated successfully!')
-                    else:
-                        messages.error(request, 'Oops...! Something went wrong!')
-                except Exception as e:
-                    tb = traceback.extract_tb(e.__traceback__)
-                    fun = tb[0].name
-                    callproc("stp_error_log",[fun,str(e),user])  
-                    messages.error(request, 'Oops...! Something went wrong!')
-
                     
             else : messages.error(request, 'Oops...! Something went wrong!')
             
@@ -573,10 +510,12 @@ def workflow_Editmap(request):
             workflow_details = {}
             if workflow_data:
                 role_string = workflow_data[0][6]
+                form_string = workflow_data[0][1]
+                form_id_list = form_string.split(',') if form_string else []
                 role_list = role_string.split(',') if role_string else []
                 workflow_details = {
                     "workflow_name": workflow_data[0][0], 
-                    "form_id": workflow_data[0][1],
+                    "form_id": form_id_list,
                     "step_name": workflow_data[0][2],
                     "button_type_id": workflow_data[0][3],
                     "button_act_details": workflow_data[0][4],

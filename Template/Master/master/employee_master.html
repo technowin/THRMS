@@ -6,7 +6,8 @@
  <!-- Custom styles for this html-->
  <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
  <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
- <link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" >
+ <link href="{% static 'css/salarycheckbox.css' %}" rel="stylesheet" type="text/css" >
+ {% comment %} <link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" > {% endcomment %}
  
  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
  <!-- Include DataTables CSS -->
@@ -236,7 +237,7 @@
                                 <label for="HandicappedSwitch" class="form-label">Is Handicapped<span style="color:red;"> *</span> :</label>
                                 <br>
                                 <label class="switch">
-                                    <input type="checkbox" value="{{ handicapped_value }}" id="HandicappedSwitch" name="handicapped" 
+                                    <input type="checkbox" value="{{ handicapped_value }}" class="salary-checkbox" id="HandicappedSwitch" name="handicapped" 
                                            {% if handicapped_value == "1" %} checked {% endif %} onchange="updateHandicapped()">
                                     <span class="slider"></span>
                                 </label>
@@ -267,7 +268,7 @@
                                 <label for="activeBtn" class="form-label">Is Active<span style="color:red;"> *</span> :</label>
                                 <br>
                                 <label class="switch">
-                                    <input type="checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
+                                    <input type="checkbox" class="salary-checkbox" values ="{{ is_active }}" id="statusSwitch" name="is_active" 
                                            {% if is_active == "1" %} checked {% endif %} onchange="updateStatus()">
                                     <span class="slider"></span>
                                 </label>
