@@ -260,10 +260,10 @@
                                         {% if type == "create" %}
                                             onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
                                             {% elif  type == "reference" %}
-                                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }}, {{reference_type}},'{{type}}')"
+                                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }})"
                         
                                         {% else %}
-                                            onclick="showScript({{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                                            onclick="showScript({{ form_data_id }}, {{ field.id }})"
                                         {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}>
                                         </i>
                                     </div>
@@ -278,10 +278,10 @@
                                     {% if type == "create" %}
                                         onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
                                         {% elif type == "reference"%}
-                                        onclick="showScript( {{ matched_form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                                        onclick="showScript( {{ matched_form_data_id }}, {{ field.id }})"
                                         
                                     {% else %}
-                                        onclick="showScript( {{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                                        onclick="showScript( {{ form_data_id }}, {{ field.id }})"
                                     {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
                                     </i>
                                 </div>
