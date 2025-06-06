@@ -71,7 +71,7 @@
 @media (min-width: 768px) {
   .col-md-custom-0 { flex: 0 0 3.33%; max-width: 3.33%; }
   .col-md-custom-1   { flex: 0 0 4%;    max-width: 4%; }
-  .col-md-custom-2   { flex: 0 0 10%;   max-width: 10%; }
+  .col-md-custom-2   { flex: 0 0 15%;   max-width: 15%; }
   .col-md-custom-3   { flex: 0 0 25%;   max-width: 25%; }
   .col-md-custom-4   { flex: 0 0 33.33%; max-width: 33.33%; }
   .col-md-custom-5   { flex: 0 0 41.66%; max-width: 41.66%; }
@@ -568,12 +568,12 @@
 
           builder.innerHTML += `
             <div class="row col-md-12 draggable-field" data-id="${fieldId}">
-                <div class="col-md-custom-1 drag-handle" style="cursor: grab;">
+                <div class="col-md-custom-0 drag-handle" style="cursor: grab;">
                     &#x2630;
                 </div>
                 <div class="col-md-custom-0">${keyIconHTML}</div>
 
-                <div class="col-md-custom-2 mb-3">
+                <div class="col-md-2 mb-3">
                     ${labelInputHtml}
                 </div>
                 <div class="col-md-custom-2 mb-3">
@@ -588,7 +588,7 @@
                 <div class="${colSize} mb-3">
                     ${subControlHtml || optionDropdownHtml }
                 </div>
-                <div class="col-md-1 mt-2">
+                <div class="col-md-custom-0 mt-2">
                     <span onclick="removeField(${fieldId})" style="cursor: pointer;">
                         <i class="fa-solid fa-trash" style="color: #dc3545; font-size: 1.5rem;"></i>
                     </span>
