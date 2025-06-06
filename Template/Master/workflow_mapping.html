@@ -353,7 +353,7 @@
 <script>
     $(document).ready(function() {
         $('#formDropdown').selectize({
-            plugins: [],
+            plugins: ['remove_button'],
             delimiter: ',',
             placeholder: "--Select--",
             persist: false,
@@ -384,7 +384,7 @@
         // Validation: Ensure dropdowns are not empty or "Select"
         if (!workflowDropdown || workflowDropdown === "Select" ||
             !stepName.trim() ||
-            !formDropdown || formDropdown === "Select" ||
+            !formDropdown || formDropdown.length === 0 ||
             !buttonTypeDropdown || buttonTypeDropdown === "Select" ||
             !actionDropdown || actionDropdown === "Select" ||
             !selectedRoles || selectedRoles.length === 0) {
@@ -400,7 +400,7 @@
             let formData = {
             workflowDropdown: workflowDropdown,
             stepName: stepName,
-            formDropdown: formDropdown,
+            formDropdown: formDropdown.join(","),
             buttonTypeDropdown: buttonTypeDropdown,
             actionDropdown: actionDropdown,
             roles: selectedRoles.join(","),

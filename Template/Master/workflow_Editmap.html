@@ -275,7 +275,6 @@
 <script>
     $(document).ready(function() {
         $('#formDropdown').selectize({
-            plugins: [],
             plugins: ["remove_button"],
             delimiter: ',',
             placeholder: "--Select--",
@@ -293,7 +292,7 @@
 
 
 <script> 
-    $(document).ready(function () {
+    {% comment %} $(document).ready(function () {
         
         $("#workflowForm").on("submit", function (e) {
             debugger;
@@ -364,7 +363,75 @@
                 }
             });
         });
+    }); {% endcomment %}
+
+    $(document).ready(function () {
+    $("#workflowForm").on("submit", function (e) {
+        debugger;
+        e.preventDefault(); // Prevent normal form submission
+
+        let workflowDropdown = $("#workflowDropdown").val();
+        let stepName = $("#stepName").val();
+        let formDropdown = $("#formDropdown").val(); // This is an array for multiple select
+        let buttonTypeDropdown = $("#buttonTypeDropdown").val();
+        let actionDropdown = $("#actionDropdown").val();
+        let workflow_idEncrypt = $("#workflow_idEncrypt").val();
+        let selectedRoles = $("#customRoleDropdown").val();
+
+        // Validation: Ensure dropdowns are not empty or "Select"
+        if (!workflowDropdown || workflowDropdown === "Select" ||
+            !stepName.trim() ||
+            !formDropdown || formDropdown.length === 0 ||
+            !buttonTypeDropdown || buttonTypeDropdown === "Select" ||
+            !actionDropdown || actionDropdown === "Select" ||
+            !selectedRoles || selectedRoles.length === 0) {
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Error!',
+                text: 'Please select valid values for all dropdowns and fill in all required fields.',
+            });
+            return false;
+        }
+
+        let formData = {
+            workflowDropdown: workflowDropdown,
+            stepName: stepName,
+            formDropdown: formDropdown.join(","), // Convert array to comma-separated string
+            buttonTypeDropdown: buttonTypeDropdown,
+            actionDropdown: actionDropdown,
+            workflow_idEncrypt: workflow_idEncrypt,
+            roles: selectedRoles.join(","), // Assuming multiple roles
+            csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "{% url 'workflow_Editmap' %}",
+            data: formData,
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: response.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = response.redirect_url;
+                });
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Something went wrong. Please try again.',
+                });
+                console.error(xhr.responseText);
+            }
+        });
     });
+});
+
 </script>
 
 

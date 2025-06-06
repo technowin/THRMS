@@ -45,7 +45,7 @@ class FormField(models.Model):
     attributes = models.TextField(null=True,blank=True)
     order = models.IntegerField(default=0)
     is_primary = models.BooleanField(null=True,blank=True)
-    foriegn_key_form_id = models.IntegerField(null=True,blank=True)
+    foriegn_key_form_id = models.TextField(null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -88,6 +88,17 @@ class CommonMaster(models.Model):
     updated_by =  models.TextField(null=True, blank=True)
     class Meta:
         db_table = 'common_master'
+
+class FormIncrementNo(models.Model):
+    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='form_increment_id')
+    form_data = models.TextField(null=True, blank=True)
+    increment = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'form_increment_no'
 
 
 

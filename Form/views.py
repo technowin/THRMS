@@ -229,7 +229,7 @@ def save_form(request):
                     field_type=field.get("type", ""),
                     attributes=field.get("attributes", "[]"),
                     is_primary = field.get("primarykey"),
-                    foriegn_key_form_id = field.get("foreignkey"),
+                    foriegn_key_form_id = field.get("foreignkey",""),
                     values=value,
                     created_by=request.session.get('user_id', '').strip(),
                     order=order
@@ -301,25 +301,25 @@ def save_form(request):
 
                 
 
-                for gen_field in generative_fields:
-                    
-                    prefix = gen_field["prefix"]
-                    if isinstance(prefix, (list, tuple)):
-                        prefix = prefix[0] if prefix else ""
+                    for gen_field in generative_fields:
+                        
+                        prefix = gen_field["prefix"]
+                        if isinstance(prefix, (list, tuple)):
+                            prefix = prefix[0] if prefix else ""
 
-                    field_ids = FormField.objects.filter(
-                        form=form,
-                        label__in=gen_field["field_names"]
-                    ).values_list("id", flat=True)
+                        field_ids = FormField.objects.filter(
+                            form=form,
+                            label__in=gen_field["field_names"]
+                        ).values_list("id", flat=True)
 
-                    FormGenerativeField.objects.create(
-                        prefix=gen_field["prefix"],
-                        selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
-                        no_of_zero=gen_field["no_of_zero"],
-                        increment=gen_field["increment"],
-                        form=form,
-                        field=gen_field["form_field"]
-                    )
+                        FormGenerativeField.objects.create(
+                            prefix=gen_field["prefix"],
+                            selected_field_id=",".join(map(str, field_ids)),  # Convert IDs to comma-separated string
+                            no_of_zero=gen_field["no_of_zero"],
+                            increment=gen_field["increment"],
+                            form=form,
+                            field=gen_field["form_field"]
+                        )
 
 
 
@@ -886,6 +886,7 @@ def form_master(request):
         
         else:
             form_data_id = request.GET.get("form")
+            edit_type = request.GET.get("type")
         
             if form_data_id:
                 form_data_id = dec(form_data_id)
@@ -1003,9 +1004,10 @@ def form_master(request):
 
                     # ✅ Fetch action fields (no validations needed)
                     
-            
-
-                    return render(request, "Form/_formfieldedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id})
+                    if edit_type == "edit_type":
+                        return render(request, "Form/_formfieldsedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id})
+                    else:
+                        return render(request, "Form/_formfieldedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id})
             else:
                 type = request.GET.get("type")
                 form = Form.objects.all()
@@ -1062,6 +1064,7 @@ def common_form_post(request):
                 )
                
         handle_uploaded_files(request, form_name, created_by, form_data, user)
+        handle_generative_fields(form, form_data, created_by)
 
         messages.success(request, "Form data saved successfully!")
 
@@ -1638,6 +1641,148 @@ def delete_file(request):
             traceback.print_exc()
             return JsonResponse({"success": False, "error": "Could not delete file"}, status=500)
     return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
+
+
+# def handle_generative_fields(form, form_data, created_by):
+#     generative_fields = FormField.objects.filter(form=form, field_type="generative")
+
+#     for field in generative_fields:
+#         try:
+#             gen_settings = FormGenerativeField.objects.get(field=field, form=form)
+
+#             prefix = gen_settings.prefix or ''
+#             selected_ids = (gen_settings.selected_field_id or '').split(',')
+#             no_of_zero = int(gen_settings.no_of_zero or '0')
+#             initial_increment = int(gen_settings.increment or '1')
+
+#             increment_row, created = FormIncrementNo.objects.get_or_create(
+#                 form=form,
+#                 defaults={'increment': initial_increment}
+#             )
+
+#             if not created:
+#                 increment_row.increment += 1
+#                 increment_row.save()
+
+#             current_increment = increment_row.increment
+
+#             # Step 2: Gather selected field values
+#             selected_values = []
+#             for sel_id in selected_ids:
+#                 selected_field = FormField.objects.filter(id=sel_id).first()
+#                 if not selected_field:
+#                     continue
+
+#                 value_obj = FormFieldValues.objects.filter(
+#                     form_data=form_data,
+#                     form=form,
+#                     field=selected_field
+#                 ).first()
+
+#                 if value_obj:
+#                     selected_values.append(value_obj.value)
+
+#             base_part = '-'.join(selected_values)
+#             padded_number = str(0).zfill(no_of_zero)
+#             final_value = f"{prefix}_{base_part}_{padded_number}{current_increment}"
+
+#             # Step 3: Save the generated value
+#             FormFieldValues.objects.create(
+#                 form_data=form_data,
+#                 form=form,
+#                 field=field,
+#                 value=final_value,
+#                 created_by=created_by
+#             )
+
+#         except Exception as e:
+#             traceback.print_exc()
+    # return final_value
+
+
+import traceback
+
+def handle_generative_fields(form, form_data, created_by):
+    generative_fields = FormField.objects.filter(form=form, field_type="generative")
+
+    for field in generative_fields:
+        try:
+            gen_settings = FormGenerativeField.objects.get(field=field, form=form)
+
+            prefix = gen_settings.prefix or ''
+            selected_ids = (gen_settings.selected_field_id or '').split(',')
+            no_of_zero = int(gen_settings.no_of_zero or '0')
+            initial_increment = int(gen_settings.increment or '1')
+
+            increment_row, created = FormIncrementNo.objects.get_or_create(
+                form=form,
+                defaults={'increment': initial_increment}
+            )
+
+            if not created:
+                increment_row.increment += 1
+                increment_row.save()
+
+            current_increment = increment_row.increment
+
+            # Step 1: Gather selected field values and filter out blanks
+            selected_values = []
+            for sel_id in selected_ids:
+                sel_id = sel_id.strip()
+                
+                if not sel_id.isdigit():  
+                    continue
+
+                selected_field = FormField.objects.filter(id=int(sel_id)).first()
+                if not selected_field:
+                    continue
+
+                value_obj = FormFieldValues.objects.filter(
+                    form_data=form_data,
+                    form=form,
+                    field=selected_field
+                ).first()
+
+                if value_obj and value_obj.value.strip():
+                    selected_values.append(value_obj.value.strip())
+
+
+                value_obj = FormFieldValues.objects.filter(
+                    form_data=form_data,
+                    form=form,
+                    field=selected_field
+                ).first()
+
+                if value_obj and value_obj.value.strip():  # Check for non-empty values
+                    selected_values.append(value_obj.value.strip())
+
+            # Step 2: Construct base part
+            base_part = '-'.join(selected_values)
+
+            # Step 3: Construct final value smartly
+            padded_number = str(0).zfill(no_of_zero)
+            parts = []
+
+            if prefix.strip():
+                parts.append(prefix.strip())
+            if base_part:
+                parts.append(base_part)
+            parts.append(f"{padded_number}{current_increment}")
+
+            final_value = '_'.join(parts)
+
+            # Step 4: Save the generated value
+            FormFieldValues.objects.create(
+                form_data=form_data,
+                form=form,
+                field=field,
+                value=final_value,
+                created_by=created_by
+            )
+
+        except Exception as e:
+            traceback.print_exc()
+
 
 
 

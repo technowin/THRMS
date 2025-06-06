@@ -1786,6 +1786,37 @@ document.addEventListener('click', function (e) {
         }
     }
 });
+
+function updateGenerativePreview(fieldId) {
+        const prefix = document.getElementById(`prefix-${fieldId}`)?.value || '';
+        const dropdown = document.getElementById(`fielddropdown-${fieldId}`);
+        const selectedLabels = Array.from(dropdown?.selectedOptions || [])
+            .map(opt => opt.text.trim());
+        const selectedValues = Array.from(dropdown?.selectedOptions || [])
+            .map(opt => opt.value);
+    
+        const zeroCountStr = document.getElementById(`zeroincrement1-${fieldId}`)?.value || '';
+        const zeroCount = parseInt(zeroCountStr, 10);
+        const zeroPadding = '0'.repeat(isNaN(zeroCount) ? 0 : zeroCount);
+    
+        const incNum = document.getElementById(`zeroincrement2-${fieldId}`)?.value || '';
+        const previewValue = `${prefix}-${selectedLabels.join('-')}-${zeroPadding}${incNum}`;
+
+        const previewInput = document.getElementById('generatedValue');
+        if (previewInput) previewInput.value = previewValue;
+    
+        // Save to formFields object
+        const field = formFields.find(f => f.id == fieldId);
+        if (field) {
+            field.prefix = prefix;
+            field.field_name = selectedLabels;    // Save label names
+            field.field_id = selectedValues; // If needed
+            field.no_of_zero = zeroCountStr;
+            field.increment = incNum;
+            field.generatefield = previewValue;    // Full preview string
+        }
+    }
+
 </script>
 
 <script>

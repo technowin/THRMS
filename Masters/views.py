@@ -442,7 +442,7 @@ def submit_workflow(request):
     try:
         workflow_name = request.POST.get("workflowDropdown")
         step_name = request.POST.get("stepName")
-        form_name = request.POST.get("formDropdown")
+        form_name = request.POST.get("formDropdown","")
         button_type = request.POST.get("buttonTypeDropdown")
         action = request.POST.get("actionDropdown")
         customRoleDropdown = request.POST.get("roles")
@@ -542,7 +542,7 @@ def workflow_Editmap(request):
             workflow_idDecryp = decrypt_parameter(workflow_idEncrypt)
             workflow_name = request.POST.get("workflowDropdown")
             step_name = request.POST.get("stepName")
-            form_name = request.POST.get("formDropdown")
+            form_name = request.POST.get("formDropdown", "")
             button_type = request.POST.get("buttonTypeDropdown")
             action = request.POST.get("actionDropdown")
             roles = request.POST.get("roles")
