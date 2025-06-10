@@ -248,6 +248,75 @@ class SectionMaster(models.Model):
     class Meta:
         db_table = 'section_master'
 
+class CandidateDetails(models.Model):
+    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='form_cand_data')
+    form_data = models.ForeignKey('Form.FormData',null=True, blank=True, on_delete=models.CASCADE, related_name='form_cand_value_id')
+    field = models.ForeignKey('Form.FormField',null=True, blank=True,on_delete=models.CASCADE, related_name='field_cand_value_id')
+    value = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'candidate_details'
+
+class FormFieldValuesChaya(models.Model):
+    form_id =models.TextField(blank=True, null=True)
+    form_data_id = models.TextField(blank=True, null=True)
+    field_id = models.TextField(blank=True, null=True)
+    value = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'form_field_values_chaya'
+
+
+class FormChaya(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'form_chaya'
+
+class FormFieldChaya(models.Model):
+    form_id = models.TextField(blank=True, null=True)
+    label = models.CharField(max_length=255)
+    field_type =  models.CharField(max_length=255,null=True, blank=True)
+    section = models.TextField(max_length=255,null=True, blank=True)
+    values = models.TextField(null=True,blank=True)
+    attributes = models.TextField(null=True,blank=True)
+    order = models.IntegerField(default=0)
+    is_primary = models.BooleanField(null=True,blank=True)
+    foriegn_key_form_id = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)  
+    class Meta:
+        db_table = 'form_field_chaya'
+
+
+class FormFileChaya(models.Model):
+    file_name = models.TextField(null=True, blank=True)
+    uploaded_name = models.TextField(null=True, blank=True)
+    file_path = models.TextField(null=True, blank=True)
+    file_id = models.TextField(blank=True, null=True)
+    form_id = models.TextField(blank=True, null=True)
+    field_id = models.TextField(blank=True, null=True)
+    form_data_id = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'form_file_chaya'
+
+
 
 
 

@@ -242,6 +242,12 @@ urlpatterns = [
     path("get_worksites",get_worksites, name="get_worksites"),
     path('fetch-cities/', fetch_cities, name='fetch_cities'),
 
+
+# test
+
+    path('show_form/', show_form, name='show_form'),
+
+
 ]
 
 if settings.DEBUG:

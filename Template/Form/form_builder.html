@@ -395,7 +395,7 @@
                             <div class="col-md-6">
                                 <select class="form-control select" id="text-dropdown-${fieldId}"
                                     onchange="updateSubFieldAndGenerateElement(${fieldId}, this.value, '${selectedValidation.validation_value || ""}', this.options[this.selectedIndex].dataset.id)">
-                                    <option value="">Select</option>
+                                    <option value="">Select Validation</option>
                                     ${subControls.filter(control => control.field_type === "text")
                                         .map(control => 
                                             `<option value="${control.control_value}" data-id="${control.id}" ${control.id === selectedSubControl?.id ? "selected" : ""}>

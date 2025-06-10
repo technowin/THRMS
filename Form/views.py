@@ -54,7 +54,7 @@ from django.http import FileResponse, Http404
 import mimetypes
 from django.template.loader import render_to_string
 
-from Workflow.models import workflow_matrix, workflow_action_master
+from Workflow.models import history_workflow_details, workflow_details, workflow_matrix, workflow_action_master
 
 
 # Create your views here.
@@ -1029,6 +1029,14 @@ def common_form_post(request):
         form_name = request.POST.get('form_name', '').strip()
         type = request.POST.get('type','')
 
+        workflow_YN = request.POST.get('workflow_YN', '')
+        form_id = request.POST.get("form_id")
+        editORcreate  = request.POST.get('editORcreate','')
+        firstStep = request.POST.get("firstStep")
+
+        form_dataID = form_data.id
+        first_field_checked = False
+
 
         # form_id = request.POST.get(form_id_key, '').strip()
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
@@ -1067,6 +1075,109 @@ def common_form_post(request):
         handle_generative_fields(form, form_data, created_by)
 
         messages.success(request, "Form data saved successfully!")
+        if workflow_YN == '1':
+            wfdetailsid = request.POST.get('wfdetailsid', '')
+            role_idC = request.POST.get('role_id', '')
+            form_id = request.POST.get('form_id', '')
+            step_id = request.POST.get('step_id', '')
+            if wfdetailsid and wfdetailsid != 'undefined':
+                wfdetailsid=dec(wfdetailsid)
+            else:
+                wfdetailsid = None  
+            
+            if step_id:
+                matrix_entry = workflow_matrix.objects.filter(id=step_id).first()
+                if matrix_entry:
+                    status_from_matrix = matrix_entry.status  # adjust field name if needed
+                    
+            if wfdetailsid and workflow_details.objects.filter(id=wfdetailsid).exists():
+                # Update existing record
+                workflow_detail = workflow_details.objects.get(id=wfdetailsid)
+                workflow_detail.form_data_id = form_dataID
+                workflow_detail.role_id = request.POST.get('role_id', '')
+                workflow_detail.action_details_id = request.POST.get('action_detail_id', '')
+                workflow_detail.increment_id += 1
+                workflow_detail.step_id = request.POST.get('step_id', '')
+                workflow_detail.status = status_from_matrix or ''
+                workflow_detail.user_id = user
+                workflow_detail.updated_by = user 
+                workflow_detail.save()    
+            else:    
+                workflow_detail = workflow_details.objects.create(
+                form_data_id=form_dataID,
+                role_id=request.POST.get('role_id', ''),
+                action_details_id=request.POST.get('action_detail_id', ''),
+                increment_id=1,
+                # form_id=request.POST.get('form_id', ''),
+                # action_id=request.POST.get('action_id', ''),
+                status = status_from_matrix or '',
+                step_id=request.POST.get('step_id', ''),
+                operator=request.POST.get('custom_dropdownOpr', ''),
+                user_id=user,
+                created_by=user,
+                updated_by = user,
+                
+                )
+
+            # Now set and save req_id using the generated ID
+            workflow_detail.req_id = f"REQNO-00{workflow_detail.id}"
+            workflow_detail.save()
+            if wfdetailsid and workflow_details.objects.filter(id=wfdetailsid).exists():
+                history_workflow_details.objects.create(
+                    form_data_id=workflow_detail.form_data_id,
+                    role_id=workflow_detail.role_id,
+                    action_details_id=workflow_detail.action_details_id,
+                    increment_id=workflow_detail.increment_id,
+                    step_id=workflow_detail.step_id,
+                    status=workflow_detail.status,
+                    user_id=workflow_detail.user_id,
+                    req_id=workflow_detail.req_id,
+                    form_id=request.POST.get('form_id', ''),
+                    created_by=user,
+                    # created_by=workflow_detail.updated_by,
+                    created_at=workflow_detail.updated_at
+                )
+            else:
+                history_workflow_details.objects.create(
+                    form_data_id=workflow_detail.form_data_id,
+                    role_id=workflow_detail.role_id,
+                    action_details_id=workflow_detail.action_details_id,
+                    increment_id=workflow_detail.increment_id,
+                    step_id=workflow_detail.step_id,
+                    status=workflow_detail.status,
+                    user_id=workflow_detail.user_id,
+                    req_id=workflow_detail.req_id,
+                    operator=request.POST.get('custom_dropdownOpr', ''),
+                    form_id=request.POST.get('form_id', ''),
+                    created_by=user,
+                    # created_by=workflow_detail.updated_by,
+                    created_at=workflow_detail.updated_at
+                )
+                
+                # latest_file_category = WorkflowVersionControl.objects.filter(
+                #     file_name=file_name
+                #     ).order_by('-id').values_list('file_category', flat=True).first()
+
+
+                    
+            
+            for key, value in request.POST.items():
+                if key.startswith("action_field_") and not key.startswith("action_field_id_"):
+                    match = re.match(r'action_field_(\d+)', key)
+                    if match:
+                        field_id = int(match.group(1))
+                        action_field = get_object_or_404(FormActionField, pk=field_id)
+                        if action_field.type in ['text', 'textarea', 'select']:
+                            ActionData.objects.create(
+                                value=value,
+                                form_data=form_data,
+                                field=action_field,
+                                step_id=step_id,
+                                created_by=user,
+                                updated_by=user,
+                            )
+
+        messages.success(request, "Workflow data saved successfully!")
 
     except Exception as e:
         traceback.print_exc()
@@ -1140,6 +1251,103 @@ def common_form_edit(request):
         # ✅ File upload logic goes here
         handle_uploaded_files(request, form_name, created_by, form_data, user)
         messages.success(request, "Form data updated successfully!")
+        if workflow_YN == '1E':
+        
+            wfdetailsid = request.POST.get('wfdetailsid', '')
+            step_id = request.POST.get('step_id', '')
+            role_idC = request.POST.get('role_id', '')
+            if wfdetailsid and wfdetailsid != 'undefined':
+                wfdetailsid=dec(wfdetailsid)
+            else:
+                wfdetailsid = None  
+            
+            if step_id:
+                matrix_entry = workflow_matrix.objects.filter(id=step_id).first()
+                if matrix_entry:
+                    status_from_matrix = matrix_entry.status  # adjust field name if needed
+                    
+            if wfdetailsid and workflow_details.objects.filter(id=wfdetailsid).exists():
+                # Update existing record
+                workflow_detail = workflow_details.objects.get(id=wfdetailsid)
+                workflow_detail.form_data_id = form_data_id
+                workflow_detail.role_id = request.POST.get('role_id', '')
+                workflow_detail.action_details_id = request.POST.get('action_detail_id', '')
+                workflow_detail.increment_id += 1
+                workflow_detail.step_id = request.POST.get('step_id', '')
+                workflow_detail.status = status_from_matrix or ''
+                workflow_detail.user_id = user
+                workflow_detail.updated_by = user  # Or
+                workflow_detail.save()    
+            else:    
+                workflow_detail = workflow_details.objects.create(
+                form_data_id=form_data_id,
+                role_id=request.POST.get('role_id', ''),
+                action_details_id=request.POST.get('action_detail_id', ''),
+                increment_id=1,
+                # form_id=request.POST.get('form_id', ''),
+                # action_id=request.POST.get('action_id', ''),
+                status = status_from_matrix or '',
+                step_id=request.POST.get('step_id', ''),
+                operator=request.POST.get('custom_dropdownOpr', ''),
+                user_id=user,
+                created_by=user,
+                
+                )
+
+            # Now set and save req_id using the generated ID
+            workflow_detail.req_id = f"REQNO-00{workflow_detail.id}"
+            workflow_detail.save()
+            if wfdetailsid and workflow_details.objects.filter(id=wfdetailsid).exists():
+                history_workflow_details.objects.create(
+                    form_data_id=workflow_detail.form_data_id,
+                    role_id=workflow_detail.role_id,
+                    action_details_id=workflow_detail.action_details_id,
+                    increment_id=workflow_detail.increment_id,
+                    step_id=workflow_detail.step_id,
+                    status=workflow_detail.status,
+                    user_id=workflow_detail.user_id,
+                    req_id=workflow_detail.req_id,
+                    form_id=request.POST.get('form_id', ''),
+                    created_by=user,
+                    sent_back='0',
+                    # created_by=workflow_detail.updated_by,
+                    created_at=workflow_detail.updated_at
+                )
+            else:
+                history_workflow_details.objects.create(
+                    form_data_id=workflow_detail.form_data_id,
+                    role_id=workflow_detail.role_id,
+                    action_details_id=workflow_detail.action_details_id,
+                    increment_id=workflow_detail.increment_id,
+                    step_id=workflow_detail.step_id,
+                    status=workflow_detail.status,
+                    user_id=workflow_detail.user_id,
+                    req_id=workflow_detail.req_id,
+                    operator=request.POST.get('custom_dropdownOpr', ''),
+                    form_id=request.POST.get('form_id', ''),
+                    created_by=user,
+                    sent_back='0',
+                    # created_by=workflow_detail.updated_by,
+                    created_at=workflow_detail.updated_at
+                )
+                    
+            for key, value in request.POST.items():
+                if key.startswith("action_field_") and not key.startswith("action_field_id_"):
+                    match = re.match(r'action_field_(\d+)', key)
+                    if match:
+                        field_id = int(match.group(1))
+                        action_field = get_object_or_404(FormActionField, pk=field_id)
+                        if action_field.type in ['text', 'textarea', 'select']:
+                            ActionData.objects.create(
+                                value=value,
+                                form_data=form_data,
+                                field=action_field,
+                                step_id=step_id,
+                                created_by=user,
+                                updated_by=user,
+                            )
+            
+            messages.success(request, "Workflow data saved successfully!")
 
     except Exception as e:
         traceback.print_exc()
@@ -1298,129 +1506,6 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
         traceback.print_exc()
         messages.error(request, "Oops...! Something went wrong!")
 
-
-
-    
-
-# def form_preview(request):
-#     id = request.GET.get("id")
-#     id = dec(id)  
-
-#     if not id:
-#         return render(request, "Form/_formfields.html", {"fields": []})  
-
-#     try:
-#         workflow = get_object_or_404(workflow_matrix, id=id)
-#         form_id = workflow.form_id
-#         action_id = workflow.button_type_id
-
-#         form  = get_object_or_404(Form,id = form_id)
-
-#         # Fetch form fields
-#         raw_fields = FormField.objects.filter(form_id=form_id).values(
-#             "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name", "section"
-#         ).order_by("order")
-
-
-#         # Fetch action fields
-#         action_fields = list(FormActionField.objects.filter(action_id=action_id).values(
-#             "id", "type", "label_name", "button_name", "bg_color", "text_color", 
-#             "button_type", "dropdown_values", "status","action_id"
-#         ))
-
-
-#         sectioned_fields = {}
-#         for action in action_fields:
-#             action["dropdown_values"] = action["dropdown_values"].split(",") if action["dropdown_values"] else []
-
-#         # Process form fields
-#         for field in raw_fields:
-#                     # Clean up values and attributes
-#             field["values"] = [v.strip() for v in field["values"].split(",")] if field.get("values") else []
-#             field["attributes"] = [a.strip() for a in field["attributes"].split(",")] if field.get("attributes") else []
-
-#                     # Get section name
-#             section_id = field.get("section")
-#             if section_id:
-#                 try:
-#                     section = SectionMaster.objects.get(id=section_id)
-#                     section_name = section.name
-#                 except SectionMaster.DoesNotExist:
-#                     section_name = ""
-#             else:
-#                 section_name = ""
-#             field["section_name"] = section_name
-
-#                     # Fetch validations
-#             validations = FieldValidation.objects.filter(
-#                 field_id=field["id"], form_id=form_id
-#             ).values("value")
-#             field["validations"] = list(validations)
-
-#                     # Regex detection
-#             if any("^" in v["value"] for v in field["validations"]):
-#                 field["field_type"] = "regex"
-#                 pattern_value = field["validations"][0]["value"]
-#                 try:
-#                     regex_obj = RegexPattern.objects.get(regex_pattern=pattern_value)
-#                     field["regex_id"] = regex_obj.id
-#                     field["regex_description"] = regex_obj.description
-#                 except RegexPattern.DoesNotExist:
-#                     field["regex_id"] = None
-#                     field["regex_description"] = ""
-
-
-
-#                     # Accept type (file/text)
-#             if field["field_type"] in ["file", "file multiple", "text"]:
-#                 file_validation = next((v for v in field["validations"]), None)
-#                 field["accept"] = file_validation["value"] if file_validation else ""
-
-#                     # Field Dropdown (dynamic values)
-#             if field["field_type"] == "field_dropdown":
-#                 split_values = field["values"]
-#                 if len(split_values) == 2:
-#                     dropdown_form_id, dropdown_field_id = split_values
-#                     field_values = FormFieldValues.objects.filter(field_id=dropdown_field_id).values("value").distinct()
-#                     field["dropdown_data"] = list(field_values)
-
-#                     # Master Dropdown
-#             if field["field_type"] == "master dropdown" and field["values"]:
-#                 dropdown_id = field["values"][0]
-#                 try:
-#                     master_data = MasterDropdownData.objects.get(id=dropdown_id)
-#                     query = master_data.query
-#                     result = callproc("stp_get_query_data", [query])
-#                     field["values"] = [{"id": row[0], "name": row[1]} for row in result]
-#                 except MasterDropdownData.DoesNotExist:
-#                     field["values"] = []
-
-#             if field["field_type"] == "multiple" and field["values"]:
-#                 dropdown_id = field["values"][0]
-#                 try:
-#                     master_data = MasterDropdownData.objects.get(id=dropdown_id)
-#                     query = master_data.query
-#                     result = callproc("stp_get_query_data", [query])
-#                     field["values"] = [{"id": row[0], "name": row[1]} for row in result]
-#                 except MasterDropdownData.DoesNotExist:
-#                     field["values"] = []
-
-#                     # Group by section name
-#             sectioned_fields.setdefault(section_name, []).append(field)
-
-#         return render(request, "Form/_formfieldedit.html", {
-#             "matrix_id":id,
-#             # "fields": fields,
-#             "sectioned_fields": sectioned_fields,
-#             "form":form,
-#             "action_fields": action_fields,
-#             "type":"create"
-#         })
-
-#     except Exception as e:
-#         traceback.print_exc()
-#         messages.error(request, "Oops...! Something went wrong!")
-#         return render(request, "Form/_formfields.html", {"fields": []})
 
 
 def form_preview(request):
@@ -1896,3 +1981,110 @@ def get_field_names(request):
         form_id = request.POST.get('form_id')
         fields = FormField.objects.filter(form_id=form_id).values('id', 'label')
         return JsonResponse({'fields': list(fields)})
+    
+
+def show_form(request):
+    user  = request.session.get('user_id', '')
+    role = request.session.get('role_id')
+    try:            
+        workflow = get_object_or_404(workflow_matrix, role_id=role)
+        form_ids = workflow.form_id.split(",")  # Multiple form IDs
+        action_id = workflow.button_type_id
+
+        forms_data = []
+
+        action_fields = list(FormActionField.objects.filter(action_id=action_id).values(
+                "id", "type", "label_name", "button_name", "bg_color", "text_color", 
+                "button_type", "dropdown_values", "status", "action_id"
+            ))
+        
+        for action in action_fields:
+            action["dropdown_values"] = action["dropdown_values"].split(",") if action["dropdown_values"] else []
+
+        for form_id in form_ids:
+            form_id = form_id.strip()
+            if not form_id:
+                continue
+
+            form = get_object_or_404(Form, id=form_id)
+
+            raw_fields = FormField.objects.filter(form_id=form_id).values(
+                "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name", "section"
+            ).order_by("order")
+
+
+            sectioned_fields = {}
+
+            for field in raw_fields:
+                field["values"] = [v.strip() for v in field["values"].split(",")] if field.get("values") else []
+                field["attributes"] = [a.strip() for a in field["attributes"].split(",")] if field.get("attributes") else []
+
+                section_id = field.get("section")
+                if section_id:
+                    try:
+                        section = SectionMaster.objects.get(id=section_id)
+                        section_name = section.name
+                    except SectionMaster.DoesNotExist:
+                        section_name = ""
+                else:
+                    section_name = ""
+
+                field["section_name"] = section_name
+
+                validations = FieldValidation.objects.filter(
+                    field_id=field["id"], form_id=form_id
+                ).values("value")
+                field["validations"] = list(validations)
+
+                if any("^" in v["value"] for v in field["validations"]):
+                    field["field_type"] = "regex"
+                    pattern_value = field["validations"][0]["value"]
+                    try:
+                        regex_obj = RegexPattern.objects.get(regex_pattern=pattern_value)
+                        field["regex_id"] = regex_obj.id
+                        field["regex_description"] = regex_obj.description
+                    except RegexPattern.DoesNotExist:
+                        field["regex_id"] = None
+                        field["regex_description"] = ""
+
+                if field["field_type"] in ["file", "file multiple", "text"]:
+                    file_validation = next((v for v in field["validations"]), None)
+                    field["accept"] = file_validation["value"] if file_validation else ""
+
+                if field["field_type"] == "field_dropdown":
+                    split_values = field["values"]
+                    if len(split_values) == 2:
+                        dropdown_form_id, dropdown_field_id = split_values
+                        field_values = FormFieldValues.objects.filter(field_id=dropdown_field_id).values("value").distinct()
+                        field["dropdown_data"] = list(field_values)
+
+                if field["field_type"] in ["master dropdown", "multiple"] and field["values"]:
+                    dropdown_id = field["values"][0]
+                    try:
+                        master_data = MasterDropdownData.objects.get(id=dropdown_id)
+                        query = master_data.query
+                        result = callproc("stp_get_query_data", [query])
+                        field["values"] = [{"id": row[0], "name": row[1]} for row in result]
+                    except MasterDropdownData.DoesNotExist:
+                        field["values"] = []
+
+                sectioned_fields.setdefault(section_name, []).append(field)
+
+            forms_data.append({
+                "form": form,
+                "sectioned_fields": sectioned_fields,
+            })
+
+        return render(request, "Form/_formfieldedit.html", {
+            "matrix_id": id,
+            "forms_data": forms_data,
+            "action_fields": action_fields,
+            "type": "candidate"
+        })
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        callproc("stp_error_log", [fun, str(e), user])
+        messages.error(request, 'Oops...! Something went wrong!')
+        return JsonResponse({"error": "Something went wrong!"}, status=500)
+    

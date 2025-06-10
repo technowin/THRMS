@@ -295,6 +295,21 @@
                 {% endfor %}
             </select>
         </div>
+
+        
+        <div class="form-row" style="display: flex; gap: 20px;">
+            <!-- Status -->
+            <div class="form-group">
+                <label for="statusName">Status</label>
+                <input type="text" class="form-control" id="statusName" placeholder="Enter Status" required>
+            </div>
+        
+            <!-- Color Picker -->
+            <div class="form-group">
+                <label for="favcolor">Choose a color for Status:</label>
+                <input type="color" id="favcolor" name="favcolor" class="form-control" style="height: 38px; padding: 5px;">
+            </div>
+        </div>
         
         
         
@@ -335,6 +350,20 @@
         });
     });
     </script>
+
+      <script>
+        const colorInput = document.getElementById('favcolor');
+        const colorValue = document.getElementById('colorValue');
+        const colorBox = document.getElementById('colorBox');
+    
+        colorInput.addEventListener('input', function () {
+            colorValue.textContent = colorInput.value;
+            colorBox.style.backgroundColor = colorInput.value;
+        });
+    
+        // Show color on load
+        colorInput.dispatchEvent(new Event('input'));
+    </script>  
     
     
     
@@ -367,7 +396,7 @@
 
 </script>
 
-<script> 
+{% comment %} <script> 
     $(document).ready(function () {
         
         $("#workflowForm").on("submit", function (e) {
@@ -403,6 +432,111 @@
             formDropdown: formDropdown.join(","),
             buttonTypeDropdown: buttonTypeDropdown,
             actionDropdown: actionDropdown,
+            roles: selectedRoles.join(","),
+            csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+            
+                
+            };
+
+            $.ajax({
+                
+                type: "POST",
+                url: "{% url 'submit_workflow' %}", // Update with your Django view URL
+                data: formData,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = response.redirect_url; // Redirect after success
+                    });;
+
+                   
+                },
+                error: function (xhr, status, error) { // Add error handler properly
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong. Please try again.',
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    });
+</script> {% endcomment %}
+
+
+<script> 
+    let selectizeInstance;
+    let initialOptions = [];
+
+    $(document).ready(function () {
+        selectizeInstance = $('#workflowDropdown').selectize({
+            create: true,
+            sortField: 'text',
+            maxOptions: 10,
+            dropdownParent: 'body'
+        })[0].selectize;
+
+        // Store original options' normalized text
+        initialOptions = Object.values(selectizeInstance.options).map(opt =>
+            opt.text.toLowerCase().trim().replace(/\s+/g, ' ')
+        );
+
+        $("#workflowForm").on("submit", function (e) {
+            e.preventDefault();
+
+            const selectedValue = selectizeInstance.getValue();
+            const selectedOption = selectizeInstance.options[selectedValue];
+            const isCustom = !selectedOption; // means it's a new one, not from original list
+
+            const normalizedEnteredText = selectedValue.toLowerCase().trim().replace(/\s+/g, ' ');
+
+            if (isCustom && initialOptions.includes(normalizedEnteredText)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Duplicate Workflow Name',
+                    text: 'This workflow name already exists. Please choose a different name or select it from the dropdown.'
+                });
+                return;
+            }
+
+            let workflowDropdown = $("#workflowDropdown").val();
+        let stepName = $("#stepName").val();
+        let formDropdown = $("#formDropdown").val();
+        let buttonTypeDropdown = $("#buttonTypeDropdown").val();
+        let actionDropdown = $("#actionDropdown").val();
+        let selectedRoles = $("#customRoleDropdown").val();
+        let statusName = $("#statusName").val();
+        let favcolor = $("#favcolor").val();
+
+        // Validation: Ensure dropdowns are not empty or "Select"
+        if (!workflowDropdown || workflowDropdown === "Select" ||
+            !stepName.trim() || !statusName.trim() ||
+           !formDropdown || formDropdown.length === 0 ||
+            !buttonTypeDropdown || buttonTypeDropdown === "Select" ||
+            !actionDropdown || actionDropdown === "Select" ||
+            !selectedRoles || selectedRoles.length === 0) {
+            
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Error!',
+                text: 'Please select valid values for all dropdowns and fill in all required fields.',
+            });
+            return false;
+        }
+
+            let formData = {
+                workflowDropdown: workflowDropdown,
+            stepName: stepName,
+            formDropdown: formDropdown.join(","),
+            buttonTypeDropdown: buttonTypeDropdown,
+            actionDropdown: actionDropdown,
+            statusName: statusName,favcolor: favcolor,
             roles: selectedRoles.join(","),
             csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
             

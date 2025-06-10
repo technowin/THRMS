@@ -25,7 +25,6 @@
 } 
 </style>
 
- <!-- Begin Page Content -->
 
   <div class="row">
       <div class="col-lg-12">
@@ -45,11 +44,17 @@
 
                     </div>                     
                     <div class="col-md-3">                         
-                      {% if last_status != 1 and last_status != 2 %}
+                      {% comment %} {% if last_status != 1 and last_status != 2 %}
                           <a href="/enterthedetails" class="btn btn-primary" style="width:60%;border-radius:15px;padding:2% 2%;">
                               Fill Form
                           </a> 
-                      {% endif %}                      
+                      {% endif %}                       {% endcomment %}
+
+                       {% if last_status != 1 and last_status != 2 %}
+                          <a href="/show_form" class="btn btn-primary" style="width:60%;border-radius:15px;padding:2% 2%;">
+                              Fill Form
+                          </a> 
+                      {% endif %} 
 
                       <!-- <div style="text-align:center;">
                         <button style="width:60%; padding:2% 2%;border-radius:15px;font-size:1.1em" type="button" onclick="get_results()" class="btn btn-sm btn-primary">Fill Form</button>

@@ -446,7 +446,16 @@ def submit_workflow(request):
         button_type = request.POST.get("buttonTypeDropdown")
         action = request.POST.get("actionDropdown")
         customRoleDropdown = request.POST.get("roles")
-        param=(workflow_name,step_name,form_name,button_type,action,user,customRoleDropdown)
+        statusName = request.POST.get("statusName")
+        favcolor = request.POST.get("favcolor")
+        paramWN = [workflow_name]
+        cursor.callproc("stp_getcountStepCountWF",paramWN)
+        for result in cursor.stored_results():
+            step_id_flow1 = list(result.fetchall())[0][0]
+        step_id_flow2 = step_id_flow1+1
+        step_id_flow = step_id_flow2
+            
+        param=(workflow_name,step_name,form_name,button_type,action,user,customRoleDropdown,step_id_flow,statusName,favcolor)
         cursor.callproc("stp_insertIntoWorkflow_matrix",param)   
         m.commit()  
         # return JsonResponse({"message": "Workflow submitted successfully!"}, status=200)
