@@ -285,7 +285,10 @@ def result_page(request):
     
     try:
         if request.method == "GET":                                    
-            candidate_id1 = request.GET.get("cname", "") 
+            candidate_id1 = request.GET.get("cname", "")
+            typeofscreen = request.GET.get("type", "")
+            if not typeofscreen:
+                typeofscreen=None                              
             candidate_id=dec(candidate_id1)       
             # Fetch the candidate record by ID and get specific fields
             candidate = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'time_taken', 'percentage', 'performance_level', 'it_percentage', 'it_performance_level').first()
@@ -312,7 +315,7 @@ def result_page(request):
         m.close()
         Db.closeConnection()
         if request.method == "GET":
-            return render(request, "Test/result_page.html",{"candidate_name":name,"time_taken":time_taken,"percentage":percentage,"performance_level":performance_level,"it_percentage":it_percentage,"it_performance_level":it_performance_level})
+            return render(request, "Test/result_page.html",{"candidate_name":name,"time_taken":time_taken,"percentage":percentage,"performance_level":performance_level,"it_percentage":it_percentage,"it_performance_level":it_performance_level,"typeofscreen":typeofscreen})
         
 @login_required
 def test_index(request):
@@ -703,6 +706,8 @@ def test_page(request):
                         shuffle(q_ids)
                         final_question_ids.extend(q_ids[:data["limit"]])                
 
+                    shuffle(final_question_ids)
+
                     csv_question_ids = ",".join(map(str, final_question_ids))
 
                     # Create entry in temporary_questions table
@@ -929,4 +934,105 @@ def edit_candidate(request):
             return render(request, "Test/edit_candidate.html", context)
         elif request.method == "POST":
             messages.success(request,"Details Submitted Successfully !") 
-            return redirect('candidate_index')                                                   
+            return redirect('candidate_index')
+
+@login_required
+def view_candidate_details(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+    
+    try:
+        user = request.user.id 
+        if request.method == "GET":
+            ErrorMessage =request.GET.get('ErrorMessage', '')
+            SuccessMessage =request.GET.get('SuccessMessage', '')
+            candidate_id1 = request.GET.get("id", "")
+            candidate_id=dec(candidate_id1)                                    
+            dpl = PostMaster.objects.values_list('id', 'post')
+            # candidate_data = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'email', 'mobile', 'post').first()
+
+            candidate_data = CandidateTestMaster.objects.filter(id=candidate_id).values(
+                'name', 'email', 'mobile', 'post'
+            ).first()
+
+            # Default post name
+            post_name = None
+
+            # If candidate data exists and post is available, get post name
+            if candidate_data and candidate_data.get('post'):
+                post_obj = PostMaster.objects.filter(id=candidate_data['post']).first()
+                if post_obj:
+                    post_name = post_obj.post
+
+            context = {
+                "name": candidate_data['name'] if candidate_data else None,
+                "email": candidate_data['email'] if candidate_data else None,
+                "mobile": candidate_data['mobile'] if candidate_data else None,
+                "post": candidate_data['post'] if candidate_data else None,
+                "post_name": post_name,
+                "dpl": dpl,
+                "candidate_id1": candidate_id1,
+            }
+                                                                                                        
+    except Exception as e:
+        print("error-" + e)
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[0].name
+        cursor.callproc("stp_error_log",[fun,str(e),request.user.id])
+        messages.error(request,"Some Error Occurred !!") 
+        return redirect('view_candidate_details')                  
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+        return render(request, "Test/view_candidate_details.html", context)
+
+@login_required
+def view_candidate_answersheet(request):
+    Db.closeConnection()
+    m = Db.get_connection()
+    cursor = m.cursor()
+    try:
+        if request.method == "GET":        
+            candidate_id1 = request.GET.get("id", "")
+            candidate_id = dec(candidate_id1)  # decrypt if needed
+            candidate_name = CandidateTestMaster.objects.get(id=candidate_id).name                        
+            para=[candidate_id]
+            
+            cursor.callproc("stp_getCandidateAnswer", para)
+            for result in cursor.stored_results():
+                raw_data = list(result.fetchall())
+
+            questions = []
+            for row in raw_data:
+                q_dict = {
+                    "question": row[0],
+                    "choices": [
+                        {"text": row[1]},
+                        {"text": row[2]},
+                        {"text": row[3]},
+                        {"text": row[4]}
+                    ],
+                    "selected": row[5],
+                    "is_right": row[6],  # 'Yes' or 'No'
+                    "correct_answer": row[7]
+                }
+                questions.append(q_dict)
+
+    except Exception as e:
+        print("Error:", e)
+        questions = []
+
+    finally:
+        cursor.close()
+        m.commit()
+        m.close()
+        Db.closeConnection()
+
+    return render(request, "Test/candidate_answersheet.html", {
+        "questions": questions,
+        "candidate_id": candidate_id1,
+        "candidate_name": candidate_name
+    })                                                           

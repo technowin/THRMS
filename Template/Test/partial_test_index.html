@@ -31,8 +31,44 @@
                                 <td>{{ row.mobile }}</td> 
                                 <td>{{ row.post }}</td>
                                 <td>{{ row.time_taken }}</td>
-                                <td>{{ row.performance_level }}</td>
-                                <td>{{ row.it_performance_level }}</td>                                                                
+                                <td 
+                                  {% if row.performance_level == "Excellent" %}
+                                    style="color: #2ecc71;"
+                                  {% elif row.performance_level == "Very Good" %}
+                                    style="color: #27ae60;"
+                                  {% elif row.performance_level == "Good" %}
+                                    style="color: #f1c40f;"
+                                  {% elif row.performance_level == "Average" %}
+                                    style="color: #e67e22;"
+                                  {% elif row.performance_level == "Below Average" %}
+                                    style="color: #d35400;"
+                                  {% elif row.performance_level == "Poor" %}
+                                    style="color: #e74c3c;"
+                                  {% endif %}
+                                >
+                                  {{ row.performance_level }}
+                                </td>
+                                
+                                <!-- <td>{{ row.performance_level }}</td> -->
+                                <td 
+                                  {% if row.it_performance_level == "Excellent" %}
+                                    style="color: #2ecc71;"
+                                  {% elif row.it_performance_level == "Very Good" %}
+                                    style="color: #27ae60;"
+                                  {% elif row.it_performance_level == "Good" %}
+                                    style="color: #f1c40f;"
+                                  {% elif row.it_performance_level == "Average" %}
+                                    style="color: #e67e22;"
+                                  {% elif row.it_performance_level == "Below Average" %}
+                                    style="color: #d35400;"
+                                  {% elif row.it_performance_level == "Poor" %}
+                                    style="color: #e74c3c;"
+                                  {% endif %}
+                                >
+                                  {{ row.it_performance_level }}
+                                </td>
+
+                                <!-- <td>{{ row.it_performance_level }}</td>                                                                 -->
                                 <!-- <td>{{ row.status }}</td> -->
                                 <!-- <td>
                                     {% if row.status == "pass" %}
@@ -43,9 +79,9 @@
                                 </td>                                  -->
                                 <td>{{ row.created_at }}</td>
                                 <td>
-                                  <a href="#" class="btn btn-sm btn-primary" style="margin-right:3%;">Form</a> 
-                                  <a href="#" class="btn btn-sm btn-primary" style="margin-right:3%;">Result</a> 
-                                  <a href="#" class="btn btn-sm btn-primary" style="margin-right:3%;">Answers</a> 
+                                  <a href="/view_candidate_details?id={{ row.Encryp }}" class="btn btn-sm btn-primary" style="margin-right:3%;">Details</a> 
+                                  <a href="/result_page?cname={{ row.Encryp }}&type=adpg" class="btn btn-sm btn-primary" style="margin-right:3%;">Result</a> 
+                                  <a href="view_candidate_answersheet?id={{ row.Encryp }}" class="btn btn-sm btn-primary" style="margin-right:3%;">Answers</a> 
                                 </td>                                 
                             </tr>
                         {% endfor %}

@@ -152,8 +152,13 @@
               </div>                            
               
               <div style ="text-align:center;margin-top:3%">
+                {% if typeofscreen == "adpg" %}                
+                <button style="width:15%;padding:0.7%" type="button" class="btn btn-sm btn-primary" onclick="history.back()">Go Back</button>
+                {%else%}
                 <button style="width:15%;padding:0.7%" type="button"  class="btn btn-sm btn-primary" onclick="window.location.href='{% url 'logout' %}'">Done</button>
-              </div>              
+                {%endif%}
+              </div>  
+
 
           </div>
       </div>

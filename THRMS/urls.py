@@ -222,7 +222,9 @@ urlpatterns = [
     path("partial_details_index_onpageload",partial_details_index_onpageload, name="partial_details_index_onpageload"),
     path("download_candidate_excel",download_candidate_excel, name="download_candidate_excel"),
     path("candidate_index",candidate_index, name="candidate_index"),
-    path("edit_candidate",edit_candidate, name="edit_candidate"),             
+    path("edit_candidate",edit_candidate, name="edit_candidate"),
+    path("view_candidate_details",view_candidate_details, name="view_candidate_details"),
+    path("view_candidate_answersheet",view_candidate_answersheet, name="view_candidate_answersheet"),                 
 
 # masters
 
