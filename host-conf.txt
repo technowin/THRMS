@@ -170,5 +170,3 @@ python manage.py startapp Workflow
 git config --global user.name "technowin"
 git config --global user.email "technowinitinfra@gmail.com"
 git remote add origin https://github.com/technowin/THRMS.git 
-
-test
