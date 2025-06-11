@@ -23,7 +23,8 @@ class CandidateTestMaster(models.Model):
     it_marks_received =  models.IntegerField(null=True)
     it_out_of = models.IntegerField(null=True)        
     it_percentage = models.CharField(max_length=255,null=True)
-    it_performance_level = models.CharField(max_length=255,null=True)    
+    it_performance_level = models.CharField(max_length=255,null=True)
+    candidate_id = models.IntegerField(null=True)        
 
                             
     class Meta:
