@@ -260,7 +260,7 @@
                                         {% if type == "create" %}
                                             onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
                                             {% elif  type == "reference" %}
-                                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }})"
+                                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }},{{form.id}})"
                         
                                         {% else %}
                                             onclick="showScript({{ form_data_id }}, {{ field.id }})"
@@ -277,11 +277,8 @@
                                     <i class="fa-solid fa-eye eye-icon"
                                     {% if type == "create" %}
                                         onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
-                                        {% elif type == "reference"%}
-                                        onclick="showScript( {{ matched_form_data_id }}, {{ field.id }})"
-                                        
                                     {% else %}
-                                        onclick="showScript( {{ form_data_id }}, {{ field.id }})"
+                                        onclick="showScript( {{ form_data_id }}, {{ field.id }},{{form.id}})"
                                     {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
                                     </i>
                                 </div>
@@ -468,7 +465,7 @@
 
         let selectedNewFiles = []; // Global array to store new files
 
-        function showScript(form_data_id, field_id) {
+        function showScript(form_data_id, field_id,form_id) {
             
             
             const inputElement = document.getElementById('file_input_' + field_id);
@@ -484,6 +481,7 @@
                 data: {
                     field_id: field_id,
                     form_data_id: form_data_id,
+                    form_id:form_id,
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success: function (data) {
