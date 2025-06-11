@@ -80,12 +80,14 @@ def form_builder(request):
         master_dropdown = list(MasterDropdownData.objects.values("id", "name", "query"))
         form_names = list(Form.objects.values("id","name"))
         section = list(SectionMaster.objects.values("id","name"))
+        modules = ModuleMaster.objects.all()
         # version_fields = [field.name for field in WorkflowVersionControl._meta.fields if field.name == 'file_name']
         # version = [name.replace('_', ' ').title() for name in version_fields]
 
 
         if not form_id:
             return render(request, "Form/form_builder.html", {
+                "modules":modules,
                 "regex": json.dumps(regex),
                 "dropdown_options": json.dumps(dropdown_options),
                 "common_options": json.dumps(common_options),
@@ -159,6 +161,7 @@ def form_builder(request):
 
     return render(request, "Form/form_builder.html", {
         "form": form,
+        "modules":modules,
         "regex": json.dumps(regex),
         "form_fields_json": form_fields_json,
         "dropdown_options": json.dumps(dropdown_options),
@@ -184,7 +187,10 @@ def save_form(request):
         if request.method == "POST":
             form_name = request.POST.get("form_name")
             form_description = request.POST.get("form_description")
+            module = request.POST.get("module")
             form_data_json = request.POST.get("form_data")
+
+            table_name = get_object_or_404(ModuleMaster,id = module).table_name
 
             if not form_data_json:
                 return JsonResponse({"error": "No form data received"}, status=400)
@@ -195,7 +201,7 @@ def save_form(request):
                 return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
             
-            form = Form.objects.create(name=form_name, description=form_description)
+            form = Form.objects.create(name=form_name, description=form_description, module=module)
             index = 0
             generative_fields = [] 
 
@@ -324,7 +330,7 @@ def save_form(request):
 
 
 
-            callproc('create_dynamic_form_views')
+            callproc('create_dynamic_form_views',[table_name])
             messages.success(request, "Form and fields saved successfully!!")
             new_url = f'/masters?entity=form&type=i'
             return redirect(new_url) 
@@ -348,7 +354,10 @@ def update_form(request, form_id):
         if request.method == "POST":
             form_name = request.POST.get("form_name")
             form_description = request.POST.get("form_description")
+            module = request.POST.get("module")
             form_data_json = request.POST.get("form_data")
+
+            table_name = get_object_or_404(ModuleMaster,id = module).table_name
 
             if not form_data_json:
                 return JsonResponse({"error": "No form data received"}, status=400)
@@ -364,6 +373,7 @@ def update_form(request, form_id):
             form = get_object_or_404(Form, id=form_id)
             form.name = form_name
             form.description = form_description
+            form.module = module
             updated_by = request.session.get('user_id', '').strip()
             form.save()
             index = 0
@@ -563,7 +573,7 @@ def update_form(request, form_id):
                     FormField.objects.filter(id__in=removed_field_ids).delete()
            
 
-            callproc('create_dynamic_form_views')
+            callproc('create_dynamic_form_views',[table_name])
             messages.success(request, "Form updated successfully!!")
             return redirect('/masters?entity=form&type=i')
     except Exception as e:
@@ -1034,8 +1044,7 @@ def common_form_post(request):
         editORcreate  = request.POST.get('editORcreate','')
         firstStep = request.POST.get("firstStep")
 
-        form_dataID = form_data.id
-        first_field_checked = False
+        
 
 
         # form_id = request.POST.get(form_id_key, '').strip()
@@ -1052,6 +1061,8 @@ def common_form_post(request):
         form_data.req_no = f"REQNO-00{form_data.id}"
         form_data.created_by = user
         form_data.save()
+
+        form_dataID = form_data.id
 
         # Process each field
         for key, value in request.POST.items():
@@ -1985,9 +1996,17 @@ def get_field_names(request):
 
 def show_form(request):
     user  = request.session.get('user_id', '')
-    role = request.session.get('role_id')
+    role = str(request.session.get('role_id'))
     try:            
-        workflow = get_object_or_404(workflow_matrix, role_id=role)
+        workflows = workflow_matrix.objects.all()
+
+        # Filter in Python since DB collation doesn't allow regex
+        workflow = None
+        for wf in workflows:
+            role_ids = [r.strip() for r in wf.role_id.split(',')]
+            if role in role_ids:
+                workflow = wf
+                break
         form_ids = workflow.form_id.split(",")  # Multiple form IDs
         action_id = workflow.button_type_id
 
@@ -2084,6 +2103,7 @@ def show_form(request):
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         fun = tb[0].name
+        print(e)
         callproc("stp_error_log", [fun, str(e), user])
         messages.error(request, 'Oops...! Something went wrong!')
         return JsonResponse({"error": "Something went wrong!"}, status=500)

@@ -622,6 +622,11 @@ def candidate_index(request):
                 id=OuterRef('post') 
             ).values('post')[:1]
 
+            forms = callproc("stp_get_forms",['view_form'])  
+            sf =  'view_form_Candidate_Form_I' 
+            header = callproc("stp_get_view_form_header",[sf])          
+            rows = callproc("stp_get_view_forms",[sf])   
+
             # Annotate queryset with post name
             # queryset = CandidateTestMaster.objects.annotate(
             #     post_name=Subquery(post_name_subquery)
@@ -630,7 +635,7 @@ def candidate_index(request):
             # Get the latest candidate record (by ID) for created_by=24 and status=2
             queryset = CandidateTestMaster.objects.filter(
                 created_by=user,
-                status='1'  # Use 2 if it's an IntegerField, '2' if it's CharField
+                status='4'  # Use 2 if it's an IntegerField, '2' if it's CharField
             ).order_by('-id').annotate(
                 post_name=Subquery(post_name_subquery)
             )[:1]  # Limit to 1 record
@@ -665,7 +670,7 @@ def candidate_index(request):
         m.close()
         Db.closeConnection()
         if request.method == "GET":
-            return render(request, "Test/candidate_index.html",{'data': candidate_data,'last_status':last_status})
+            return render(request, "Test/candidate_index.html",{'data': candidate_data,'last_status':last_status,'forms':forms,'rows':rows,'header':header})
         
 @login_required
 def test_page(request):

@@ -58,6 +58,7 @@ class workflow_matrix(models.Model):
     updated_at = models.DateTimeField(null=True, blank=True)               
     updated_by = models.TextField(null=True, blank=True) 
     status = models.TextField(null=True, blank=True)
+    module = models.IntegerField(null=True,blank=True)
     step_id_flow = models.IntegerField(null=True, blank=True)
     status_color = models.TextField(null=True, blank=True)
     class Meta:

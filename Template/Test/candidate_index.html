@@ -44,17 +44,17 @@
 
                     </div>                     
                     <div class="col-md-3">                         
-                      {% if last_status != 1 and last_status != 2 %}
+                      {% comment %} {% if last_status != 1 and last_status != 2 %}
                           <a href="/enterthedetails" class="btn btn-primary" style="width:60%;border-radius:15px;padding:2% 2%;">
                               Fill Form
                           </a> 
-                      {% endif %}                      
+                      {% endif %}                       {% endcomment %}
 
-                       {% comment %} {% if last_status != 1 and last_status != 2 %}
+                       {% if last_status != 1 and last_status != 2 %}
                           <a href="/show_form" class="btn btn-primary" style="width:60%;border-radius:15px;padding:2% 2%;">
                               Fill Form
                           </a> 
-                      {% endif %}  {% endcomment %}
+                      {% endif %} 
 
                       <!-- <div style="text-align:center;">
                         <button style="width:60%; padding:2% 2%;border-radius:15px;font-size:1.1em" type="button" onclick="get_results()" class="btn btn-sm btn-primary">Fill Form</button>
@@ -67,6 +67,49 @@
                <div class="card-body">
                 <div class="table-responsive">
                   <table style="width: 100%;"  class="table"  id="dataTable">   
+                       <thead>
+                        <tr>
+                          {% for col in header %}
+                              {% if not forloop.first %}
+                                  <th style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th>
+                              {% endif %}
+                          {% endfor %}
+                      </tr>
+                      <tr>
+                          {% for col in header %}
+                              {% if not forloop.first %}
+                                  <th> </th>
+                              {% endif %}
+                          {% endfor %}
+                      </tr>
+                      
+                       </thead>
+                       <tbody>
+                        {% for row in data %}
+                            <tr style="color:black">
+                                <td>{{ forloop.counter }}</td>
+                                {% for cell in row %}
+                                    {% if not forloop.first %}
+                                        <td>
+                                            {% if cell|length > 60 %}
+                                                <!-- <textarea rows="4" readonly>{{ cell }}</textarea>  -->
+                                                {{ cell }}
+                                            {% else %}
+                                                {{ cell }}
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                                 <td>
+                                    <a href="/edit_candidate?id={{ row.Encryp }}" class="btn btn-sm btn-primary" style="margin-right:3%;">Edit</a> 
+                                    <a href="/test_page?id={{ row.Encryp }}&post_id={{row.post}}" class="btn btn-sm btn-primary">Start Test</a>                                   
+                                </td> 
+                                
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                   </table>
+                  {% comment %} <table style="width: 100%;"  class="table"  id="dataTable">   
                        <thead>
                         <tr>
                             <th style="font-weight: bold; color: black;">Candidate Name</th>
@@ -113,7 +156,7 @@
                             </tr>
                         {% endfor %}
                     </tbody>
-                   </table>
+                   </table> {% endcomment %}
                 </div>
                </div>
 

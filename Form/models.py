@@ -29,6 +29,7 @@ class FormMaster(models.Model):
 class Form(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    module = models.IntegerField(blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -253,6 +254,7 @@ class CandidateDetails(models.Model):
     form_data = models.ForeignKey('Form.FormData',null=True, blank=True, on_delete=models.CASCADE, related_name='form_cand_value_id')
     field = models.ForeignKey('Form.FormField',null=True, blank=True,on_delete=models.CASCADE, related_name='field_cand_value_id')
     value = models.TextField(null=True, blank=True)
+    candidate_id = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -315,6 +317,16 @@ class FormFileChaya(models.Model):
     updated_by =  models.TextField(null=True, blank=True)
     class Meta:
         db_table = 'form_file_chaya'
+
+class ModuleMaster(models.Model):
+    name = models.TextField(null=True, blank=True)
+    table_name = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'module_master'
 
 
 

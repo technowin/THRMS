@@ -146,25 +146,38 @@
     <form method="POST" action="{% if form %}{% url 'update_form' form.id %}{% else %}{% url 'save_form' %}{% endif %}" class="row col-md-12" id="main-form"
             tyle="padding: 20px; border: 2px solid #b3b3b3; border-radius: 15px; text-align:center">
         {% csrf_token %}
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label>Form Name:</label>
             <input type="text" onchange="DublicateformName()" pattern="^[A-Za-z ]+$" placeholder="Enter Form Name" class="form-control" name="form_name" id="form_name" value="{{ form.name }}" required>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label>Form Description:</label>
             <input type="text" placeholder="Enter Form Description"class="form-control" name="form_description" value="{{ form.description }}">
         </div>
+
+         <div class="col-md-2"> 
+             <label>Select Module :</label>
+            <select name="module" id="moduleDropdown" class="form-control select">
+                <option value="" Selected disabled >Select</option>
+                    {% for item in modules %}
+                            <option value="{{ item.id }}" {% if item.id == form.module %}selected{% endif %}>
+                                {{ item.name }}
+                            </option>
+                    {% endfor %}
+            </select>
+        </div>
+
 
         <input type="hidden" name="form_data" id="form-data-input">
 
 
 
-        <div class="col-md-2 mt-3">
+       <div class="col-md-2 mt-3 text-center">
             <button type="submit" id="btnSubmit" class="btn btn-primary mt-3">{% if form %}Update {% else %}Save {% endif %}Form</button>
         </div>
 
-        <div class="col-md-2 mt-3">
+        <div class="col-md-2 mt-3 text-center">
             <button type="button" class="btn btn-secondary mt-3" data-toggle="modal" data-target="#livePreviewModal">
                 Live Preview
             </button>
