@@ -29,6 +29,7 @@ class FormMaster(models.Model):
 class Form(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    module = models.IntegerField(blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -248,17 +249,47 @@ class SectionMaster(models.Model):
     class Meta:
         db_table = 'section_master'
 
-class CandidateDetails(models.Model):
+class candidate_data(models.Model):
+    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='candidate_data_id')
+    action = models.ForeignKey('Form.FormAction',null=True, blank=True,on_delete=models.CASCADE, related_name='candidate_action_id')
+    req_no = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'candidate_data'
+
+
+class candidate_details(models.Model):
     form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='form_cand_data')
-    form_data = models.ForeignKey('Form.FormData',null=True, blank=True, on_delete=models.CASCADE, related_name='form_cand_value_id')
+    form_data = models.ForeignKey('Form.candidate_data',null=True, blank=True, on_delete=models.CASCADE, related_name='form_cand_value_id')
     field = models.ForeignKey('Form.FormField',null=True, blank=True,on_delete=models.CASCADE, related_name='field_cand_value_id')
+    primary_key = models.TextField(null=True, blank=True)
     value = models.TextField(null=True, blank=True)
+    candidate_id = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     updated_by =  models.TextField(null=True, blank=True)
     class Meta:
         db_table = 'candidate_details'
+
+
+class candidate_file(models.Model):
+    file_name = models.TextField(null=True, blank=True)
+    uploaded_name = models.TextField(null=True, blank=True)
+    file_path = models.TextField(null=True, blank=True)
+    file = models.ForeignKey('Form.candidate_details',null=True, blank=True, on_delete=models.CASCADE, related_name='cand_id')
+    form = models.ForeignKey('Form.Form',null=True, blank=True, on_delete=models.CASCADE, related_name='cand_filr_id')
+    field = models.ForeignKey('Form.FormField',null=True, blank=True,  on_delete=models.CASCADE, related_name='cand_file_id')
+    form_data = models.ForeignKey('Form.candidate_data',null=True, blank=True, on_delete=models.CASCADE, related_name='cand_data_id')
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'candidate_file'
 
 class FormFieldValuesChaya(models.Model):
     form_id =models.TextField(blank=True, null=True)
@@ -315,6 +346,18 @@ class FormFileChaya(models.Model):
     updated_by =  models.TextField(null=True, blank=True)
     class Meta:
         db_table = 'form_file_chaya'
+
+class ModuleMaster(models.Model):
+    name = models.TextField(null=True, blank=True)
+    index_table = models.TextField(null=True,blank=True)
+    file_table =models.TextField(null=True,blank=True)
+    data_table = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_by =  models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    updated_by =  models.TextField(null=True, blank=True)
+    class Meta:
+        db_table = 'module_master'
 
 
 

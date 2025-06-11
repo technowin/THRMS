@@ -231,7 +231,13 @@
                                         {% if field.field_type == 'file multiple' %}multiple{% endif %}
                                         class="form-control custom-file-input" style="padding-right: 100px;" id="file_input_{{ field.id }}"
                                         {% for attr in field.attributes %}{{ attr }}{% endfor %}>
-                                        <i class="fa-solid fa-eye eye-icon" onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"></i>
+                                        <i class="fa-solid fa-eye eye-icon"
+                                        {% if type == "create" %}
+                                            onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
+                                        {% else %}
+                                            onclick="showScript( {{ form_data_id }}, {{ field.id }},{{form.id}})"
+                                        {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
+                                        </i>
                                     </div>
 
                                     {% elif field.field_type == "textarea" %}
@@ -392,8 +398,8 @@
 
         let selectedNewFiles = []; // Global array to store new files
 
-        function showScript(form_data_id, field_id) {
-            
+        function showScript(form_data_id, field_id,form_id) {
+            debugger;
             
             const inputElement = document.getElementById('file_input_' + field_id);
             const newFiles = inputElement.files;
@@ -408,6 +414,7 @@
                 data: {
                     field_id: field_id,
                     form_data_id: form_data_id,
+                    form_id:fomr_id,
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success: function (data) {
@@ -651,6 +658,7 @@
 
     document.querySelectorAll('.submit-btn').forEach(button => {
         button.addEventListener('click', function () {
+            debugger;
             
             const buttonType = this.getAttribute('data-button-type');
             const actionId = this.getAttribute('data-action-id');
