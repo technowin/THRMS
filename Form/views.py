@@ -1029,7 +1029,7 @@ def form_master(request):
                     # ✅ Fetch action fields (no validations needed)
                     
                     if edit_type == "edit_type":
-                        return render(request, "Form/_formfieldsedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id})
+                        return render(request, "Form/_formfieldsedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id,"edit_type":edit_type})
                     else:
                         return render(request, "Form/_formfieldedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id})
             else:
@@ -1237,6 +1237,7 @@ def common_form_edit(request):
 
     user = request.session.get('user_id', '')
     workflow_YN = request.POST.get("workflow_YN")
+    edit_type = request.POST.get("edit_type")
     
     try:
         if request.method != "POST":
@@ -1245,8 +1246,17 @@ def common_form_edit(request):
         form_data_id = request.POST.get("form_data_id")
         if not form_data_id:
             return JsonResponse({"error": "form_data_id is required"}, status=400)
+        
+        form = get_object_or_404(Form, id=request.POST.get("form_id"))
 
-        form_data = get_object_or_404(FormData, id=form_data_id)
+        module_id = form.module
+        module_tables = common_module_master(module_id)
+
+        IndexTable = apps.get_model('Form', module_tables["index_table"])
+        DataTable = apps.get_model('Form', module_tables["data_table"])
+        FileTable = apps.get_model('Form', module_tables["file_table"])
+
+        form_data = get_object_or_404(IndexTable, id=form_data_id)
         form_data.updated_by = user
         form_data.save()
 
@@ -1274,7 +1284,7 @@ def common_form_edit(request):
                     continue
 
                 # Check if a value already exists for this field
-                existing_value = FormFieldValues.objects.filter(
+                existing_value = DataTable.objects.filter(
                     form_data=form_data, form=form, field=field
                 ).first()
 
@@ -1284,7 +1294,7 @@ def common_form_edit(request):
                     existing_value.save()
                 else:
                     # Create new entry
-                    FormFieldValues.objects.create(
+                    DataTable.objects.create(
                         form_data=form_data,
                         form=form,
                         field=field,
@@ -1295,7 +1305,7 @@ def common_form_edit(request):
 
 
         # ✅ File upload logic goes here
-        handle_uploaded_files(request, form_name, created_by, form_data, user)
+        handle_uploaded_files(request, form_name, created_by, form_data, user,module_id)
         messages.success(request, "Form data updated successfully!")
         if workflow_YN == '1E':
         
@@ -1403,6 +1413,8 @@ def common_form_edit(request):
         #return redirect("/masters?entity=form_master&type=i")
         if workflow_YN == '1E':
             return redirect('workflow_starts')
+        if edit_type == 'edit_type':
+            return redirect('candidate_index')
         else:
             return redirect("/masters?entity=form_master&type=i")
 

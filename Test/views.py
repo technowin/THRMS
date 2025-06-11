@@ -1,12 +1,14 @@
 import json
 import pydoc
 import re
+from django.apps import apps
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate, login ,logout,get_user_model
 from Account.forms import RegistrationForm
 from Account.models import *
+from Form.views import common_module_master
 from Masters.models import *
 import Db 
 import bcrypt
@@ -621,11 +623,22 @@ def candidate_index(request):
             post_name_subquery = PostMaster.objects.filter(
                 id=OuterRef('post') 
             ).values('post')[:1]
+            table_data = []
+
+            module_id = form.module
+            module_tables = common_module_master(module_id)
+
+            IndexTable = apps.get_model('Form', module_tables["index_table"])
+            DataTable = apps.get_model('Form', module_tables["data_table"])
+            FileTable = apps.get_model('Form', module_tables["file_table"])
 
             forms = callproc("stp_get_forms",['view_form'])  
             sf =  'view_form_Candidate_Form_I' 
             header = callproc("stp_get_view_form_header",[sf])          
-            rows = callproc("stp_get_view_forms",[sf])   
+            rows = callproc("stp_get_view_forms",[sf]) 
+            for row in rows:
+                encrypted_id = enc(str(row[0]))
+                table_data.append((encrypted_id,) + row[1:])  
 
             # Annotate queryset with post name
             # queryset = CandidateTestMaster.objects.annotate(
@@ -648,7 +661,7 @@ def candidate_index(request):
                     'name': item.name,
                     'mobile':item.mobile,
                     'email': item.email,
-                    'post': item.post_name,                    
+                    'post': item.post_name,
                     'status': item.status,
                     'percentage': item.percentage,
                     'time_taken': item.time_taken,
@@ -670,7 +683,7 @@ def candidate_index(request):
         m.close()
         Db.closeConnection()
         if request.method == "GET":
-            return render(request, "Test/candidate_index.html",{'data': candidate_data,'last_status':last_status,'forms':forms,'rows':rows,'header':header})
+            return render(request, "Test/candidate_index.html",{'data': candidate_data,'last_status':last_status,'forms':forms,'rows':rows,'header':header,'table_data':table_data})
         
 @login_required
 def test_page(request):

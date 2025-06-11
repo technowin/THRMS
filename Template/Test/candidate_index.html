@@ -85,7 +85,7 @@
                       
                        </thead>
                        <tbody>
-                        {% for row in rows %}
+                        {% for row in table_data %}
                             <tr style="color:black">
                                 <td>{{ forloop.counter }}</td>
                                 {% for cell in row %}
@@ -101,8 +101,8 @@
                                     {% endif %}
                                 {% endfor %}
                                  <td>
-                                    <a href="/edit_candidate?id={{ row.Encryp }}" class="btn btn-sm btn-primary" style="margin-right:3%;">Edit</a> 
-                                    <a href="/test_page?id={{ row.Encryp }}&post_id={{row.post}}" class="btn btn-sm btn-primary">Start Test</a>                                   
+                                    <a href="/form_master?form={{ row.0 }}&type=edit_type" class="btn btn-sm btn-primary" style="margin-right:3%;">Edit</a> 
+                                    <a href="/test_page?id={{ row.0 }}&post_id={{row.post}}" class="btn btn-sm btn-primary">Start Test</a>                                   
                                 </td> 
                                 
                             </tr>
