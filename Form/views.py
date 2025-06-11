@@ -35,6 +35,8 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Q, Count
 
+from django.apps import apps
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -180,6 +182,8 @@ def format_label(label):
 
 
 
+
+
 @csrf_exempt
 def save_form(request):
     user  = request.session.get('user_id', '')
@@ -190,7 +194,7 @@ def save_form(request):
             module = request.POST.get("module")
             form_data_json = request.POST.get("form_data")
 
-            table_name = get_object_or_404(ModuleMaster,id = module).table_name
+            table_name = get_object_or_404(ModuleMaster,id = module).data_table
 
             if not form_data_json:
                 return JsonResponse({"error": "No form data received"}, status=400)
@@ -357,7 +361,7 @@ def update_form(request, form_id):
             module = request.POST.get("module")
             form_data_json = request.POST.get("form_data")
 
-            table_name = get_object_or_404(ModuleMaster,id = module).table_name
+            table_name = get_object_or_404(ModuleMaster,id = module).data_table
 
             if not form_data_json:
                 return JsonResponse({"error": "No form data received"}, status=400)
@@ -1029,6 +1033,19 @@ def form_master(request):
         return JsonResponse({"error": "Something went wrong!"}, status=500)
     
 
+def common_module_master(module_id):
+    try: # assuming this is the field that links Form to ModuleMaster
+        module = get_object_or_404(ModuleMaster, id=module_id)
+
+        return {
+            "index_table": module.index_table,  # this should be the model class or its name
+            "data_table": module.data_table,
+            "file_table": module.file_table,
+        }
+    except Exception as e:
+        raise Exception(f"Error in retrieving module tables: {str(e)}")
+
+
 def common_form_post(request):
     user = request.session.get('user_id', '')
     try:
@@ -1043,22 +1060,25 @@ def common_form_post(request):
         form_id = request.POST.get("form_id")
         editORcreate  = request.POST.get('editORcreate','')
         firstStep = request.POST.get("firstStep")
-
-        
-
-
         # form_id = request.POST.get(form_id_key, '').strip()
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
+        module_id = form.module
+        module_tables = common_module_master(module_id)
+
+        IndexTable = apps.get_model('Form', module_tables["index_table"])
+        DataTable = apps.get_model('Form', module_tables["data_table"])
+        FileTable = apps.get_model('Form', module_tables["file_table"])
+
 
         if type != 'master':
             # action_id = request.PSOT.get("action_id")action_id = request.POST.get(action_id_key, '').strip()
             action = get_object_or_404(FormAction,id  = request.POST.get("action_id") )
 
         if type == 'master':
-            form_data = FormData.objects.create(form=form)
+            form_data = IndexTable.objects.create(form=form)
         else:
-            form_data = FormData.objects.create(form=form,action=action)
-        form_data.req_no = f"REQNO-00{form_data.id}"
+            form_data = IndexTable.objects.create(form=form,action=action)
+        form_data.req_no = f"UNIQ-00{form_data.id}"
         form_data.created_by = user
         form_data.save()
 
@@ -1069,6 +1089,10 @@ def common_form_post(request):
             if key.startswith("field_id_"):
                 field_id = value.strip()
                 field = get_object_or_404(FormField, id=field_id)
+                primary = field.is_primary
+
+                if field.field_type == "generative":            
+                    continue
 
 
                 if field.field_type == "select multiple" or field.field_type == "multiple":
@@ -1077,13 +1101,13 @@ def common_form_post(request):
                 else:
                     input_value = request.POST.get(f"field_{field_id}", "").strip()
 
-                
-                FormFieldValues.objects.create(
-                    form_data=form_data,form=form, field=field, value=input_value, created_by=created_by
+            
+                DataTable.objects.create(
+                    form_data=form_data,form=form, field=field, value=input_value,primary_key=primary, created_by=created_by
                 )
                
-        handle_uploaded_files(request, form_name, created_by, form_data, user)
-        handle_generative_fields(form, form_data, created_by)
+        handle_uploaded_files(request, form_name, created_by, form_data, user,module_id)
+        handle_generative_fields(form, form_data, created_by ,module_id)
 
         messages.success(request, "Form data saved successfully!")
         if workflow_YN == '1':
@@ -1372,7 +1396,7 @@ def common_form_edit(request):
             return redirect("/masters?entity=form_master&type=i")
 
     
-def handle_generative_fields(form, form_data, created_by):
+def handle_generative_fields(form, form_data, created_by, module_id):
     generative_fields = FormField.objects.filter(form=form, field_type="generative")
 
     for field in generative_fields:
@@ -1384,6 +1408,12 @@ def handle_generative_fields(form, form_data, created_by):
             no_of_zero = int(gen_settings.no_of_zero or '0')
             increment = int(gen_settings.increment or '1')
 
+            module_tables = common_module_master(module_id)
+
+            IndexTable = apps.get_model('Form', module_tables["index_table"])
+            DataTable = apps.get_model('Form', module_tables["data_table"])
+            FileTable = apps.get_model('Form', module_tables["file_table"])
+
             # Gather values from previously saved fields
             selected_values = []
             for sel_id in selected_ids:
@@ -1391,7 +1421,7 @@ def handle_generative_fields(form, form_data, created_by):
                 if not selected_field:
                     continue
 
-                value_obj = FormFieldValues.objects.filter(
+                value_obj = DataTable.objects.filter(
                     form_data=form_data,
                     form=form,
                     field=selected_field
@@ -1405,7 +1435,7 @@ def handle_generative_fields(form, form_data, created_by):
             final_value = f"{prefix}-{base_part}-{padded_number}{increment}"
 
             # Save the generated value
-            FormFieldValues.objects.create(
+            DataTable.objects.create(
                 form_data=form_data,
                 form=form,
                 field=field,
@@ -1418,7 +1448,7 @@ def handle_generative_fields(form, form_data, created_by):
 
     
 
-def handle_uploaded_files(request, form_name, created_by, form_data, user):
+def handle_uploaded_files(request, form_name, created_by, form_data, user,module_id):
     try:
         for field_key, uploaded_files in request.FILES.lists():
             if not field_key.startswith("field_"):
@@ -1426,6 +1456,12 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
 
             field_id = field_key.split("_")[-1].strip()
             field = get_object_or_404(FormField, id=field_id)
+
+            module_tables = common_module_master(module_id)
+
+            IndexTable = apps.get_model('Form', module_tables["index_table"])
+            DataTable = apps.get_model('Form', module_tables["data_table"])
+            FileTable = apps.get_model('Form', module_tables["file_table"])
 
             file_dir = os.path.join(settings.MEDIA_ROOT, form_name, created_by, form_data.req_no)
             os.makedirs(file_dir, exist_ok=True)
@@ -1442,7 +1478,7 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
 
                 if is_multiple:
                     # Check if this file name already exists
-                    existing_file = FormFile.objects.filter(
+                    existing_file = FileTable.objects.filter(
                         form_data=form_data,
                         field=field,
                         uploaded_name=uploaded_file_name
@@ -1465,7 +1501,7 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
 
                 else:
                     # 🔥 Single file logic: Delete old one (if any) for this field + form_data
-                    existing_files = FormFile.objects.filter(form_data=form_data, field=field)
+                    existing_files = FileTable.objects.filter(form_data=form_data, field=field)
                     for old_file in existing_files:
                         old_file_path = os.path.join(settings.MEDIA_ROOT, old_file.file_path)
                         if os.path.exists(old_file_path):
@@ -1477,7 +1513,7 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
                     for chunk in uploaded_file.chunks():
                         destination.write(chunk)
 
-                form_file = FormFile.objects.create(
+                form_file = FileTable.objects.create(
                     file_name=saved_file_name,
                     uploaded_name=uploaded_file_name,
                     file_path=relative_file_path,
@@ -1488,7 +1524,7 @@ def handle_uploaded_files(request, form_name, created_by, form_data, user):
                     field=field
                 )
                  
-                form_field_value = FormFieldValues.objects.filter(
+                form_field_value = DataTable.objects.filter(
                     form_id=form_data.form.id,
                     field_id=field.id,
                     form_data = form_data
