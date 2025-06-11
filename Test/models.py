@@ -23,7 +23,9 @@ class CandidateTestMaster(models.Model):
     it_marks_received =  models.IntegerField(null=True)
     it_out_of = models.IntegerField(null=True)        
     it_percentage = models.CharField(max_length=255,null=True)
-    it_performance_level = models.CharField(max_length=255,null=True)    
+    it_performance_level = models.CharField(max_length=255,null=True)
+    candidate_id = models.TextField(null=True)
+    form_data_id = models.IntegerField(null=True)            
 
                             
     class Meta:
@@ -58,7 +60,7 @@ class QuestionAnswerMaster(models.Model):
         
 class CandidateAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    candidate_id = models.IntegerField(null=True)
+    candidate_id = models.TextField(null=True)
     post = models.IntegerField(null=True)
     question_id = models.IntegerField(null=True)
     candidates_answer = models.CharField(max_length=255,null=True)
@@ -108,7 +110,7 @@ class PerformanceMaster(models.Model):
 class TemporaryQuestion(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.IntegerField(null=True)    
-    candidate_id = models.IntegerField(null=True) 
+    candidate_id = models.TextField(null=True) 
     question_ids =  models.TextField(null=True)
     status = models.IntegerField(null=True)
     created_at = models.DateTimeField(null=True)
