@@ -414,6 +414,8 @@ def partial_details_index(request):
                     'performance_level': row[9],
                     'it_performance_level': row[10],                    
                     'Encryp': enc(str(row[0])),
+                    'enc_candidate_id': enc(str(row[11])),
+                    'enc_form_data_id': enc(str(row[12])),                    
                 }
                 for row in candidate_details
             ]
@@ -466,6 +468,8 @@ def partial_details_index_onpageload(request):
                     'performance_level': row[9],
                     'it_performance_level': row[10],
                     'Encryp': enc(str(row[0])),
+                    'enc_candidate_id': enc(str(row[11])),
+                    'enc_form_data_id': enc(str(row[12])),                    
                 }
                 for row in candidate_details
             ]
@@ -1066,7 +1070,7 @@ def view_candidate_answersheet(request):
         if request.method == "GET":        
             candidate_id1 = request.GET.get("id", "")
             candidate_id = dec(candidate_id1)  # decrypt if needed
-            candidate_name = CandidateTestMaster.objects.get(id=candidate_id).name                        
+            candidate_name = CandidateTestMaster.objects.get(candidate_id=candidate_id).name                        
             para=[candidate_id]
             
             cursor.callproc("stp_getCandidateAnswer", para)
