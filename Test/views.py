@@ -294,7 +294,7 @@ def result_page(request):
                 typeofscreen=None                              
             candidate_id=dec(candidate_id1)       
             # Fetch the candidate record by ID and get specific fields
-            candidate = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'time_taken', 'percentage', 'performance_level', 'it_percentage', 'it_performance_level').first()
+            candidate = CandidateTestMaster.objects.filter(candidate_id=candidate_id).values('name', 'time_taken', 'percentage', 'performance_level', 'it_percentage', 'it_performance_level').first()
 
             # Initialize variables to None in case no record is found
             name = time_taken = percentage = status = None
@@ -715,11 +715,26 @@ def test_page(request):
             redir_path=None
             start_time1 = timezone.now()
             start_time = enc(str(start_time1))
-            candidate_id1 = request.GET.get("id", "")
-            candidate_id=dec(candidate_id1)
+            form_data_id1 = request.GET.get("id", "")
+            form_data_id=dec(form_data_id1)
+            
+            parameter_for = [form_data_id]
+            cursor.callproc("stp_getPostOfCandidate",parameter_for)
+            for result in cursor.stored_results():
+                post_list = result.fetchall()
+                post_id = post_list[3][0]  
+                
+            po_id = post_id
+            
+            cursor.callproc("stp_getCandidateId",parameter_for)
+            for result3 in cursor.stored_results():
+                post_list3 = result3.fetchall()
+                candidate_id = post_list3[0][0]  # Index 0 record
+                
+            candidate_id_enc = enc(str(candidate_id))                             
                         
-            candidate = CandidateTestMaster.objects.get(id=candidate_id)
-            po_id = candidate.post          
+            # candidate = CandidateTestMaster.objects.get(id=candidate_id)
+            # po_id = candidate.post          
             
             existing = TemporaryQuestion.objects.filter(candidate_id=candidate_id, status=1).exists()            
             if not existing:            
@@ -790,15 +805,27 @@ def test_page(request):
             question_ids = request.POST.getlist("question_ids")
             candidate_id1 = request.POST.get("candidate_id", "")
             candidate_id=dec(candidate_id1)
-                         
+            form_data_id1 = request.POST.get("form_data_id", "")
+            form_data_id=dec(form_data_id1)
+                                                 
             start_time1 = request.POST.get("start_time", "")
             start_time_str=dec(start_time1)             
 
             
 # GET CANDIDATE DETAILS            
-            candidate_data = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'post').first()
-            candidate_name = candidate_data['name']
-            post1 = candidate_data['post']
+            # candidate_data = CandidateTestMaster.objects.filter(id=candidate_id).values('name', 'post').first()
+            # candidate_name = candidate_data['name']
+            
+            parameter_for_2 = [form_data_id]
+            cursor.callproc("stp_getPostOfCandidate",parameter_for_2)
+            for result2 in cursor.stored_results():
+                post_list1 = result2.fetchall()
+                nme = post_list1[0][0]  # Index 0 record
+                eml = post_list1[1][0]
+                mbno = post_list1[2][0]
+                post_id1 = post_list1[3][0]                                                            
+            
+            post1 = post_id1
             start_time = enc(str(start_time1))
 
 
@@ -871,9 +898,9 @@ def test_page(request):
 
             it_performance = get_performance(it_percentage)
             other_performance = get_performance(other_percentage)
-                
-            # Update CandidateTestMaster
-            CandidateTestMaster.objects.filter(id=candidate_id).update(
+
+            CandidateTestMaster.objects.create(
+                candidate_id=candidate_id,
                 it_marks_received=it_score,
                 it_out_of=it_total,
                 it_percentage=it_percentage,
@@ -886,8 +913,13 @@ def test_page(request):
                 status=2,
                 test_start_time=start_time,
                 test_end_time=end_time,
-                updated_by=user,
-                updated_at=timezone.now()
+                created_by=user,
+                created_at=timezone.now(),
+                name=nme,
+                mobile=mbno,
+                email=eml,
+                form_data_id=form_data_id,
+                post=post1
             )
 
             TemporaryQuestion.objects.filter(candidate_id=candidate_id).delete()                                                                                                     
@@ -907,7 +939,7 @@ def test_page(request):
                 messages.warning(request,"Questions Not Assigned for the Post !!")                
                 return redirect(f'/candidate_index')            
             else:    
-                return render(request, "Test/test_page.html",{"questions": questions,"candidate_id":candidate_id1,"start_time":start_time})
+                return render(request, "Test/test_page.html",{"questions": questions,"candidate_id":candidate_id_enc,"start_time":start_time,"form_data_id":form_data_id1})
         elif request.method == "POST":
             return redirect(f'/result_page?cname={candidate_id1}')
         
