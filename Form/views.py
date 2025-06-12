@@ -2062,7 +2062,7 @@ def show_form(request):
                 "sectioned_fields": sectioned_fields,
             })
 
-        return render(request, "Form/_formfieldsedit.html", {
+        return render(request, "Form/_formfieldedit.html", {
             "matrix_id": id,
             "forms_data": forms_data,
             "action_fields": action_fields,
