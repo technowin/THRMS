@@ -1028,10 +1028,10 @@ def form_master(request):
 
                     # ✅ Fetch action fields (no validations needed)
                     
-                    if edit_type == "edit_type":
-                        return render(request, "Form/_formfieldsedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id,"edit_type":edit_type})
-                    else:
-                        return render(request, "Form/_formfieldedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id})
+                    # if edit_type == "edit_type":
+                    return render(request, "Form/_formfieldsedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id,"edit_type":edit_type})
+                    # else:
+                    #     return render(request, "Form/_formfieldedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"type":"edit","form":form,"form_data_id":form_data_id})
             else:
                 type = request.GET.get("type")
                 form = Form.objects.all()
@@ -1965,10 +1965,9 @@ def get_field_names(request):
 def show_form(request):
     user  = request.session.get('user_id', '')
     role = str(request.session.get('role_id'))
-    try:            
+    try:           
         workflows = workflow_matrix.objects.all()
 
-        # Filter in Python since DB collation doesn't allow regex
         workflow = None
         for wf in workflows:
             role_ids = [r.strip() for r in wf.role_id.split(',')]

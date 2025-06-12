@@ -614,6 +614,7 @@ def candidate_index(request):
     m = Db.get_connection()
     cursor = m.cursor()
     role = str(request.session.get('role_id'))
+    user= request.session.get('user_id')
     
     try:
         if request.method == "GET":
@@ -648,15 +649,25 @@ def candidate_index(request):
             DataTable = apps.get_model('Form', module_tables["data_table"])
             FileTable = apps.get_model('Form', module_tables["file_table"])
 
-            form_data = IndexTable.objects
+            status = get_object_or_404(IndexTable, created_by = user).status
 
-            forms = callproc("stp_get_forms",['view_form'])  
-            sf =  'view_form_Candidate_Form_I' 
-            header = callproc("stp_get_view_form_header",[sf])          
-            rows = callproc("stp_get_view_forms",[sf]) 
+            form_data = IndexTable.objects.filter(created_by=user)
+            
+            created_ids = set(form_data.values_list('id', flat=True))  # Get all matching IndexTable IDs
+
+            forms = callproc("stp_get_forms", ['view_form'])  
+            sf = 'view_form_Candidate_Form_I' 
+            header = callproc("stp_get_view_form_header", [sf])          
+            rows = callproc("stp_get_view_forms", [sf]) 
+
+            table_data = []
+
             for row in rows:
-                encrypted_id = enc(str(row[0]))
-                table_data.append((encrypted_id,) + row[1:])  
+                desc_id = row[0]  # First column is assumed to be the IndexTable ID
+                if desc_id in created_ids:  # Only include rows where the user is the creator
+                    encrypted_id = enc(str(desc_id))
+                    table_data.append((encrypted_id,) + row[1:])
+
 
             # Annotate queryset with post name
             # queryset = CandidateTestMaster.objects.annotate(
@@ -701,7 +712,7 @@ def candidate_index(request):
         m.close()
         Db.closeConnection()
         if request.method == "GET":
-            return render(request, "Test/candidate_index.html",{'data': candidate_data,'last_status':last_status,'forms':forms,'rows':rows,'header':header,'table_data':table_data})
+            return render(request, "Test/candidate_index.html",{'data': candidate_data,'last_status':last_status,'forms':forms,'rows':rows,'header':header,'table_data':table_data,'status':status})
         
 @login_required
 def test_page(request):
