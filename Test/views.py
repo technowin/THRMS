@@ -8,6 +8,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate, login ,logout,get_user_model
 from Account.forms import RegistrationForm
 from Account.models import *
+from Form.models import Form
 from Form.views import common_module_master
 from Masters.models import *
 import Db 
@@ -50,7 +51,7 @@ import logging
 from django.http import FileResponse, Http404
 import mimetypes
 
-from Workflow.models import workflow_action_master
+from Workflow.models import workflow_action_master, workflow_matrix
 logger = logging.getLogger(__name__)
 
 from Test.models import *
@@ -612,6 +613,7 @@ def candidate_index(request):
     Db.closeConnection()
     m = Db.get_connection()
     cursor = m.cursor()
+    role = str(request.session.get('role_id'))
     
     try:
         if request.method == "GET":
@@ -625,12 +627,28 @@ def candidate_index(request):
             ).values('post')[:1]
             table_data = []
 
+            workflows = workflow_matrix.objects.all()
+
+            # Filter in Python since DB collation doesn't allow regex
+            workflow = None
+            for wf in workflows:
+                role_ids = [r.strip() for r in wf.role_id.split(',')]
+                if role in role_ids:
+                    workflow = wf
+                    break
+            form_id = workflow.form_id
+            action_id = workflow.button_type_id
+
+            form = get_object_or_404(Form, id = form_id )
+
             module_id = form.module
             module_tables = common_module_master(module_id)
 
             IndexTable = apps.get_model('Form', module_tables["index_table"])
             DataTable = apps.get_model('Form', module_tables["data_table"])
             FileTable = apps.get_model('Form', module_tables["file_table"])
+
+            form_data = IndexTable.objects
 
             forms = callproc("stp_get_forms",['view_form'])  
             sf =  'view_form_Candidate_Form_I' 

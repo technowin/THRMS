@@ -254,6 +254,7 @@ class candidate_data(models.Model):
     action = models.ForeignKey('Form.FormAction',null=True, blank=True,on_delete=models.CASCADE, related_name='candidate_action_id')
     req_no = models.TextField(null=True, blank=True)
     status = models.IntegerField(null=True, blank=True)
+    candidate_id = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     created_by =  models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)

@@ -1975,7 +1975,7 @@ def show_form(request):
             if role in role_ids:
                 workflow = wf
                 break
-        form_ids = workflow.form_id.split(",")  # Multiple form IDs
+        form_ids = workflow.form_id.split(",") 
         action_id = workflow.button_type_id
 
         forms_data = []
@@ -2062,7 +2062,7 @@ def show_form(request):
                 "sectioned_fields": sectioned_fields,
             })
 
-        return render(request, "Form/_formfieldedit.html", {
+        return render(request, "Form/_formfieldsedit.html", {
             "matrix_id": id,
             "forms_data": forms_data,
             "action_fields": action_fields,
