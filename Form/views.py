@@ -1238,8 +1238,9 @@ def common_form_post(request):
 
     finally:
         if role_id == '7':
+            return redirect('candidate_index')
+        else:
             return redirect('/masters?entity=form_master&type=i')
-        return redirect('/masters?entity=form_master&type=i')
 
 
 def common_form_edit(request):
