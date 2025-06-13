@@ -32,7 +32,6 @@ from django.urls import path
 from Test.views import *
 from attendance.views import *
 
-from mobile_authen.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
