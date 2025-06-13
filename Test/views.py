@@ -342,7 +342,6 @@ def test_index(request):
                 id=OuterRef('post')  # both are IntegerFields now
             ).values('post')[:1]
 
-            # Annotate queryset with post name
             queryset = CandidateTestMaster.objects.annotate(
                 post_name=Subquery(post_name_subquery)
             )            

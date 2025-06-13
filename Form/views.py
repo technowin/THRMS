@@ -1240,7 +1240,7 @@ def common_form_post(request):
         if role_id == '7':
             return redirect('candidate_index')
         else:
-            return redirect('/masters?entity=form_master&type=i')
+            return redirect('test_index')
 
 
 def common_form_edit(request):
@@ -1982,7 +1982,8 @@ def show_form(request):
     user  = request.session.get('user_id', '')
     role = str(request.session.get('role_id'))
     form_data = request.GET.get('form')
-    form_data_id = dec(form_data)
+    if form_data:
+        form_data_id = dec(form_data)
     try: 
         if form_data:
             name = 'Candidate' if role == '7' else 'Test'
@@ -2134,10 +2135,7 @@ def show_form(request):
 
 
         else:  
-            if role == '7':
-                name = 'Candidate'
-            else:
-                name ='Test'
+            name ='Candidate'
             workflows = workflow_matrix.objects.filter(workflow_name = name)
 
             workflow = None
@@ -2145,7 +2143,7 @@ def show_form(request):
                 role_ids = [r.strip() for r in wf.role_id.split(',')]
                 if role in role_ids:
                     workflow = wf
-                    break
+                    
                 form_ids = workflow.form_id.split(",") 
                 action_id = workflow.button_type_id
 
