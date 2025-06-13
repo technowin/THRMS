@@ -1075,7 +1075,7 @@ def common_form_post(request):
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
         module_id = form.module
         module_tables = common_module_master(module_id)
-        if role_id == 7:
+        if role_id == '7':
             status = 1
         else:
             status = 0
@@ -1230,7 +1230,7 @@ def common_form_post(request):
                                 updated_by=user,
                             )
 
-        messages.success(request, "Workflow data saved successfully!")
+            messages.success(request, "Workflow data saved successfully!")
 
     except Exception as e:
         traceback.print_exc()
@@ -1833,7 +1833,7 @@ def handle_generative_fields(form, form_data, created_by,module_id):
 
             final_value = '_'.join(parts)
 
-            field_obj = get_object_or_404(FormField, id=field)
+            field_obj = get_object_or_404(FormField, id=field.id)
             primary = 1 if field_obj.is_primary == 1 else 0
 
             # Step 4: Save the generated value
@@ -1841,7 +1841,7 @@ def handle_generative_fields(form, form_data, created_by,module_id):
                 form_data=form_data,
                 form=form,
                 field=field,
-                primary=primary,
+                primary_key=primary,
                 value=final_value,
                 created_by=created_by
             )
