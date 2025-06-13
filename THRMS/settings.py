@@ -101,7 +101,6 @@ INSTALLED_APPS = [
     'Tax',
     'Payroll',
     'Test',
-    'mobile_authen',
     'attendance',
 ]
 
