@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login ,logout
 from attendance.models import *
 
-import authentication
+import mobile_authen
 from .models import PasswordStorage, User
 from .serializers import UserSerializer, LoginSerializer, RegistrationSerializer
 

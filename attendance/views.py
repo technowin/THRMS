@@ -9,8 +9,8 @@ from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login ,logout
 from attendance.serializers import *
 import Db
-from authentication.models import *
-from authentication.serializers import * 
+from mobile_authen.models import *
+from mobile_authen.serializers import * 
 
 
 def attendance_home(request):
