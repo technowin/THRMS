@@ -288,7 +288,7 @@
                                 <select class="form-control master_multiple" name="field_{{ field.id }}"
                                     {% for attr in field.attributes %} {{ attr }} {% endfor %}
                                     {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}
-                                    multiple>  <!-- Important: 'multiple' attribute -->
+                                    multiple>  
                                     
                                     {% for option in field.values %}
                                         <option value="{{ option.id }}" 

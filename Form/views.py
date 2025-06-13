@@ -1979,7 +1979,7 @@ def show_form(request):
     user  = request.session.get('user_id', '')
     role = str(request.session.get('role_id'))
     form_data = request.GET.get('form')
-    form_data = dec(form_data)
+    form_data_id = dec(form_data)
     try: 
         if form_data:
             name = 'Candidate' if role == '7' else 'Test'
@@ -2001,13 +2001,17 @@ def show_form(request):
             first_form_id = form_ids[0]
             module = get_object_or_404(Form, id=first_form_id).module
             module_tables = common_module_master(module)
+            
 
             IndexTable = apps.get_model('Form', module_tables["index_table"])
             DataTable = apps.get_model('Form', module_tables["data_table"])
             FileTable = apps.get_model('Form', module_tables["file_table"])
 
+            form_data = IndexTable.objects.filter(id = form_data_id)
+            
+
             # Get saved field values for this form_data (index ID)
-            field_values = DataTable.objects.filter(form_data_id=form_data).values("field_id", "value")
+            field_values = DataTable.objects.filter(form_data_id=form_data_id).values("field_id", "value")
             values_dict = {fv["field_id"]: fv["value"] for fv in field_values}
 
             # Get action fields
@@ -2026,6 +2030,7 @@ def show_form(request):
                     continue
 
                 form = get_object_or_404(Form, id=form_id)
+                
 
                 raw_fields = FormField.objects.filter(form_id=form_id).values(
                     "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name", "section"
@@ -2071,7 +2076,7 @@ def show_form(request):
                         file_validation = next((v for v in field["validations"]), None)
                         field["accept"] = file_validation["value"] if file_validation else ""
 
-                        file_exists = FileTable.objects.filter(field_id=field_id, form_data_id=form_data).exists()
+                        file_exists = FileTable.objects.filter(field_id=field_id, form_data_id=form_data_id).exists()
                         field["file_uploaded"] = 1 if file_exists else 0
 
                         if file_exists and "required" in field["attributes"]:
@@ -2118,7 +2123,10 @@ def show_form(request):
                 "matrix_id": id,
                 "forms_data": forms_data,
                 "action_fields": action_fields,
-                "type": "edit"
+                "type": "edit",
+                "form":form,
+                "form_data": form_data,
+                "form_data_id":form_data_id
             })
 
 

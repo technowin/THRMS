@@ -169,10 +169,11 @@
                                     </select>
 
                                     {% elif field.field_type == "master dropdown" %}
-                                    <select class="form-control select" name="field_{{ field.id }}" {% for attr in field.attributes %}{{ attr }}{% endfor %}>
-                                        <option value="" selected disabled>Select</option>
+                                    <select class="form-control select" name="field_{{ field.id }}"
+                                        {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' or viewStepWFSeq == '3'  %} disabled {% endif %}>
+                                        <option value="" disabled {% if not field.value %} selected {% endif %}>Select</option>
                                         {% for option in field.values %}
-                                        <option value="{{ option.id }}">{{ option.name }}</option>
+                                            <option value="{{ option.id }}" {% if option.id|stringformat:"s" == field.value|stringformat:"s" %} selected {% endif %}>{{ option.name }}</option>
                                         {% endfor %}
                                     </select>
 
@@ -413,7 +414,7 @@
                 data: {
                     field_id: field_id,
                     form_data_id: form_data_id,
-                    form_id:fomr_id,
+                    form_id:form_id,
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success: function (data) {
