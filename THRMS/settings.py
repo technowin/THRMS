@@ -101,6 +101,8 @@ INSTALLED_APPS = [
     'Tax',
     'Payroll',
     'Test',
+    'mobile_authen',
+    'attendance',
 ]
 
 # SESSION_ENGINE ="django.contrib.sessions.backends.signed_cookies"
