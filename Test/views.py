@@ -8,7 +8,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate, login ,logout,get_user_model
 from Account.forms import RegistrationForm
 from Account.models import *
-from Form.models import Form
+from Form.models import Form, candidate_data
 from Form.views import common_module_master
 from Masters.models import *
 import Db 
@@ -653,31 +653,44 @@ def candidate_index(request):
             DataTable = apps.get_model('Form', module_tables["data_table"])
             FileTable = apps.get_model('Form', module_tables["file_table"])
 
+            # 1. Get latest entry and determine status
             try:
-                status = IndexTable.objects.get(created_by=user).status
-                if status is None:
-                    status = 0
+                latest_entry = IndexTable.objects.filter(created_by=user).order_by('-id').first()
+                status = latest_entry.status if latest_entry and latest_entry.status is not None else 0
             except IndexTable.DoesNotExist:
                 status = 0
 
-            
+            # 2. Get all entries created by user and map IDs to their status
+            user_entries = IndexTable.objects.filter(created_by=user)
+            index_status_map = {
+                entry.id: entry.status for entry in user_entries
+            }
 
-            form_data = IndexTable.objects.filter(created_by=user)
-            
-            created_ids = set(form_data.values_list('id', flat=True))  # Get all matching IndexTable IDs
+            created_ids = set(index_status_map.keys())
 
+            # 3. Load forms and header
             forms = callproc("stp_get_forms", ['view_form'])  
             sf = 'view_form_Candidate_Form_I' 
             header = callproc("stp_get_view_form_header", [sf])          
-            rows = callproc("stp_get_view_forms", [sf]) 
 
             table_data = []
 
-            for row in rows:
-                desc_id = row[0]  # First column is assumed to be the IndexTable ID
-                if desc_id in created_ids:  # Only include rows where the user is the creator
-                    encrypted_id = enc(str(desc_id))
-                    table_data.append((encrypted_id,) + row[1:])
+            # 4. Only continue if latest status != 2
+            if status != 2:
+                rows = callproc("stp_get_view_forms", [sf]) 
+
+                for row in rows:
+                    desc_id = row[0]
+
+                    # Include row only if:
+                    # - The id exists in the user's created IndexTable entries
+                    # - The status for that id is exactly 1
+                    if desc_id in index_status_map and index_status_map[desc_id] == 1:
+                        encrypted_id = enc(str(desc_id))
+                        table_data.append((encrypted_id,) + row[1:])
+            else:
+                rows = []
+
 
 
             # Annotate queryset with post name
@@ -944,7 +957,13 @@ def test_page(request):
                 post=post1
             )
 
-            TemporaryQuestion.objects.filter(candidate_id=candidate_id).delete()                                                                                                     
+            TemporaryQuestion.objects.filter(candidate_id=candidate_id).delete() 
+            form_data = candidate_data.objects.filter(id=form_data_id).first()
+            if form_data:
+                form_data.status = 2
+                form_data.save()
+
+                                                                                                                
             
     except Exception as e:
         print("error-" + e)
