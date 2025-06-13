@@ -1256,6 +1256,7 @@ def common_form_edit(request):
         form_data_id = request.POST.get("form_data_id")
         if not form_data_id:
             return JsonResponse({"error": "form_data_id is required"}, status=400)
+        type = request.POST.get("type")
         
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
 
@@ -1423,8 +1424,10 @@ def common_form_edit(request):
         #return redirect("/masters?entity=form_master&type=i")
         if workflow_YN == '1E':
             return redirect('workflow_starts')
-        if edit_type == 'edit_type':
+        elif edit_type == 'edit_type':
             return redirect('candidate_index')
+        elif type == 'edit':
+            return redirect('test_index')
         else:
             return redirect("/masters?entity=form_master&type=i")
 
