@@ -30,7 +30,6 @@ from Payroll.views import *
 from Tax.views import *
 from django.urls import path
 from Test.views import *
-from attendance.views import *
 
 
 urlpatterns = [
