@@ -653,7 +653,14 @@ def candidate_index(request):
             DataTable = apps.get_model('Form', module_tables["data_table"])
             FileTable = apps.get_model('Form', module_tables["file_table"])
 
-            status = get_object_or_404(IndexTable, created_by = user).status
+            try:
+                status = IndexTable.objects.get(created_by=user).status
+                if status is None:
+                    status = 0
+            except IndexTable.DoesNotExist:
+                status = 0
+
+            
 
             form_data = IndexTable.objects.filter(created_by=user)
             
