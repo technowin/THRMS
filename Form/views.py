@@ -1058,6 +1058,7 @@ def common_module_master(module_id):
 
 def common_form_post(request):
     user = request.session.get('user_id', '')
+    role_id = request.session.get('role_id')
     try:
         if request.method != "POST":
             return JsonResponse({"error": "Invalid request method"}, status=400)
@@ -1074,6 +1075,10 @@ def common_form_post(request):
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
         module_id = form.module
         module_tables = common_module_master(module_id)
+        if role_id == 7:
+            status = 1
+        else:
+            status = 0
 
         IndexTable = apps.get_model('Form', module_tables["index_table"])
         DataTable = apps.get_model('Form', module_tables["data_table"])
@@ -1088,7 +1093,9 @@ def common_form_post(request):
             form_data = IndexTable.objects.create(form=form)
         else:
             form_data = IndexTable.objects.create(form=form,action=action)
+        form_data.status = status
         form_data.req_no = f"UNIQ-00{form_data.id}"
+
         form_data.created_by = user
         form_data.save()
 
@@ -1230,6 +1237,8 @@ def common_form_post(request):
         messages.error(request, 'Oops...! Something went wrong!')
 
     finally:
+        if role_id == '7':
+            return redirect('/masters?entity=form_master&type=i')
         return redirect('/masters?entity=form_master&type=i')
 
 
@@ -2065,7 +2074,9 @@ def show_form(request):
             "matrix_id": id,
             "forms_data": forms_data,
             "action_fields": action_fields,
-            "type": "create"
+            "type": "create",
+            "form":form,
+            "action":action
         })
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
