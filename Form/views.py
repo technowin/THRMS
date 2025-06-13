@@ -1845,6 +1845,9 @@ def handle_generative_fields(form, form_data, created_by,module_id):
                 value=final_value,
                 created_by=created_by
             )
+            # form_data = get_object_or_404(IndexTable, id = form_data.id)
+            form_data.candidate_id = final_value
+            form_data.save()
 
         except Exception as e:
             traceback.print_exc()
