@@ -127,3 +127,48 @@ class history_workflow_details(models.Model):
     class Meta:
         db_table = 'history_workflow_details'
 
+class rec_workflow_details(models.Model):
+    id = models.AutoField(primary_key=True)
+    workflow_id = models.IntegerField(null=True, blank=True)
+    step_id = models.IntegerField(null=True, blank=True)
+    action_id = models.IntegerField(null=True, blank=True)
+    action_details_id = models.IntegerField(null=True, blank=True)
+    role_id = models.TextField(null=True, blank=True)
+    form_id = models.IntegerField(null=True, blank=True)
+    status = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True)             
+    created_by = models.TextField(null=True, blank=True) 
+    updated_at = models.DateTimeField(null=True, blank=True)               
+    updated_by = models.TextField(null=True, blank=True)
+    candidate_id = models.TextField(null=True)
+    form_data_id = models.IntegerField(null=True)    
+    class Meta:
+        db_table = 'recruitment_workflow_details'
+
+
+class rec_history_workflow_details(models.Model):
+    id = models.AutoField(primary_key=True)
+    workflow_id = models.IntegerField(null=True, blank=True)
+    step_id = models.IntegerField(null=True, blank=True)
+    form_data_id = models.IntegerField(null=True, blank=True)
+    req_id = models.TextField(null=True, blank=True)
+    action_details_id = models.IntegerField(null=True, blank=True)
+    role_id = models.TextField(null=True, blank=True)
+    status = models.TextField(null=True, blank=True)
+    
+    operator = models.IntegerField(null=True, blank=True)
+    
+    user_id = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True)             
+    created_by = models.TextField(null=True, blank=True) 
+    updated_at = models.DateTimeField(null=True, blank=True)               
+    updated_by = models.TextField(null=True, blank=True)
+    increment_id= models.IntegerField(null=True, blank=True)
+    form_id = models.IntegerField(null=True, blank=True)
+    sent_back = models.TextField(null=True, blank=True)
+    candidate_id = models.TextField(null=True)
+    form_data_id = models.IntegerField(null=True)
+    history_created_at = models.DateTimeField(null=True)             
+    history_created_by = models.TextField(null=True, blank=True)        
+    class Meta:
+        db_table = 'recruitment_history_workflow_details'
