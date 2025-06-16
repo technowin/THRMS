@@ -84,8 +84,7 @@
                 <br>
                 <form method="post">
                     {% csrf_token %}
-
-                    <input type="hidden" name = "relation_id" value = {{ site_relation.relation_id }}>
+                    <input type ="hidden" name="relation_id" value ={{site_relation.relation_id}}>
                     
                      <div class="row col-md-12">
 
@@ -95,7 +94,7 @@
                                 <option value="" disabled {% if not relation %}selected{% endif %}>Select Client</option>
                                 {% for client in client_names %}
                                     <option value="{{ client.company_id }}"
-                                        {% if site_relation and client.company_id == site_relation.client.company_id %}selected{% endif %}>
+                                        {% if  client.company_id == site_relation.client_id %}selected{% endif %}>
                                         {{ client.company_name }}
                                     </option>
                                 {% endfor %}
@@ -108,7 +107,7 @@
                                     <option value="" disabled {% if not relation %}selected{% endif %}>Select Location</option>
                                     {% for location in location_names %}
                                         <option value="{{ location.site_id }}"
-                                            {% if relation and location.site_id == relation.site.site_id %}selected{% endif %}>
+                                            {% if location.site_id == site_relation.site_id %}selected{% endif %}>
                                             {{ location.site_name }}
                                         </option>
                                     {% endfor %}
@@ -120,7 +119,7 @@
                                 <option value="" disabled {% if not relation %}selected{% endif %}>Select Designation</option>
                                 {% for designation in designation_names %}
                                     <option value="{{ designation.designation_id }}"
-                                        {% if relation and designation.designation_id == relation.designation.designation_id %}selected{% endif %}>
+                                        {% if designation.designation_id == site_relation.designation_id %}selected{% endif %}>
                                         {{ designation.designation_name }}
                                     </option>
                                 {% endfor %}
@@ -132,7 +131,7 @@
                                 <option value="" disabled {% if not relation %}selected{% endif %}>Select Level</option>
                                 {% for level in level_names %}
                                     <option value="{{ level.id }}"
-                                        {% if relation and level.id == relation.level.id %}selected{% endif %}>
+                                        {% if level.id == site_relation.level_id %}selected{% endif %}>
                                         {{ level.name }}
                                     </option>
                                 {% endfor %}

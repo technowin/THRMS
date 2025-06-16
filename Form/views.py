@@ -56,6 +56,7 @@ from django.http import FileResponse, Http404
 import mimetypes
 from django.template.loader import render_to_string
 
+from Test.models import CandidateTestMaster
 from Workflow.models import history_workflow_details, workflow_details, workflow_matrix, workflow_action_master
 
 
@@ -1084,6 +1085,10 @@ def common_form_post(request):
         DataTable = apps.get_model('Form', module_tables["data_table"])
         FileTable = apps.get_model('Form', module_tables["file_table"])
 
+        if form_id == '1':
+            special_field_ids = {'539', '540', '552', '544', '778'}
+            saved_special_fields = {} 
+
 
         if type != 'master':
             # action_id = request.PSOT.get("action_id")action_id = request.POST.get(action_id_key, '').strip()
@@ -1102,6 +1107,9 @@ def common_form_post(request):
         form_dataID = form_data.id
 
         # Process each field
+        special_field_ids = {'539', '540', '552', '544', '778'}
+        saved_special_fields = {}
+
         for key, value in request.POST.items():
             if key.startswith("field_id_"):
                 field_id = value.strip()
@@ -1109,20 +1117,40 @@ def common_form_post(request):
                 is_primary = field.is_primary
                 primary = 1 if is_primary == 1 else 0
 
-                if field.field_type == "generative":            
+                if field.field_type == "generative":
                     continue
 
-
-                if field.field_type == "select multiple" or field.field_type == "multiple":
+                # Set input_value based on field type
+                if field.field_type in ["select multiple", "multiple"]:
                     selected_values = request.POST.getlist(f"field_{field_id}")
                     input_value = ','.join([val.strip() for val in selected_values if val.strip()])
                 else:
                     input_value = request.POST.get(f"field_{field_id}", "").strip()
 
-            
+                # ✅ Now safe to use input_value here
+                if field_id in special_field_ids:
+                    saved_special_fields[field_id] = input_value
+
+                # Save to DataTable
                 DataTable.objects.create(
-                    form_data=form_data,form=form, field=field, value=input_value,primary_key=primary, created_by=created_by
+                    form_data=form_data,
+                    form=form,
+                    field=field,
+                    value=input_value,
+                    primary_key=primary,
+                    created_by=created_by
                 )
+        CandidateTestMaster.objects.create(
+            candidate_id=saved_special_fields.get('778'),
+            name=saved_special_fields.get('539'),
+            email=saved_special_fields.get('540'),
+            mobile=saved_special_fields.get('544'),
+            post=saved_special_fields.get('552')
+        )
+
+
+
+        
                
         handle_uploaded_files(request, form_name, created_by, form_data, user,module_id)
         handle_generative_fields(form, form_data, created_by ,module_id)
@@ -1855,6 +1883,7 @@ def handle_generative_fields(form, form_data, created_by,module_id):
         except Exception as e:
             traceback.print_exc()
 
+        
 
 
 
@@ -2135,7 +2164,7 @@ def show_form(request):
 
 
         else:  
-            name ='Candidate'
+            name ='Candidate' 
             workflows = workflow_matrix.objects.filter(workflow_name = name)
 
             workflow = None

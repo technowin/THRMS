@@ -872,7 +872,8 @@ def rate_card_edit(request, card_id):
                         salary_unit = get_object_or_404(SalaryUnit, id = salary_unit)
 
                     )
-                site_card = site_card_relation.get(relation_id = pk)
+                
+                site_card = get_object_or_404(site_card_relation, relation_id=pk)
                 site_card.client = client
                 site_card.site = location
                 site_card.designation = designation
@@ -920,6 +921,7 @@ def rate_card_edit(request, card_id):
         'pay_type':pay_types,
         'classification':classification,
         'rate_card': rate_card,
+        'relation':relation,
         'site_relation':site_relation,
         'selected_item_ids': list(selected_item_ids),
         'prefilled_data': prefilled_data, 
