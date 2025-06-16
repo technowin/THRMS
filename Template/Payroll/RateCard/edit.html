@@ -84,6 +84,8 @@
                 <br>
                 <form method="post">
                     {% csrf_token %}
+
+                    <input type="hidden" name = "relation_id" value = {{ site_relation.relation_id }}>
                     
                      <div class="row col-md-12">
 
@@ -93,7 +95,7 @@
                                 <option value="" disabled {% if not relation %}selected{% endif %}>Select Client</option>
                                 {% for client in client_names %}
                                     <option value="{{ client.company_id }}"
-                                        {% if relation and client.company_id == relation.client.company_id %}selected{% endif %}>
+                                        {% if site_relation and client.company_id == site_relation.client.company_id %}selected{% endif %}>
                                         {{ client.company_name }}
                                     </option>
                                 {% endfor %}

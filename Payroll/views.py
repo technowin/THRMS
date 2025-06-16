@@ -825,76 +825,93 @@ def rate_card_create(request):
  
 @login_required
 def rate_card_edit(request, card_id):
-    card_id = dec(card_id)
-    rate_card = get_object_or_404(rate_card_master, pk=card_id)
+    try:
+        card_id = dec(card_id)
+        rate_card = get_object_or_404(rate_card_master, pk=card_id)
 
-    if request.method == "POST":
-        form = RateCardMasterForm(request.POST, instance=rate_card)
-        if form.is_valid():
-            rate_card = form.save(commit=False)
-            rate_card.card_name = request.POST.get('card_name_hidden')
-            rate_card.updated_by = request.user
-            rate_card.save()
+        if request.method == "POST":
+            form = RateCardMasterForm(request.POST, instance=rate_card)
+            if form.is_valid():
+                rate_card = form.save(commit=False)
+                rate_card.card_name = request.POST.get('card_name_hidden')
+                rate_card.updated_by = request.user
+                rate_card.save()
 
-            RateCardSalaryElement.objects.filter(rate_card=rate_card).delete()
+                RateCardSalaryElement.objects.filter(rate_card=rate_card).delete()
 
-            selected_items = request.POST.getlist('item_ids')
+                selected_items = request.POST.getlist('item_ids')
 
-            for item_id in selected_items:
-                item = salary_element_master.objects.get(pk=item_id)
-                four_hour_amount = request.POST.get(f'four_hour_amount_{item_id}', 0)
-                nine_hour_amount = request.POST.get(f'nine_hour_amount_{item_id}', 0)
-                tax_param = request.POST.get(f'tax_parameter_{item_id}', 0)
-                salary_unit = request.POST.get(f'salary_unit_{item_id}')
-                pay_types = request.POST.get(f'pay_type_{item_id}')
-                classification = request.POST.get(f'classification_{item_id}')
+                location = get_object_or_404(site_master, site_id=request.POST.get('location'))
+                client = get_object_or_404(company_master, company_id=request.POST.get('client_name'))
+                designation = get_object_or_404(designation_master, designation_id=request.POST.get('designation'))
+                level = get_object_or_404(LevelMaster, id=request.POST.get('level'))
+                pk = request.POST.get('relation_id')
+
+                for item_id in selected_items:
+                    item = salary_element_master.objects.get(pk=item_id)
+                    four_hour_amount = request.POST.get(f'four_hour_amount_{item_id}', 0)
+                    nine_hour_amount = request.POST.get(f'nine_hour_amount_{item_id}', 0)
+                    tax_param = request.POST.get(f'tax_parameter_{item_id}', 0)
+                    salary_unit = request.POST.get(f'salary_unit_{item_id}')
+                    pay_types = request.POST.get(f'pay_type_{item_id}')
+                    classification = request.POST.get(f'classification_{item_id}')
+                    tax_obj = None
+                    if tax_param and tax_param != '0':
+                        tax_obj = get_object_or_404(income_tax_parameter, id=tax_param)
 
 
-                RateCardSalaryElement.objects.create(
-                    rate_card=rate_card,
-                    salary_element=item,
-                    item_name=item.item_name,
-                    pay_type=pay_types,
-                    classification=classification,
-                    four_hour_amount=four_hour_amount,
-                    nine_hour_amount=nine_hour_amount,
-                    tax_parameter=get_object_or_404(income_tax_parameter, id = tax_param),
-                    salary_unit = get_object_or_404(SalaryUnit, id = salary_unit)
+                    RateCardSalaryElement.objects.create(
+                        rate_card=rate_card,
+                        salary_element=item,
+                        item_name=item.item_name,
+                        pay_type=get_object_or_404(pay_type,id = pay_types),
+                        classification=get_object_or_404(basis_type, id=classification),
+                        four_hour_amount=four_hour_amount,
+                        nine_hour_amount=nine_hour_amount,
+                        tax_parameter=tax_obj,
+                        salary_unit = get_object_or_404(SalaryUnit, id = salary_unit)
 
-                )
+                    )
+                site_card = site_card_relation.get(relation_id = pk)
+                site_card.client = client
+                site_card.site = location
+                site_card.designation = designation
+                site_card.level = level
+                site_card.save()
 
-            messages.success(request, 'Rate Card updated successfully!')
-            return redirect('rate_card_index')
+                messages.success(request, 'Rate Card updated successfully!')
+                return redirect('rate_card_index')
+            else:
+                messages.error(request, 'Error updating Rate Card.')
         else:
-            messages.error(request, 'Error updating Rate Card.')
-    else:
-        tax_parameter = income_tax_parameter.objects.all()
-        form = RateCardMasterForm(instance=rate_card)
-        salary_unit = SalaryUnit.objects.all()
-        pay_types = pay_type.objects.all()
-        classification = basis_type.objects.all()
-        client_names = company_master.objects.all()
-        designation_names = designation_master.objects.all()
-        location_names = site_master.objects.all()
-        level_names = LevelMaster.objects.all()
+            tax_parameter = income_tax_parameter.objects.all()
+            form = RateCardMasterForm(instance=rate_card)
+            salary_unit = SalaryUnit.objects.all()
+            pay_types = pay_type.objects.all()
+            classification = basis_type.objects.all()
+            client_names = company_master.objects.all()
+            designation_names = designation_master.objects.all()
+            location_names = site_master.objects.all()
+            level_names = LevelMaster.objects.all()
 
-    selected_item_ids = rate_card.item_ids.values_list('item_id', flat=True)
+            selected_item_ids = rate_card.item_ids.values_list('item_id', flat=True)
 
-    # Prepare pre-filled data for each item
-    existing_relations = RateCardSalaryElement.objects.filter(rate_card=rate_card)
-    site_relation = site_card_relation.objects.filter(card=rate_card)
-    relation = site_relation.first()
+            # Prepare pre-filled data for each item
+            existing_relations = RateCardSalaryElement.objects.filter(rate_card=rate_card)
+            site_relation = site_card_relation.objects.filter(card=rate_card).first()
 
-    prefilled_data = {}
-    for relation in existing_relations:
-        prefilled_data[relation.salary_element_id] = {
-            'four_hour_amount': relation.four_hour_amount,
-            'nine_hour_amount': relation.nine_hour_amount,
-            'tax_parameter':relation.tax_parameter,
-            'salary_unit':relation.salary_unit,
-            'pay_type':relation.pay_type,
-            'classification':relation.classification,
-        }
+            prefilled_data = {}
+            for relation in existing_relations:
+                prefilled_data[relation.salary_element_id] = {
+                    'four_hour_amount': relation.four_hour_amount,
+                    'nine_hour_amount': relation.nine_hour_amount,
+                    'tax_parameter':relation.tax_parameter,
+                    'salary_unit':relation.salary_unit,
+                    'pay_type':relation.pay_type,
+                    'classification':relation.classification,
+                }
+    except Exception as e:
+        print(str(e))
 
     return render(request, 'Payroll/RateCard/edit.html', {
         'form': form,
@@ -903,7 +920,7 @@ def rate_card_edit(request, card_id):
         'pay_type':pay_types,
         'classification':classification,
         'rate_card': rate_card,
-        'relation':relation,
+        'site_relation':site_relation,
         'selected_item_ids': list(selected_item_ids),
         'prefilled_data': prefilled_data, 
         'client_names':client_names,'location_names':location_names,

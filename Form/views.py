@@ -56,7 +56,7 @@ from django.http import FileResponse, Http404
 import mimetypes
 from django.template.loader import render_to_string
 
-from Workflow.models import history_workflow_details, workflow_details , workflow_matrix, workflow_action_master
+from Workflow.models import history_workflow_details, workflow_details, workflow_matrix, workflow_action_master
 
 
 # Create your views here.
@@ -895,6 +895,10 @@ def form_master(request):
                 messages.error(request, 'Oops...! Something went wrong!')
                 return JsonResponse({"error": "Something went wrong!"}, status=500)
         
+
+
+        
+
         
         else:
             form_data_id = request.GET.get("form")
@@ -1044,7 +1048,7 @@ def common_module_master(module_id):
         module = get_object_or_404(ModuleMaster, id=module_id)
 
         return {
-            "index_table": module.index_table,
+            "index_table": module.index_table,  # this should be the model class or its name
             "data_table": module.data_table,
             "file_table": module.file_table,
         }
