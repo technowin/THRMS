@@ -414,7 +414,10 @@ def partial_details_index(request):
                     'it_performance_level': row[10],                    
                     'Encryp': enc(str(row[0])),
                     'enc_candidate_id': enc(str(row[11])),
-                    'enc_form_data_id': enc(str(row[12])),                    
+                    'enc_form_data_id': enc(str(row[12])),
+                    'step_name': row[13],
+                    'step_id': row[14],
+                                                             
                 }
                 for row in candidate_details
             ]
@@ -468,7 +471,9 @@ def partial_details_index_onpageload(request):
                     'it_performance_level': row[10],
                     'Encryp': enc(str(row[0])),
                     'enc_candidate_id': enc(str(row[11])),
-                    'enc_form_data_id': enc(str(row[12])),                    
+                    'enc_form_data_id': enc(str(row[12])),
+                    'step_name': row[13],
+                    'step_id': row[14],                                        
                 }
                 for row in candidate_details
             ]
@@ -922,8 +927,30 @@ def test_page(request):
             it_performance = get_performance(it_percentage)
             other_performance = get_performance(other_percentage)
 
-            CandidateTestMaster.objects.create(
-                candidate_id=candidate_id,
+            # CandidateTestMaster.objects.create(
+            #     candidate_id=candidate_id,
+            #     it_marks_received=it_score,
+            #     it_out_of=it_total,
+            #     it_percentage=it_percentage,
+            #     it_performance_level=it_performance,
+            #     marks_received=other_score,
+            #     out_of=other_total,
+            #     percentage=other_percentage,
+            #     performance_level=other_performance,
+            #     time_taken=time_taken_str,
+            #     status=2,
+            #     test_start_time=start_time,
+            #     test_end_time=end_time,
+            #     created_by=user,
+            #     created_at=timezone.now(),
+            #     name=nme,
+            #     mobile=mbno,
+            #     email=eml,
+            #     form_data_id=form_data_id,
+            #     post=post1
+            # )
+            
+            CandidateTestMaster.objects.filter(candidate_id=candidate_id, form_data_id=form_data_id).update(
                 it_marks_received=it_score,
                 it_out_of=it_total,
                 it_percentage=it_percentage,
@@ -936,14 +963,9 @@ def test_page(request):
                 status=2,
                 test_start_time=start_time,
                 test_end_time=end_time,
-                created_by=user,
-                created_at=timezone.now(),
-                name=nme,
-                mobile=mbno,
-                email=eml,
-                form_data_id=form_data_id,
-                post=post1
-            )
+                updated_by=user,
+                updated_at=timezone.now()
+            )            
 
             TemporaryQuestion.objects.filter(candidate_id=candidate_id).delete() 
             form_data = candidate_data.objects.filter(id=form_data_id).first()
