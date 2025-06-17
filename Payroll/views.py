@@ -935,10 +935,18 @@ def rate_card_view(request, card_id):
     card_id = dec(card_id)
     rate_card = get_object_or_404(rate_card_master, pk=card_id)
     salary_elements = RateCardSalaryElement.objects.filter(rate_card=rate_card)
-    
+    client_names = company_master.objects.all()
+    designation_names = designation_master.objects.all()
+    location_names = site_master.objects.all()
+    level_names = LevelMaster.objects.all()
     return render(request, 'Payroll/RateCard/view.html', {
         'rate_card': rate_card,
         'salary_elements': salary_elements,
+        'client_names':client_names,
+        'designation_names': designation_names,
+        'location_names': location_names,
+        'level_names':level_names
+
     })
 
 
@@ -1076,6 +1084,7 @@ def employee_rate_card_edit(request, id):
 @login_required
 def employee_rate_card_view(request, id):
     rate_card_detail = get_object_or_404(employee_rate_card_details, id=id)
+
     return render(request, 'Payroll/EmployeeRateCardDetails/view.html', {
         'rate_card_detail': rate_card_detail
     })
