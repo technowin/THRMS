@@ -1153,7 +1153,7 @@ def common_form_post(request):
             mobile=saved_special_fields.get('544'),
             post=saved_special_fields.get('552'),
             form_data_id = form_dataID,
-            created_at=timezone.now(),
+            created_at=datetime.now(),
             created_by = user 
         )
 
