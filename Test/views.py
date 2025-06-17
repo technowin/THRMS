@@ -415,7 +415,9 @@ def partial_details_index(request):
                     'Encryp': enc(str(row[0])),
                     'enc_candidate_id': enc(str(row[11])),
                     'enc_form_data_id': enc(str(row[12])),
-                    'step_name': row[13],                                         
+                    'step_name': row[13],
+                    'step_id': row[14],
+                                                             
                 }
                 for row in candidate_details
             ]
@@ -470,7 +472,8 @@ def partial_details_index_onpageload(request):
                     'Encryp': enc(str(row[0])),
                     'enc_candidate_id': enc(str(row[11])),
                     'enc_form_data_id': enc(str(row[12])),
-                    'step_name': row[13],                                        
+                    'step_name': row[13],
+                    'step_id': row[14],                                        
                 }
                 for row in candidate_details
             ]

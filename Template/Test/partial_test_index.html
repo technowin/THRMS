@@ -79,7 +79,12 @@
                                 </td>                                  -->
                                 <td>{{ row.created_at }}</td>
                                 <td>
-                                  <a href="/show_form?form={{ row.Encryp }}" class="btn btn-sm btn-primary" style="margin-right:3%;">{{row.step_name}}</a> 
+                                    {% if row.step_id == 1 %}
+                                      <a href="/show_form?form={{ row.Encryp }}" class="btn btn-sm btn-primary" style="margin-right:3%;">{{row.step_name}}</a> 
+                                    {% elif row.step_id == 2 %}
+                                      <a href="#" class="btn btn-sm btn-primary" style="margin-right:3%;">{{row.step_name}}</a> 
+                                    {% endif %}                                  
+                                  <!-- <a href="/show_form?form={{ row.Encryp }}" class="btn btn-sm btn-primary" style="margin-right:3%;">{{row.step_name}}</a>  -->
                                   <a href="/result_page?cname={{ row.enc_candidate_id }}&type=adpg" class="btn btn-sm btn-primary" style="margin-right:3%;">Result</a> 
                                   <a href="view_candidate_answersheet?id={{ row.enc_candidate_id }}" class="btn btn-sm btn-primary" style="margin-right:3%;">Answers</a> 
                                 </td>                                 
