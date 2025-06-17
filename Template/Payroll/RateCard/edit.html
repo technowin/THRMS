@@ -143,241 +143,137 @@
                             <input type="hidden" name="card_name_hidden" values={{ form.card_name}}>
                     </div>
                 </div>
-
-                    {% comment %} <div class="row col-md-12">
-                        <div class="col-md-4">
-                            <label for="card_name">Card Name:</label>
-                            {{ form.card_name }} 
-                        </div>
-                    </div> {% endcomment %}
-                    
                     <br>
                     
                     
-                    <!-- Salary Elements Section -->
-                    {% comment %} <div>
-                        <h4>Select Salary Elements:</h4>
-                        {% for item in form.item_ids.field.queryset %}
-                            <div class="checkbox-container row">
-                                <!-- Checkbox -->
-                                <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                                    <input type="checkbox" 
-                                           id="checkbox_{{ item.pk }}"
-                                           name="item_ids" 
-                                           class="form-check-input salary-checkbox" 
-                                           value="{{ item.pk }}" 
-                                           style="font-size: 1rem;"
-                                           {% if item.pk in selected_item_ids %} checked {% endif %}>
-                                    <br>
-                                    <label class="form-label">{{ item.item_name }}</label>
-                                </div>
-                                <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                                    <label for="four_hour_amount_{{ item.pk }}" class="form-label">Four Hour Amount</label>
-                                    <input type="number" 
-                                           name="four_hour_amount_{{ item.pk }}" 
-                                           class="amount-field form-control four-hour-input" 
-                                           placeholder="4-Hour Amount" 
-                                           min="0" 
-                                           step="0.01" 
-                                           style="width: 90%;"
-                                           {% if item.pk in selected_item_ids %} 
-                                               value="{% if prefilled_data|get_item:item.pk %}{% with prefilled_data|get_item:item.pk as data %}{{ data.four_hour_amount }}{% endwith %}{% else %}0.00{% endif %}" 
-                                           {% else %} 
-                                               disabled value="" 
-                                           {% endif %}>
-                                </div>
-                                <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                                    <label for="nine_hour_amount_{{ item.pk }}" class="form-label">Nine Hour Amount</label>
-                                    <input type="number" 
-                                           name="nine_hour_amount_{{ item.pk }}" 
-                                           class="amount-field form-control nine-hour-input" 
-                                           placeholder="9-Hour Amount" 
-                                           min="0" 
-                                           step="0.01" 
-                                           style="width: 90%;"
-                                           {% if item.pk in selected_item_ids %} 
-                                               value="{% if prefilled_data|get_item:item.pk %}{% with prefilled_data|get_item:item.pk as data %}{{ data.nine_hour_amount }}{% endwith %}{% else %}0.00{% endif %}" 
-                                           {% else %} 
-                                               disabled value="" 
-                                           {% endif %}>
-                                </div>
-                                <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                                    <label for="pay_type_{{ item.pk }}" class="form-label">Pay type</label>
-                                    <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control pay_type select" style="width: 90%;">
-                                    {% for pay in pay_type %}
-                                    <option value="">Select Pay Type</option>
-                                        <option value="{{ pay.id }}"
-                                            {% if prefilled_data|get_item:item.pk|get_item:'pay_type' == pay.id|stringformat:"s" %}selected{% endif %}>
-                                            {{ pay.name }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                                <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                                    <label for="classification_{{ item.pk }}" class="form-label">Classification</label>
-                                   <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control classification select" style="width: 90%;">
-                                        {% for class in classification %}
-                                        <option value="">Select Classification</option>
-                                            <option value="{{ class.id }}"
-                                                {% if prefilled_data|get_item:item.pk|get_item:'classification' == class.id|stringformat:"s" %}selected{% endif %}>
-                                                {{ class.name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                                    <label for="tax_parameter_{{ item.pk }}" class="form-label">Tax Parameter</label>
-                                    <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control tax_parameter select" style="width: 90%;">
-                                        <option value="">Select Tax</option>
-                                        {% for tax in tax_parameter %}
-                                            <option value="{{ tax.id }}"
-                                                    {% if prefilled_data|get_item:item.pk|get_item:'tax_parameter' == tax %} selected {% endif %}>
-                                                {{ tax.tax_parameter }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-custom-2 text-center" style="border:1px solid black; padding:10px; margin:10px;">
-                                    <label for="salary_unit_{{ item.pk }}" class="form-label">Salary Unit</label>
-                                    <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control salary_unit select" style="width: 90%;">
-                                      
-                                        {% for sal in salary_unit %}
-                                            <option value="{{ sal.id }}"
-                                                    {% if prefilled_data|get_item:item.pk|get_item:'salary_unit' == sal %} selected {% endif %}>
-                                                {{ sal.name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div></div>
-                        {% endfor %}
-                    </div> {% endcomment %}
+                   
 
                     <h4 class="text-primary">Select Salary Elements:</h4>
                     <div class="table-responsive">
-<table id="salaryTable" class="table table-bordered">
-    <thead class="text-center">
-        <tr>
-            <th style="width:15%">Select</th>
-            <th style="width:10%">4-Hour Amount</th>
-            <th style="width:10%">9-Hour Amount</th>
-            <th style="width:15%">Pay Type</th>
-            <th style="width:15%">Classification</th>
-            <th style="width:15%">Tax Parameter</th>
-            <th style="width:15%">Salary Unit</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in form.item_ids.field.queryset %}
-        <tr>
-            <!-- Checkbox -->
-            <td class="text-center align-middle">
-                <input type="checkbox" 
-                       id="checkbox_{{ item.pk }}"
-                       name="item_ids" 
-                       class="form-check-input salary-checkbox" 
-                       value="{{ item.pk }}"
-                       {% if item.pk in selected_item_ids %} checked {% endif %}>
-                <br>
-                <label for="checkbox_{{ item.pk }}">{{ item.item_name }}</label>
-            </td>
+                        <table id="salaryTable" class="table table-bordered">
+                            <thead class="text-center">
+                                <tr>
+                                    <th style="width:15%">Select</th>
+                                    <th style="width:10%">4-Hour Amount</th>
+                                    <th style="width:10%">9-Hour Amount</th>
+                                    <th style="width:15%">Pay Type</th>
+                                    <th style="width:15%">Classification</th>
+                                    <th style="width:15%">Tax Parameter</th>
+                                    <th style="width:15%">Salary Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in form.item_ids.field.queryset %}
+                                <tr>
+                                    <!-- Checkbox -->
+                                    <td class="text-center align-middle">
+                                        <input type="checkbox" 
+                                            id="checkbox_{{ item.pk }}"
+                                            name="item_ids" 
+                                            class="form-check-input salary-checkbox" 
+                                            value="{{ item.pk }}"
+                                            {% if item.pk in selected_item_ids %} checked {% endif %}>
+                                        <br>
+                                        <label for="checkbox_{{ item.pk }}">{{ item.item_name }}</label>
+                                    </td>
 
-            <!-- 4-Hour Amount -->
-            <td class="text-center">
-                <input type="number" 
-                       name="four_hour_amount_{{ item.pk }}" 
-                       class="amount-field form-control four-hour-input" 
-                       placeholder="4-Hour" 
-                       min="0" 
-                       step="0.01"
-                       {% if item.pk in selected_item_ids %}
-                           value="{% if prefilled_data|get_item:item.pk %}{% with prefilled_data|get_item:item.pk as data %}{{ data.four_hour_amount }}{% endwith %}{% else %}0.00{% endif %}"
-                       {% else %}
-                           disabled value=""
-                       {% endif %}>
-            </td>
+                                    <!-- 4-Hour Amount -->
+                                    <td class="text-center">
+                                        <input type="number" 
+                                            name="four_hour_amount_{{ item.pk }}" 
+                                            class="amount-field form-control four-hour-input" 
+                                            placeholder="4-Hour" 
+                                            min="0" 
+                                            step="0.01"
+                                            {% if item.pk in selected_item_ids %}
+                                                value="{% if prefilled_data|get_item:item.pk %}{% with prefilled_data|get_item:item.pk as data %}{{ data.four_hour_amount }}{% endwith %}{% else %}0.00{% endif %}"
+                                            {% else %}
+                                                disabled value=""
+                                            {% endif %}>
+                                    </td>
 
-            <!-- 9-Hour Amount -->
-            <td class="text-center">
-                <input type="number" 
-                       name="nine_hour_amount_{{ item.pk }}" 
-                       class="amount-field form-control nine-hour-input" 
-                       placeholder="9-Hour" 
-                       min="0" 
-                       step="0.01"
-                       {% if item.pk in selected_item_ids %}
-                           value="{% if prefilled_data|get_item:item.pk %}{% with prefilled_data|get_item:item.pk as data %}{{ data.nine_hour_amount }}{% endwith %}{% else %}0.00{% endif %}"
-                       {% else %}
-                           disabled value=""
-                       {% endif %}>
-            </td>
+                                    <!-- 9-Hour Amount -->
+                                    <td class="text-center">
+                                        <input type="number" 
+                                            name="nine_hour_amount_{{ item.pk }}" 
+                                            class="amount-field form-control nine-hour-input" 
+                                            placeholder="9-Hour" 
+                                            min="0" 
+                                            step="0.01"
+                                            {% if item.pk in selected_item_ids %}
+                                                value="{% if prefilled_data|get_item:item.pk %}{% with prefilled_data|get_item:item.pk as data %}{{ data.nine_hour_amount }}{% endwith %}{% else %}0.00{% endif %}"
+                                            {% else %}
+                                                disabled value=""
+                                            {% endif %}>
+                                    </td>
 
-            <!-- Pay Type -->
-            <td>
-                <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control pay_type select">
-                    <option value="">Select Pay Type</option>
-                    {% for pay in pay_type %}
-                        {% if prefilled_data|get_item:item.pk|get_item:'pay_type' == pay.id|stringformat:"s" %}
-                            <option value="{{ pay.id }}" selected>{{ pay.name }}</option>
-                        {% elif item.pay_type.id == pay.id %}
-                            <option value="{{ pay.id }}" selected>{{ pay.name }}</option>
-                        {% else %}
-                            <option value="{{ pay.id }}">{{ pay.name }}</option>
-                        {% endif %}
-                    {% endfor %}
+                                    <!-- Pay Type -->
+                                    <td>
+                                        <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control pay_type select">
+                                            <option value="">Select Pay Type</option>
+                                            {% for pay in pay_type %}
+                                                {% if prefilled_data|get_item:item.pk|get_item:'pay_type' == pay.id|stringformat:"s" %}
+                                                    <option value="{{ pay.id }}" selected>{{ pay.name }}</option>
+                                                {% elif item.pay_type.id == pay.id %}
+                                                    <option value="{{ pay.id }}" selected>{{ pay.name }}</option>
+                                                {% else %}
+                                                    <option value="{{ pay.id }}">{{ pay.name }}</option>
+                                                {% endif %}
+                                            {% endfor %}
 
-                </select>
-            </td>
+                                        </select>
+                                    </td>
 
-            <!-- Classification -->
-            <td>
-                <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control classification select">
-                    <option value="">Select Classification</option>
-                    {% for class in classification %}
-                       {% if prefilled_data|get_item:item.pk|get_item:'classification' == class.id|stringformat:"s" %}
-                            <option value="{{ class.id }}" selected>{{ class.name }}</option>
-                        {% elif item.classification_id == class.id %}
-                            <option value="{{ class.id }}" selected>{{ class.name }}</option>
-                        {% else %}
-                            <option value="{{ class.id }}">{{ class.name }}</option>
-                        {% endif %}
+                                    <!-- Classification -->
+                                    <td>
+                                        <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control classification select">
+                                            <option value="">Select Classification</option>
+                                            {% for class in classification %}
+                                            {% if prefilled_data|get_item:item.pk|get_item:'classification' == class.id|stringformat:"s" %}
+                                                    <option value="{{ class.id }}" selected>{{ class.name }}</option>
+                                                {% elif item.classification_id == class.id %}
+                                                    <option value="{{ class.id }}" selected>{{ class.name }}</option>
+                                                {% else %}
+                                                    <option value="{{ class.id }}">{{ class.name }}</option>
+                                                {% endif %}
 
-                    {% endfor %}
-                </select>
-            </td>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
 
-            <!-- Tax Parameter -->
-            <td>
-                <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control tax_parameter select">
-                    <option value="">Select Tax</option>
-                    {% for tax in tax_parameter %}
-                        {% if prefilled_data|get_item:item.pk|get_item:'tax_parameter' == tax %}
-                            <option value="{{ tax.id }}" selected>{{ tax.tax_parameter }}</option>
-                        {% elif item.tax_parameter.id == tax.id %}
-                            <option value="{{ tax.id }}" selected>{{ tax.tax_parameter }}</option>
-                        {% else %}
-                            <option value="{{ tax.id }}">{{ tax.tax_parameter }}</option>
-                        {% endif %}
-                    {% endfor %}
+                                    <!-- Tax Parameter -->
+                                    <td>
+                                        <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control tax_parameter select">
+                                            <option value="">Select Tax</option>
+                                            {% for tax in tax_parameter %}
+                                                {% if prefilled_data|get_item:item.pk|get_item:'tax_parameter' == tax %}
+                                                    <option value="{{ tax.id }}" selected>{{ tax.tax_parameter }}</option>
+                                                {% elif item.tax_parameter.id == tax.id %}
+                                                    <option value="{{ tax.id }}" selected>{{ tax.tax_parameter }}</option>
+                                                {% else %}
+                                                    <option value="{{ tax.id }}">{{ tax.tax_parameter }}</option>
+                                                {% endif %}
+                                            {% endfor %}
 
-                </select>
-            </td>
+                                        </select>
+                                    </td>
 
-            <!-- Salary Unit -->
-            <td>
-                <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control salary_unit select">
-                    {% for sal in salary_unit %}
-                        <option value="{{ sal.id }}"
-                                {% if prefilled_data|get_item:item.pk|get_item:'salary_unit' == sal %}selected{% endif %}>
-                            {{ sal.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
+                                    <!-- Salary Unit -->
+                                    <td>
+                                        <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control salary_unit select">
+                                            {% for sal in salary_unit %}
+                                                <option value="{{ sal.id }}"
+                                                        {% if prefilled_data|get_item:item.pk|get_item:'salary_unit' == sal %}selected{% endif %}>
+                                                    {{ sal.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
                    
                     <!-- Submit and Back Buttons -->
                     <div class="text-center mt-3">
@@ -431,50 +327,6 @@
 
 
 <script>
-{% comment %} document.addEventListener('DOMContentLoaded', function () {
-
-    function handleSalaryCheckboxChange(checkbox) {
-        const container = checkbox.closest('.checkbox-container');
-        const fourHourInput = container.querySelector('.four-hour-input');
-        const nineHourInput = container.querySelector('.nine-hour-input');
-        const taxParameter = container.querySelector('.tax_parameter');
-        const salaryUnit = this.closest('.checkbox-container').querySelector('.salary_unit');
-        const payType = this.closest('.checkbox-container').querySelector('.pay_type');
-        const classification = this.closest('.checkbox-container').querySelector('.classification');
-
-
-        if (checkbox.checked) {
-            fourHourInput.disabled = false;
-            nineHourInput.disabled = false;
-            taxParameter.disabled = false;
-            salaryUnit.disabled = false;
-            payType.disabled = false;
-            classification.disabled = false;
-
-            if (!fourHourInput.value) fourHourInput.value = 0;
-            if (!nineHourInput.value) nineHourInput.value = 0;
-        } else {
-            fourHourInput.disabled = true;
-            nineHourInput.disabled = true;
-            taxParameter.disabled = true;
-            salaryUnit.disabled = true;
-            payType.disabled = true;
-            classification.disabled = true;
-
-            fourHourInput.value = '';
-            nineHourInput.value = '';
-        }
-    }
-
-    // Apply on load and bind to change event
-    document.querySelectorAll('.salary-checkbox').forEach(function (checkbox) {
-        handleSalaryCheckboxChange(checkbox); // on load
-        checkbox.addEventListener('change', function () {
-            handleSalaryCheckboxChange(this); // on change
-        });
-    });
-
-}); {% endcomment %}
 </script>
 
 <script>

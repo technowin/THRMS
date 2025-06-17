@@ -12,6 +12,7 @@ class salary_element_master(models.Model):
     is_active = models.BooleanField(null=True,blank=True,default=True)
     tax_parameter = models.ForeignKey('Payroll.income_tax_parameter', on_delete=models.CASCADE,related_name='salary_income_related',blank=True, null=True,db_column='tax_parameter')
     created_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
+    visible = models.TextField(null=True,blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='salary_item_created_by',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now=True)
     updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='salary_item_updated_by',blank=True, null=True,db_column='updated_by')

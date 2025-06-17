@@ -19,7 +19,7 @@ class SalaryElementMasterForm(forms.ModelForm):
 
 class RateCardMasterForm(forms.ModelForm):
     item_ids = forms.ModelMultipleChoiceField(
-        queryset=salary_element_master.objects.all(),
+        queryset=salary_element_master.objects.filter(visible='1'),
         widget=forms.CheckboxSelectMultiple,  # Customize widget if necessary
         required=False
     )

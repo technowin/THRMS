@@ -146,180 +146,94 @@
                     <h4 class="text-primary">Select Salary Elements:</h4>
                     <br>
     
-                    {% comment %} {% for item in form.item_ids.field.queryset %}
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-custom-2 text-center">
-                            <div class="border p-3 h-100">
-                                <input type="checkbox" name="item_ids" class="form-control salary-checkbox" value="{{ item.pk }}" 
-                                    onclick="toggleAmountFields(this, '{{ item.pk }}')" 
-                                    style="font-size: 1rem;">
-                                <label class="mt-2">{{ item.item_name }}</label>
-                            </div>
-                        </div>
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr class="text-center align-middle">
+                                <th>Item</th>
+                                <th>4-Hour Amount</th>
+                                <th>9-Hour Amount</th>
+                                <th>Pay Type</th>
+                                <th>Classification</th>
+                                <th>Unit</th>
+                                <th>Tax</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in form.item_ids.field.queryset %}
+                            <tr class="text-center align-middle">
+                                <!-- Checkbox and Item Name -->
+                                <td>
+                                    <div class="d-flex flex-column align-items-center">
+                                        <input type="checkbox" name="item_ids" class="form-control salary-checkbox" value="{{ item.pk }}"
+                                            onclick="toggleAmountFields(this, '{{ item.pk }}')">
+                                        <label class="mt-2 d-block">{{ item.item_name }}</label>
+                                    </div>
+                                </td>
 
-                        <div class="col-md-custom-2 text-center">
-                            <div class="border p-3 h-100">
-                                <label for="four_hour_amount_{{ item.pk }}" class="form-label">4-Hour Amount</label>
-                                <input type="number" name="four_hour_amount_{{ item.pk }}" 
-                                    class="form-control amount-field w-100" placeholder="4-Hour Amount" min="0" 
-                                    id="four_hour_amount_{{ item.pk }}" step="0.01" disabled>
+                                <!-- 4-Hour Amount -->
+                                <td>
+                                    <input type="number" name="four_hour_amount_{{ item.pk }}"
+                                        class="form-control amount-field w-50 mx-auto" placeholder="4-Hour" min="0"
+                                        id="four_hour_amount_{{ item.pk }}" step="0.01" disabled>
+                                </td>
 
-                            </div>
-                        </div>
+                                <!-- 9-Hour Amount -->
+                                <td>
+                                    <input type="number" name="nine_hour_amount_{{ item.pk }}"
+                                        class="form-control amount-field w-50 mx-auto" placeholder="9-Hour" min="0"
+                                        id="nine_hour_amount_{{ item.pk }}" step="0.01" disabled>
+                                </td>
 
-                        <div class="col-md-custom-2 text-center">
-                            <div class="border p-3 h-100">
-                                <label for="nine_hour_amount_{{ item.pk }}" class="form-label">9-Hour Amount</label>
-                                <input type="number" name="nine_hour_amount_{{ item.pk }}" 
-                                    class="form-control amount-field w-75" placeholder="9-Hour Amount" min="0" 
-                                    id="nine_hour_amount_{{ item.pk }}" step="0.01" disabled>
-                            </div>
-                        </div>
-
-                        <div class="col-md-custom-2 text-center">
-                            <div class="border p-3 h-100">
-                                <label for="pay_type_{{ item.pk }}" class="form-label">Pay Type</label>
-                            <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control select" disabled>
-                                <option value="">Select Pay Type</option>
-                                    {% for pay in pay_type %}
+                                <!-- Pay Type -->
+                                <td>
+                                    <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control select" disabled>
+                                        <option value="">Select Pay Type</option>
+                                        {% for pay in pay_type %}
                                         <option value="{{ pay.id }}" {% if item.pay_type.id == pay.id %}selected{% endif %}>
                                             {{ pay.name }}
                                         </option>
-                                    {% endfor %}
-                            </select>
+                                        {% endfor %}
+                                    </select>
+                                </td>
 
-                            </div>
-                        </div>
-
-                        <div class="col-md-custom-2 text-center">
-                            <div class="border p-3 h-100">
-                                <label for="salary_unit_{{ item.pk }}" class="form-label">Classification</label>
-                            <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control select" disabled>
-                                <option value="">Select Classification</option>
-                                    {% for class in classification %}
+                                <!-- Classification -->
+                                <td>
+                                    <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control select" disabled>
+                                        <option value="">Select Classification</option>
+                                        {% for class in classification %}
                                         <option value="{{ class.id }}" {% if item.classification_id == class.id %}selected{% endif %}>
                                             {{ class.name }}
                                         </option>
-                                    {% endfor %}
-                                </select>
+                                        {% endfor %}
+                                    </select>
+                                </td>
 
-                            </div>
-                        </div>
-
-                        <div class="col-md-2 text-center">
-                            <div class="border p-3 h-100">
-                                <label for="salary_unit_{{ item.pk }}" class="form-label">Unit</label>
-                                <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control select" disabled>
-                                    {% for sal in salary_unit %}
+                                <!-- Salary Unit -->
+                                <td>
+                                    <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control select" disabled>
+                                        {% for sal in salary_unit %}
                                         <option value="{{ sal.id }}">{{ sal.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
+                                        {% endfor %}
+                                    </select>
+                                </td>
 
-                        <div class="col-md-2 text-center">
-                            <div class="border p-3 h-100">
-                                <label for="tax_parameter_{{ item.pk }}" class="form-label">Tax</label>
-                                <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control select" disabled>
-                                    <option value="">Select Tax Parameter</option>
-                                    {% for tax in tax_parameter %}
+                                <!-- Tax Parameter -->
+                                <td>
+                                    <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control select" disabled>
+                                        <option value="">Select Tax Parameter</option>
+                                        {% for tax in tax_parameter %}
                                         <option value="{{ tax.id }}" {% if item.tax_parameter.id == tax.id %}selected{% endif %}>
                                             {{ tax.tax_parameter }}
                                         </option>
-                                    {% endfor %}
-                                </select>
-
-                            </div>
-                        </div>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                     </div>
-                    {% endfor %} {% endcomment %}
-
-                    <table class="table table-bordered">
-    <thead>
-        <tr class="text-center align-middle">
-            <th>Item</th>
-            <th>4-Hour Amount</th>
-            <th>9-Hour Amount</th>
-            <th>Pay Type</th>
-            <th>Classification</th>
-            <th>Unit</th>
-            <th>Tax</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in form.item_ids.field.queryset %}
-        <tr class="text-center align-middle">
-            <!-- Checkbox and Item Name -->
-            <td>
-                <div class="d-flex flex-column align-items-center">
-                    <input type="checkbox" name="item_ids" class="form-control salary-checkbox" value="{{ item.pk }}"
-                        onclick="toggleAmountFields(this, '{{ item.pk }}')">
-                    <label class="mt-2 d-block">{{ item.item_name }}</label>
-                </div>
-            </td>
-
-            <!-- 4-Hour Amount -->
-            <td>
-                <input type="number" name="four_hour_amount_{{ item.pk }}"
-                    class="form-control amount-field w-50 mx-auto" placeholder="4-Hour" min="0"
-                    id="four_hour_amount_{{ item.pk }}" step="0.01" disabled>
-            </td>
-
-            <!-- 9-Hour Amount -->
-            <td>
-                <input type="number" name="nine_hour_amount_{{ item.pk }}"
-                    class="form-control amount-field w-50 mx-auto" placeholder="9-Hour" min="0"
-                    id="nine_hour_amount_{{ item.pk }}" step="0.01" disabled>
-            </td>
-
-            <!-- Pay Type -->
-            <td>
-                <select name="pay_type_{{ item.pk }}" id="pay_type_{{ item.pk }}" class="form-control select" disabled>
-                    <option value="">Select Pay Type</option>
-                    {% for pay in pay_type %}
-                    <option value="{{ pay.id }}" {% if item.pay_type.id == pay.id %}selected{% endif %}>
-                        {{ pay.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </td>
-
-            <!-- Classification -->
-            <td>
-                <select name="classification_{{ item.pk }}" id="classification_{{ item.pk }}" class="form-control select" disabled>
-                    <option value="">Select Classification</option>
-                    {% for class in classification %}
-                    <option value="{{ class.id }}" {% if item.classification_id == class.id %}selected{% endif %}>
-                        {{ class.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </td>
-
-            <!-- Salary Unit -->
-            <td>
-                <select name="salary_unit_{{ item.pk }}" id="salary_unit_{{ item.pk }}" class="form-control select" disabled>
-                    {% for sal in salary_unit %}
-                    <option value="{{ sal.id }}">{{ sal.name }}</option>
-                    {% endfor %}
-                </select>
-            </td>
-
-            <!-- Tax Parameter -->
-            <td>
-                <select name="tax_parameter_{{ item.pk }}" id="tax_parameter_{{ item.pk }}" class="form-control select" disabled>
-                    <option value="">Select Tax Parameter</option>
-                    {% for tax in tax_parameter %}
-                    <option value="{{ tax.id }}" {% if item.tax_parameter.id == tax.id %}selected{% endif %}>
-                        {{ tax.tax_parameter }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 
 
                 </div>

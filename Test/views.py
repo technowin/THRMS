@@ -681,23 +681,12 @@ def candidate_index(request):
                 for row in rows:
                     desc_id = row[0]
 
-                    # Include row only if:
-                    # - The id exists in the user's created IndexTable entries
-                    # - The status for that id is exactly 1
                     if desc_id in index_status_map and index_status_map[desc_id] == 1:
                         encrypted_id = enc(str(desc_id))
                         table_data.append((encrypted_id,) + row[1:])
             else:
                 rows = []
 
-
-
-            # Annotate queryset with post name
-            # queryset = CandidateTestMaster.objects.annotate(
-            #     post_name=Subquery(post_name_subquery)
-            # )            
-
-            # Get the latest candidate record (by ID) for created_by=24 and status=2
             queryset = CandidateTestMaster.objects.filter(
                 created_by=user,
                 status='4'  # Use 2 if it's an IntegerField, '2' if it's CharField

@@ -63,7 +63,9 @@
                               <td>{{ site.level }}</td>
                               <td>
                                   <a href="{% url 'rate_card_view' card.pk %}">View</a> |
-                                  <a href="{% url 'rate_card_edit' card.pk %}">Edit</a>
+                                  <a href="{% url 'rate_card_edit' card.pk %}">Edit</a> |
+                                   <a href="{% url 'rate_card_view' card.pk %}?type=assign">Assign</a> |
+                                  <a href="{% url 'rate_card_edit' card.pk %}?type=change">Change</a>
                               </td>
                           </tr>
                       {% endfor %}
