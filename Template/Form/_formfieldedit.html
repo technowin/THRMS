@@ -139,6 +139,7 @@
                                     <input type="hidden" id="status_wfM" name="status_wfM" value="{{ status_wfM }}">
                                     <input type="hidden" id="new_data_id" name="new_data_id" value="{{ new_data_id }}">
                                     <input type="hidden" id="reference_type" name="reference_type" value="{{ reference_type }}">
+                                    <input type="hidden" id="form_ids" name="form_ids" value="{{ form_ids }}">
 
 
                                     <input type="hidden" id="custom_dropdownOpr" name="custom_dropdownOpr">
@@ -153,6 +154,9 @@
                                     <input type="hidden" id = "new_form_data_id" name = "new_form_data_id" value ="{{new_form_data_id}}">
                                     <input type="hidden" id = "inward_req_id" name = "inward_req_id" value ="{{inward_req_id}}">
                                     <input type="hidden" id="category_dropdownOpr" name="category_dropdownOpr">
+
+                                    <input type="hidden" id="primary" name="primary" value={{primary}}>
+
 
 
                                     <label class="fw-bold">{{ field.label }}</label>
@@ -255,11 +259,6 @@
                                         placeholder="Enter Numeric Value" 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %} />
 
-                                    {% elif field.field_type == "foreign" %}
-                                    <input type="text" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
-                                        {% if field.accept %} maxlength="{{ field.accept }}"{% endif %}
-                                        placeholder="{% if field.accept %}Enter up to {{ field.accept }} characters{% else %}Enter text{% endif %}" 
-                                        {% for attr in field.attributes %} {{ attr }} {% endfor %}>
 
                                     {% elif field.field_type == "text" %}
                                     <input type="text" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
@@ -281,9 +280,22 @@
                                         placeholder="{{ field.regex_description }}" 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %}>
 
+                                    {% elif field.field_type == "foreign" %}
+                                        <input type="text" class="form-control"
+                                            name="field_{{ field.id }}"
+                                            value="{{ field.foreign_data|default:'No data available' }}"
+                                            {% for attr in field.attributes %} {{ attr }} {% endfor %}/>
+
+
                                     {% else %}
                                     <input type="{{ field.field_type }}" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}" 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+                                    {% endif %}
+
+                                     {% if field.is_primary == 1 %}
+                                        <input type="hidden" class="form-control"
+                                            name="field_{{ field.id }}"
+                                            value="{{ field.primary_value|default:'No data available' }}">
                                     {% endif %}
                                 </div>
 
@@ -662,20 +674,23 @@
 
      
 
+   let isSubmitting = false; // flag to prevent multiple submissions
+
     document.querySelectorAll('.submit-btn').forEach(button => {
         button.addEventListener('click', function () {
-            debugger;
-            
+            if (isSubmitting) return; // do nothing if already submitting
+            isSubmitting = true;
+
             const buttonType = this.getAttribute('data-button-type');
             const actionId = this.getAttribute('data-action-id');
-            
+
             if (buttonType === 'Action') {
                 document.getElementById('clicked_action_id').value = actionId;
             }
-    
-            // optional: dynamically change the form action if needed
+
             const form = document.getElementById('dynamicForm');
-            const type = $('#type').val(); // assuming jQuery is used here
+            const type = $('#type').val(); // assuming jQuery is used
+
             if (buttonType === 'Submit' && type === 'create') {
                 form.action = "{% url 'common_form_post' %}";
             } else if (buttonType === 'Submit' && type === 'edit') {
@@ -683,9 +698,14 @@
             } else if (buttonType === 'Action') {
                 form.action = "{% url 'common_form_action' %}";
             }
+
+            // Optionally disable all submit buttons to prevent further clicks
+            document.querySelectorAll('.submit-btn').forEach(btn => btn.disabled = true);
+
+            form.submit(); // manually trigger form submission
         });
     });
-    
+
 
 
 </script>

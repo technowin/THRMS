@@ -1169,7 +1169,7 @@ def common_form_post(request):
                 wfdetailsid = None  
             
             if step_id:
-                matrix_entry = rec_workflow_details.objects.filter(id=step_id).first()
+                matrix_entry = workflow_matrix.objects.filter(id=step_id).first()
                 if matrix_entry:
                     status_from_matrix = matrix_entry.status  # adjust field name if needed
                     
@@ -1273,79 +1273,158 @@ def common_form_post(request):
 
 def common_form_edit(request):
 
-    user = request.session.get('user_id', '')
+    # user = request.session.get('user_id', '')
+    # workflow_YN = request.POST.get("workflow_YN")
+    # edit_type = request.POST.get("edit_type")
+    # primary_key = request.POST.get("primary_field")
+    
+    
+    # try:
+    #     if request.method != "POST":
+    #         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+    #     form_data_id = request.POST.get("form_data_id")
+    #     if not form_data_id:
+    #         return JsonResponse({"error": "form_data_id is required"}, status=400)
+    #     type = request.POST.get("type")
+        
+    #     form = get_object_or_404(Form, id=request.POST.get("form_id"))
+
+    #     module_id = form.module
+    #     module_tables = common_module_master(module_id)
+
+    #     IndexTable = apps.get_model('Form', module_tables["index_table"])
+    #     DataTable = apps.get_model('Form', module_tables["data_table"])
+    #     FileTable = apps.get_model('Form', module_tables["file_table"])
+
+    #     form_data = get_object_or_404(IndexTable, id=form_data_id)
+    #     form_data.updated_by = user
+    #     form_data.save()
+
+    #     form = get_object_or_404(Form, id=request.POST.get("form_id"))
+
+    #     created_by = request.session.get("user_id", "").strip()
+    #     form_name = request.POST.get("form_name", "").strip()
+    
+
+    #     # Re-create all non-file fields
+    #     for key, value in request.POST.items():
+    #         if key.startswith("field_id_"):
+    #             field_id = value.strip()
+    #             field = get_object_or_404(FormField, id=field_id)
+
+    #             if field.field_type == "select multiple"  or field.field_type == "multiple":
+    #                 selected_values = request.POST.getlist(f"field_{field_id}")
+    #                 input_value = ','.join([val.strip() for val in selected_values if val.strip()])
+    #             else:
+    #                 input_value = request.POST.get(f"field_{field_id}", "").strip()
+
+    #             if field.field_type == "generative":
+    #                 continue
+    #             elif  field.field_type in ["file", "file multiple"]:
+    #                 continue
+
+    #             # Check if a value already exists for this field
+    #             existing_value = DataTable.objects.filter(
+    #                 form_data=form_data, form=form, field=field
+    #             ).first()
+
+    #             if existing_value:
+    #                 # Update existing entry
+    #                 existing_value.value = input_value
+    #                 existing_value.save()
+    #             else:
+    #                 # Create new entry
+    #                 DataTable.objects.create(
+    #                     form_data=form_data,
+    #                     form=form,
+    #                     field=field,
+    #                     value=input_value,
+    #                     created_by=created_by
+    #                 )
+
+
+    #     handle_uploaded_files(request, form_name, created_by, form_data, user,module_id)
+        
+    user = request.session.get('user_id', '').strip()
     workflow_YN = request.POST.get("workflow_YN")
     edit_type = request.POST.get("edit_type")
-    
-    
+    candidate_id = request.POST.get("primary_field", "").strip()  # Assuming this is candidate_id
+    form_ids = request.POST.getlist("form_id")  # Multiple form IDs passed as list
+    type = request.POST.get("type")
+
+
     try:
-        if request.method != "POST":
-            return JsonResponse({"error": "Invalid request method"}, status=400)
-
         form_data_id = request.POST.get("form_data_id")
-        if not form_data_id:
-            return JsonResponse({"error": "form_data_id is required"}, status=400)
-        type = request.POST.get("type")
-        
-        form = get_object_or_404(Form, id=request.POST.get("form_id"))
+        for form_id in form_ids:
+            form = get_object_or_404(Form, id=form_id)
+            module_id = form.module
+            module_tables = common_module_master(module_id)
 
-        module_id = form.module
-        module_tables = common_module_master(module_id)
+            IndexTable = apps.get_model('Form', module_tables["index_table"])
+            DataTable = apps.get_model('Form', module_tables["data_table"])
 
-        IndexTable = apps.get_model('Form', module_tables["index_table"])
-        DataTable = apps.get_model('Form', module_tables["data_table"])
-        FileTable = apps.get_model('Form', module_tables["file_table"])
+            is_new = False
 
-        form_data = get_object_or_404(IndexTable, id=form_data_id)
-        form_data.updated_by = user
-        form_data.save()
-
-        form = get_object_or_404(Form, id=request.POST.get("form_id"))
-
-        created_by = request.session.get("user_id", "").strip()
-        form_name = request.POST.get("form_name", "").strip()
-    
-
-        # Re-create all non-file fields
-        for key, value in request.POST.items():
-            if key.startswith("field_id_"):
-                field_id = value.strip()
-                field = get_object_or_404(FormField, id=field_id)
-
-                if field.field_type == "select multiple"  or field.field_type == "multiple":
-                    selected_values = request.POST.getlist(f"field_{field_id}")
-                    input_value = ','.join([val.strip() for val in selected_values if val.strip()])
-                else:
-                    input_value = request.POST.get(f"field_{field_id}", "").strip()
-
-                if field.field_type == "generative":
-                    continue
-                elif  field.field_type in ["file", "file multiple"]:
-                    continue
-
-                # Check if a value already exists for this field
-                existing_value = DataTable.objects.filter(
-                    form_data=form_data, form=form, field=field
-                ).first()
-
-                if existing_value:
-                    # Update existing entry
-                    existing_value.value = input_value
-                    existing_value.save()
-                else:
-                    # Create new entry
-                    DataTable.objects.create(
-                        form_data=form_data,
+            if form_data_id:
+                form_data = get_object_or_404(IndexTable, id=form_data_id)
+                form_data.updated_by = user
+                form_data.save()
+            else:
+                # No form_data_id, so check if candidate_id + form exists
+                form_data = IndexTable.objects.filter(candidate_id=candidate_id, form=form).first()
+                if not form_data:
+                    form_data = IndexTable.objects.create(
+                        candidate_id=candidate_id,
                         form=form,
-                        field=field,
-                        value=input_value,
-                        created_by=created_by
+                        created_by=user,
+                        updated_by=user,
                     )
+                    is_new = True
+                else:
+                    form_data.updated_by = user
+                    form_data.save()
 
+            created_by = user
+            form_name = request.POST.get("form_name", "").strip()
 
+            # Handle field updates for this form only
+            for key, value in request.POST.items():
+                if key.startswith("field_id_"):
+                    field_id = value.strip()
+                    field = get_object_or_404(FormField, id=field_id)
 
-        # ✅ File upload logic goes here
-        handle_uploaded_files(request, form_name, created_by, form_data, user,module_id)
+                    if str(field.form_id) != str(form_id):
+                        continue  # Skip fields not belonging to this form
+
+                    if field.field_type in ["select multiple", "multiple"]:
+                        selected_values = request.POST.getlist(f"field_{field_id}")
+                        input_value = ','.join([val.strip() for val in selected_values if val.strip()])
+                    else:
+                        input_value = request.POST.get(f"field_{field_id}", "").strip()
+
+                    if field.field_type in ["generative", "file", "file multiple"]:
+                        continue  # Skip file fields here
+
+                    existing_value = DataTable.objects.filter(
+                        form_data=form_data, form=form, field=field
+                    ).first()
+
+                    if existing_value:
+                        existing_value.value = input_value
+                        existing_value.save()
+                    else:
+                        DataTable.objects.create(
+                            form_data=form_data,
+                            form=form,
+                            field=field,
+                            value=input_value,
+                            created_by=created_by
+                        )
+
+            # Handle uploaded files for this form
+            handle_uploaded_files(request, form_name, created_by, form_data, user, module_id)
+
         messages.success(request, "Form data updated successfully!")
         if workflow_YN == '1E':
             wfdetailsid = request.POST.get('wfdetailsid', '')
@@ -2055,7 +2134,7 @@ def show_form(request):
                 
 
                 raw_fields = FormField.objects.filter(form_id=form_id).values(
-                    "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name", "section"
+                    "id", "label", "field_type", "values", "attributes", "form_id", "form_id__name", "section","is_primary","foriegn_key_form_id"
                 ).order_by("order")
 
                 sectioned_fields = {}
@@ -2093,7 +2172,17 @@ def show_form(request):
                         except RegexPattern.DoesNotExist:
                             field["regex_id"] = None
                             field["regex_description"] = ""
+                    
+                    if field["field_type"] == "foreign":
+                        foreign_form_id = field.get("foriegn_key_form_id")
+                        if foreign_form_id:
+                            candidate_id = get_object_or_404(DataTable, form_id=foreign_form_id, primary_key=1, form_data=form_data_id).value
+                            field["foreign_data"] = candidate_id  
 
+                    if field["is_primary"] == 1:
+                        primary_value = get_object_or_404(DataTable, primary_key= 1,form_data=form_data_id).value
+                        field["primary_value"] = primary_value
+ 
                     if field["field_type"] in ["file", "file multiple", "text"]:
                         file_validation = next((v for v in field["validations"]), None)
                         field["accept"] = file_validation["value"] if file_validation else ""
@@ -2152,6 +2241,7 @@ def show_form(request):
                 "step_id":step_id,
                 "workflow_YN":"1E",
                 "action":action,
+                "form_ids":form_ids
             })
 
 
