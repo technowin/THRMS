@@ -674,38 +674,42 @@
 <script>
 
      
+let isSubmitting = false;
 
-   let isSubmitting = false; // flag to prevent multiple submissions
+document.querySelectorAll('.submit-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+        e.preventDefault(); // prevent default to control submission manually
+        if (isSubmitting) return;
 
-    document.querySelectorAll('.submit-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            if (isSubmitting) return; // do nothing if already submitting
-            isSubmitting = true;
+        isSubmitting = true;
+        const buttonType = this.getAttribute('data-button-type');
+        const actionId = this.getAttribute('data-action-id');
 
-            const buttonType = this.getAttribute('data-button-type');
-            const actionId = this.getAttribute('data-action-id');
+        if (buttonType === 'Action') {
+            document.getElementById('clicked_action_id').value = actionId;
+        }
 
-            if (buttonType === 'Action') {
-                document.getElementById('clicked_action_id').value = actionId;
-            }
+        const form = document.getElementById('dynamicForm');
+        const type = $('#type').val();
 
-            const form = document.getElementById('dynamicForm');
-            const type = $('#type').val(); // assuming jQuery is used
+        if (buttonType === 'Submit' && type === 'create') {
+            form.action = "{% url 'common_form_post' %}";
+        } else if (buttonType === 'Submit' && type === 'edit') {
+            form.action = "{% url 'common_form_edit' %}";
+        } else if (buttonType === 'Action') {
+            form.action = "{% url 'common_form_action' %}";
+        }
 
-            if (buttonType === 'Submit' && type === 'create') {
-                form.action = "{% url 'common_form_post' %}";
-            } else if (buttonType === 'Submit' && type === 'edit') {
-                form.action = "{% url 'common_form_edit' %}";
-            } else if (buttonType === 'Action') {
-                form.action = "{% url 'common_form_action' %}";
-            }
-
-            // Optionally disable all submit buttons to prevent further clicks
+        // Validate the form before submitting
+        if (form.reportValidity()) {
+            // Disable all buttons to prevent duplicate submissions
             document.querySelectorAll('.submit-btn').forEach(btn => btn.disabled = true);
-
-            form.submit(); // manually trigger form submission
-        });
+            form.submit(); // only submit if valid
+        } else {
+            isSubmitting = false; // allow retry if validation failed
+        }
     });
+});
 
 
 
