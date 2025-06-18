@@ -80,7 +80,7 @@
                                 <td>{{ row.created_at }}</td>
                                 <td style="width:15%">
                                     {% if row.step_id == 1 %}
-                                      <a href="/show_form?form={{ row.Encryp }}" 
+                                      <a href="/show_form?id={{ row.Encryp }}&form={{ row.enc_form_data_id}}" 
                                         class="btn btn-primary button_r" 
                                         hover-tooltip="{{ row.step_name }}" 
                                         tooltip-position="top" 
