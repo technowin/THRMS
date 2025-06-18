@@ -116,10 +116,14 @@
                                     tooltip-position="top" 
                                     style="margin-right: 1%; margin-bottom: 2%; display: inline-block;">
                                     <i class="fa-solid fa-book"></i>
-                                  </a>                                  
-                                  <a href="/view_form?id={{ row.enc_candidate_id }}" style="width:8%;margin-right:3%;margin-bottom:2%">
-                                    <i class="fa fa-eye fa-2x" aria-hidden="true"></i>
-                                  </a>
+                                  </a>      
+                                   <a href="/view_form?id={{ row.enc_candidate_id }}" 
+                                    class="btn btn-danger button_r" 
+                                    hover-tooltip="View Form Data" 
+                                    tooltip-position="top" 
+                                    style="margin-right: 1%; margin-bottom: 2%; display: inline-block;">
+                                    <i class="fa fa-eye fa-2x"></i>
+                                  </a>   
                                 </td>                                 
                             </tr>
                         {% endfor %}

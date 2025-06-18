@@ -64,6 +64,7 @@ urlpatterns = [
     path('get_regex_pattern/', get_regex_pattern, name='get_regex_pattern'),
     path('create_new_section/', create_new_section, name='create_new_section'),
     path('get_access_control', get_access_control, name='get_access_control'),
+    path('view_form', view_form, name='view_form'),
 
 
     # Account

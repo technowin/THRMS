@@ -165,7 +165,7 @@
 
                                     {# INPUT TYPES HANDLING #}
                                     {% if field.field_type == "select" %}
-                                    <select class="form-control select" name="field_{{ field.id }}" {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+                                    <select class="form-control select" name="field_{{ field.id }}"  {% if view == '1' %} disabled {% endif %}  {% for attr in field.attributes %} {{ attr }} {% endfor %}>
                                         <option value="" selected disabled>Select</option>
                                         {% for option in field.values %}
                                         <option value="{{ option }}" {% if option == field.value %} selected {% endif %}>{{ option }}</option>
@@ -174,7 +174,7 @@
 
                                     {% elif field.field_type == "master dropdown" %}
                                     <select class="form-control select" name="field_{{ field.id }}" 
-                                        {% for attr in field.attributes %} {{ attr }} {% endfor %} {% if readonlyWF == '1' or viewStepWFSeq == '3'  %} disabled {% endif %}>
+                                        {% for attr in field.attributes %} {{ attr }} {% endfor %} {% if view == '1' %} disabled {% endif %} {% if readonlyWF == '1' or viewStepWFSeq == '3'  %} disabled {% endif %}>
                                         <option value="" disabled {% if not field.value %} selected {% endif %}>Select</option>
                                         {% for option in field.values %}
                                             <option value="{{ option.id }}" {% if option.id|stringformat:"s" == field.value|stringformat:"s" %} selected {% endif %}>{{ option.name }}</option>
@@ -182,8 +182,9 @@
                                     </select>
 
                                     {% elif field.field_type == "select multiple" %}
-                                    <select class="form-control select_multiple" name="field_{{ field.id }}" multiple {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+                                    <select class="form-control select_multiple" name="field_{{ field.id }}" multiple {% if view == '1' %} disabled {% endif %} {% for attr in field.attributes %} {{ attr }} {% endfor %}>
                                         {% for option in field.values %}
+                                        
                                         <option value="{{ option.id }}">{{ option.name }}</option>
                                         {% endfor %}
                                     </select>
@@ -191,7 +192,7 @@
                                     {% elif field.field_type == "multiple" %}
                                     <select class="form-control master_multiple" name="field_{{ field.id }}" multiple 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %}
-                                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+                                        {% if view == '1' %} disabled {% endif %}>
                                         {% for option in field.values %}
                                         <option value="{{ option.id }}"
                                             {% if option.id|stringformat:"s" in field.value|stringformat:"s" %} selected {% endif %}>
@@ -206,7 +207,8 @@
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="field_{{ field.id }}" value="{{ option }}" id="radio_{{ field.id }}_{{ forloop.counter }}"
                                             {% if option == field.value %}checked{% endif %} 
-                                            {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+                                            {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                                            {% if view == '1' %} disabled {% endif %} >
                                             <label class="form-check-label" for="radio_{{ field.id }}_{{ forloop.counter }}">{{ option }}</label>
                                         </div>
                                         {% endfor %}
@@ -214,8 +216,8 @@
 
                                     {% elif field.field_type == "field_dropdown" %}
                                     <select class="form-control select" name="field_{{ field.id }}" 
-                                        {% for attr in field.attributes %} {{ attr }} {% endfor %}
-                                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+                                        {% for attr in field.attributes %} {{ attr }} {% endfor %} 
+                                        {% if view == '1' %} disabled {% endif %} >
                                         <option value="" disabled {% if not field.saved_value %}selected{% endif %}>Select</option>
                                         {% for option in field.dropdown_data %}
                                         <option value="{{ option.value }}" {% if option.value == field.saved_value %}selected{% endif %}>{{ option.value }}</option>
@@ -233,6 +235,7 @@
                                     {% elif field.field_type == "file" or field.field_type == "file multiple" %}
                                     <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
                                         <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}"
+                                         {% if view == '1' %} disabled {% endif %} 
                                         {% if field.field_type == 'file multiple' %}multiple{% endif %}
                                         class="form-control custom-file-input" style="padding-right: 100px;" id="file_input_{{ field.id }}" 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %}>
@@ -241,13 +244,13 @@
                                             onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
                                         {% else %}
                                             onclick="showScript( {{ form_data_id }}, {{ field.id }},{{form.id}})"
-                                        {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
+                                        {% endif %}>
                                         </i>
                                     </div>
 
                                     {% elif field.field_type == "textarea" %}
                                     <textarea class="form-control custom-textarea" name="field_{{ field.id }}" rows="1" 
-                                        {% for attr in field.attributes %} {{ attr }} {% endfor %}>{{ field.value }}</textarea>
+                                      {% if view == '1' %} disabled {% endif %}    {% for attr in field.attributes %} {{ attr }} {% endfor %}>{{ field.value }}</textarea>
 
                                     {% elif field.field_type == "generative" %}
                                     <input type="text" class="form-control" disabled name="field_{{ field.id }}" value="{{ field.value }}"
@@ -256,13 +259,14 @@
 
                                     {% elif field.field_type == "number" %}
                                     <input type="number" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
-                                        placeholder="Enter Numeric Value" 
+                                        placeholder="Enter Numeric Value" {% if view == '1' %} disabled {% endif %} 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %} />
 
 
                                     {% elif field.field_type == "text" %}
                                     <input type="text" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
                                         {% if field.accept %} maxlength="{{ field.accept }}"{% endif %}
+                                        {% if view == '1' %} disabled {% endif %} 
                                         placeholder="{% if field.accept %}Enter up to {{ field.accept }} characters{% else %}Enter text{% endif %}" 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %}>
 
@@ -270,25 +274,25 @@
                                     <input type="email" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
                                         placeholder="Enter your email address" 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %}
-                                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %}readonly{% endif %}/>
+                                       {% if view == '1' %} disabled {% endif %}  />
 
                                     {% elif field.field_type == "regex" %}
                                     <input type="text" class="form-control" name="field_{{ field.id }}" id="regex-{{ field.id }}"
                                         data-regex="{{ field.validations.0.value }}" data-regex-id="{{ field.regex_id }}"
                                         value="{{ field.value|default:'' }}"
                                         oninput="formatInputByPattern(this, '{{ field.regex_id }}'); validateRegexInput(this);"
+                                         {% if view == '1' %} disabled {% endif %} 
                                         placeholder="{{ field.regex_description }}" 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %}>
 
                                     {% elif field.field_type == "foreign" %}
                                         <input type="text" class="form-control"
                                             name="field_{{ field.id }}"
+                                             {% if view == '1' %} disabled {% endif %}   
                                             value="{{ field.foreign_data|default:'No data available' }}"
                                             {% for attr in field.attributes %} {{ attr }} {% endfor %}/>
-
-
                                     {% else %}
-                                    <input type="{{ field.field_type }}" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}" 
+                                    <input type="{{ field.field_type }}" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"  {% if view == '1' %} disabled {% endif %} 
                                         {% for attr in field.attributes %} {{ attr }} {% endfor %}>
                                     {% endif %}
 
@@ -300,7 +304,7 @@
                                 </div>
 
                                 {% if forloop.counter|divisibleby:4 or forloop.last %}
-                                    </div> <!-- Close .row -->
+                                    </div>
                                 {% endif %}
                                 {% endfor %}
                                 </div>
@@ -319,11 +323,10 @@
 <div class="row col-md-12 justify-content-center">
     <input type="hidden" id="clicked_action_id" name="clicked_action_id">
 
-
- {% if action_fields %}
+{% if view != '1' %}
+{% if action_fields %}
     {% for action in action_fields %}
-    
-    <div class="{% if action.type == 'button' %}col-md-2{% else %}col-md-3{% endif %} mt-1 text-center">
+        <div class="{% if action.type == 'button' %}col-md-2{% else %}col-md-3{% endif %} mt-1 text-center">
             <input type="hidden" name="action_field_id_{{ action.id }}" value="{{ action.action_id }}"> 
 
             {% if action.type != "button" %}
@@ -331,18 +334,15 @@
             {% endif %}
 
             {% if action.type == "button" %}
-            <button type="submit"
-                    name="button_type"
-                    value="{{ action.button_type|default:'button' }}"
-                    data-button-type="{{ action.button_type|default:'button' }}"
-                    data-action-id="{{ action.id }}"
-                    class="btn w-100 mt-4 submit-btn"
-                    style="background-color: {{ action.bg_color }}; color: {{ action.text_color }}; border-radius:15px;">
-                {{ action.button_name }}
-            </button>
-
-            </button>
-    
+                <button type="submit"
+                        name="button_type"
+                        value="{{ action.button_type|default:'button' }}"
+                        data-button-type="{{ action.button_type|default:'button' }}"
+                        data-action-id="{{ action.id }}"
+                        class="btn w-100 mt-4 submit-btn"
+                        style="background-color: {{ action.bg_color }}; color: {{ action.text_color }}; border-radius:15px;">
+                    {{ action.button_name }}
+                </button>
 
             {% elif action.type == "textarea" %}
                 <textarea class="form-control custom-textarea" name="action_field_{{ action.id }}" rows="1"></textarea>
@@ -358,9 +358,9 @@
                     {% endfor %}
                 </select>
             {% endif %}
-    </div>
+        </div>
     {% endfor %}
-    {% else %}
+{% else %}
     <!-- Show default Update button if no actions exist -->
     <div class="col-md-2 mt-1 text-center">
         <button type="submit"
@@ -371,6 +371,7 @@
             Update
         </button>
     </div>
+{% endif %}
 {% endif %}
 
 
