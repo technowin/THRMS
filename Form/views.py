@@ -1241,23 +1241,6 @@ def common_form_post(request):
                     history_created_at =datetime.now(),
                     history_created_by = user
                 )
-            
-            for key, value in request.POST.items():
-                if key.startswith("action_field_") and not key.startswith("action_field_id_"):
-                    match = re.match(r'action_field_(\d+)', key)
-                    if match:
-                        field_id = int(match.group(1))
-                        action_field = get_object_or_404(FormActionField, pk=field_id)
-                        if action_field.type in ['text', 'textarea', 'select']:
-                            ActionData.objects.create(
-                                value=value,
-                                form_data=form_data,
-                                field=action_field,
-                                step_id=step_id,
-                                created_by=user,
-                                updated_by=user,
-                            )
-
             messages.success(request, "Workflow data saved successfully!")
 
     except Exception as e:
@@ -1272,84 +1255,11 @@ def common_form_post(request):
 
 
 def common_form_edit(request):
-
-    # user = request.session.get('user_id', '')
-    # workflow_YN = request.POST.get("workflow_YN")
-    # edit_type = request.POST.get("edit_type")
-    # primary_key = request.POST.get("primary_field")
-    
-    
-    # try:
-    #     if request.method != "POST":
-    #         return JsonResponse({"error": "Invalid request method"}, status=400)
-
-    #     form_data_id = request.POST.get("form_data_id")
-    #     if not form_data_id:
-    #         return JsonResponse({"error": "form_data_id is required"}, status=400)
-    #     type = request.POST.get("type")
-        
-    #     form = get_object_or_404(Form, id=request.POST.get("form_id"))
-
-    #     module_id = form.module
-    #     module_tables = common_module_master(module_id)
-
-    #     IndexTable = apps.get_model('Form', module_tables["index_table"])
-    #     DataTable = apps.get_model('Form', module_tables["data_table"])
-    #     FileTable = apps.get_model('Form', module_tables["file_table"])
-
-    #     form_data = get_object_or_404(IndexTable, id=form_data_id)
-    #     form_data.updated_by = user
-    #     form_data.save()
-
-    #     form = get_object_or_404(Form, id=request.POST.get("form_id"))
-
-    #     created_by = request.session.get("user_id", "").strip()
-    #     form_name = request.POST.get("form_name", "").strip()
-    
-
-    #     # Re-create all non-file fields
-    #     for key, value in request.POST.items():
-    #         if key.startswith("field_id_"):
-    #             field_id = value.strip()
-    #             field = get_object_or_404(FormField, id=field_id)
-
-    #             if field.field_type == "select multiple"  or field.field_type == "multiple":
-    #                 selected_values = request.POST.getlist(f"field_{field_id}")
-    #                 input_value = ','.join([val.strip() for val in selected_values if val.strip()])
-    #             else:
-    #                 input_value = request.POST.get(f"field_{field_id}", "").strip()
-
-    #             if field.field_type == "generative":
-    #                 continue
-    #             elif  field.field_type in ["file", "file multiple"]:
-    #                 continue
-
-    #             # Check if a value already exists for this field
-    #             existing_value = DataTable.objects.filter(
-    #                 form_data=form_data, form=form, field=field
-    #             ).first()
-
-    #             if existing_value:
-    #                 # Update existing entry
-    #                 existing_value.value = input_value
-    #                 existing_value.save()
-    #             else:
-    #                 # Create new entry
-    #                 DataTable.objects.create(
-    #                     form_data=form_data,
-    #                     form=form,
-    #                     field=field,
-    #                     value=input_value,
-    #                     created_by=created_by
-    #                 )
-
-
-    #     handle_uploaded_files(request, form_name, created_by, form_data, user,module_id)
         
     user = request.session.get('user_id', '').strip()
     workflow_YN = request.POST.get("workflow_YN")
     edit_type = request.POST.get("edit_type")
-    candidate_id = request.POST.get("primary_field", "").strip()  # Assuming this is candidate_id
+    candidate_id = request.POST.get("primary_field")# Assuming this is candidate_id
     form_ids = request.POST.getlist("form_id")  # Multiple form IDs passed as list
     type = request.POST.get("type")
 
@@ -1419,6 +1329,7 @@ def common_form_edit(request):
                             form=form,
                             field=field,
                             value=input_value,
+                            candidate_id=candidate_id,
                             created_by=created_by
                         )
 
@@ -2359,4 +2270,8 @@ def show_form(request):
         callproc("stp_error_log", [fun, str(e), user])
         messages.error(request, 'Oops...! Something went wrong!')
         return JsonResponse({"error": "Something went wrong!"}, status=500)
+    
+
+def view_form(request):
+    return
     
