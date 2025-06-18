@@ -1253,16 +1253,15 @@ def common_form_post(request):
 
 
 def common_form_edit(request):
-        
+
     user = request.session.get('user_id', '').strip()
     workflow_YN = request.POST.get("workflow_YN")
     edit_type = request.POST.get("edit_type")
-    candidate_id = request.POST.get("primary_field")# Assuming this is candidate_id
-    form_ids = request.POST.getlist("form_id")  # Multiple form IDs passed as list
+    candidate_id = request.POST.get("primary_field")  # Candidate ID
+    form_ids = request.POST.getlist("form_id")  # Multiple form IDs
     type = request.POST.get("type")
 
     try:
-        form_data_id = request.POST.get("form_data_id")
         for form_id in form_ids:
             form = get_object_or_404(Form, id=form_id)
             module_id = form.module
@@ -1271,38 +1270,34 @@ def common_form_edit(request):
             IndexTable = apps.get_model('Form', module_tables["index_table"])
             DataTable = apps.get_model('Form', module_tables["data_table"])
 
+            # Check if form_data exists for this candidate and form
+            form_data = IndexTable.objects.filter(candidate_id=candidate_id, form=form).first()
             is_new = False
 
-            if form_data_id:
-                form_data = get_object_or_404(IndexTable, id=form_data_id)
+            if not form_data:
+                form_data = IndexTable.objects.create(
+                    candidate_id=candidate_id,
+                    form=form,
+                    created_by=user,
+                    updated_by=user
+                )
+                is_new = True
+            else:
                 form_data.updated_by = user
                 form_data.save()
-            else:
-                # No form_data_id, so check if candidate_id + form exists
-                form_data = IndexTable.objects.filter(candidate_id=candidate_id, form=form).first()
-                if not form_data:
-                    form_data = IndexTable.objects.create(
-                        candidate_id=candidate_id,
-                        form=form,
-                        created_by=user,
-                        updated_by=user,
-                    )
-                    is_new = True
-                else:
-                    form_data.updated_by = user
-                    form_data.save()
 
             created_by = user
             form_name = request.POST.get("form_name", "").strip()
 
-            # Handle field updates for this form only
+            # Handle field values for this form
             for key, value in request.POST.items():
                 if key.startswith("field_id_"):
                     field_id = value.strip()
                     field = get_object_or_404(FormField, id=field_id)
 
+                    # Skip fields not belonging to current form
                     if str(field.form_id) != str(form_id):
-                        continue  # Skip fields not belonging to this form
+                        continue
 
                     if field.field_type in ["select multiple", "multiple"]:
                         selected_values = request.POST.getlist(f"field_{field_id}")
@@ -1330,26 +1325,31 @@ def common_form_edit(request):
                             created_by=created_by
                         )
 
+            # Save file fields
             handle_uploaded_files(request, form_name, created_by, form_data, user, module_id)
 
-        messages.success(request, "Form data updated successfully!")
+        messages.success(request, "Form data saved/updated successfully!")
+
+        # --- Handle Workflow if enabled ---
         if workflow_YN == '1E':
+            form_data_id = request.POST.get("form_data_id")
             wfdetailsid = request.POST.get('wfdetailsid', '')
             role_idC = request.POST.get('role_id', '')
             form_id = request.POST.get('form_id', '')
             step_id = request.POST.get('step_id', '')
+
             if wfdetailsid and wfdetailsid != 'undefined':
-                wfdetailsid=dec(wfdetailsid)
+                wfdetailsid = dec(wfdetailsid)
             else:
-                wfdetailsid = None  
-            
+                wfdetailsid = None
+
+            status_from_matrix = ""
             if step_id:
                 matrix_entry = workflow_matrix.objects.filter(id=step_id).first()
                 if matrix_entry:
-                    status_from_matrix = matrix_entry.status  # adjust field name if needed
-                    
+                    status_from_matrix = matrix_entry.status
+
             if form_data_id and rec_workflow_details.objects.filter(form_data_id=form_data_id).exists():
-                # Update existing record
                 workflow_detail = rec_workflow_details.objects.get(form_data_id=form_data_id)
                 workflow_detail.form_data_id = form_data_id
                 workflow_detail.role_id = request.POST.get('role_id', '')
@@ -1358,63 +1358,42 @@ def common_form_edit(request):
                 workflow_detail.increment_id += 1
                 workflow_detail.status = status_from_matrix or ''
                 workflow_detail.updated_at = datetime.now()
-                workflow_detail.updated_by = user 
-                workflow_detail.save()    
-            else:    
+                workflow_detail.updated_by = user
+                workflow_detail.save()
+            else:
                 workflow_detail = rec_workflow_details.objects.create(
-                form_data_id=form_data_id,
-                role_id=request.POST.get('role_id', ''),
-                action_details_id=request.POST.get('action_id', ''),
-                increment_id=1,
-                form_id=request.POST.get('form_id', ''),
-                action_id=request.POST.get('action_id', ''),
-                status = status_from_matrix or '',
-                step_id=request.POST.get('step_id', ''),
-                # user_id=user,
-                created_at = datetime.now(),
-                created_by=user,
-                updated_by = user,
-                
+                    form_data_id=form_data_id,
+                    role_id=request.POST.get('role_id', ''),
+                    action_details_id=request.POST.get('action_id', ''),
+                    increment_id=1,
+                    form_id=request.POST.get('form_id', ''),
+                    action_id=request.POST.get('action_id', ''),
+                    status=status_from_matrix or '',
+                    step_id=request.POST.get('step_id', ''),
+                    created_at=datetime.now(),
+                    created_by=user,
+                    updated_by=user
                 )
 
-            # Now set and save req_id using the generated ID
             workflow_detail.req_id = f"REQNO-00{workflow_detail.id}"
             workflow_detail.save()
-            if wfdetailsid and rec_workflow_details.objects.filter(id=wfdetailsid).exists():
-                rec_history_workflow_details.objects.create(
-                    form_data_id=workflow_detail.form_data_id,
-                    role_id=workflow_detail.role_id,
-                    action_details_id=workflow_detail.action_details_id,
-                    increment_id=workflow_detail.increment_id,
-                    step_id=workflow_detail.step_id,
-                    status=workflow_detail.status,
-                    # user_id=workflow_detail.user_id,
-                    # req_id=workflow_detail.req_id,
-                    form_id=request.POST.get('form_id', ''),
-                    created_by=workflow_detail.updated_by,
-                    created_at=workflow_detail.updated_at,
-                    history_created_at =datetime.now(),
-                    history_created_by = user
-                )
-            else:
-                rec_history_workflow_details.objects.create(
-                    form_data_id=workflow_detail.form_data_id,
-                    role_id=workflow_detail.role_id,
-                    action_details_id=workflow_detail.action_details_id,
-                    increment_id=workflow_detail.increment_id,
-                    step_id=workflow_detail.step_id,
-                    status=workflow_detail.status,
-                    # user_id=workflow_detail.user_id,
-                    # req_id=workflow_detail.req_id,
-                    # operator=request.POST.get('custom_dropdownOpr', ''),
-                    form_id=request.POST.get('form_id', ''),
-                    created_by=workflow_detail.updated_by,
-                    created_at=workflow_detail.updated_at,
-                    history_created_at =datetime.now(),
-                    history_created_by = user
-                )
-                
-            
+
+            # Save to history
+            history_data = {
+                'form_data_id': workflow_detail.form_data_id,
+                'role_id': workflow_detail.role_id,
+                'action_details_id': workflow_detail.action_details_id,
+                'increment_id': workflow_detail.increment_id,
+                'step_id': workflow_detail.step_id,
+                'status': workflow_detail.status,
+                'form_id': request.POST.get('form_id', ''),
+                'created_by': workflow_detail.updated_by,
+                'created_at': workflow_detail.updated_at,
+                'history_created_at': datetime.now(),
+                'history_created_by': user
+            }
+            rec_history_workflow_details.objects.create(**history_data)
+
             messages.success(request, "Workflow data saved successfully!")
 
     except Exception as e:
@@ -1422,15 +1401,13 @@ def common_form_edit(request):
         messages.error(request, "Oops...! Something went wrong!")
 
     finally:
-        #return redirect("/masters?entity=form_master&type=i")
-        # if workflow_YN == '1E':
-        #     return redirect('workflow_starts')
         if edit_type == 'edit_type':
             return redirect('candidate_index')
         elif type == 'edit':
             return redirect('test_index')
         else:
             return redirect("/masters?entity=form_master&type=i")
+
 
     
 
@@ -1852,6 +1829,7 @@ def handle_generative_fields(form, form_data, created_by,module_id):
             # form_data = get_object_or_404(IndexTable, id = form_data.id)
             form_data.candidate_id = final_value
             form_data.save()
+            DataTable.objects.filter(form_data=form_data).update(candidate_id=final_value)
 
         except Exception as e:
             traceback.print_exc()

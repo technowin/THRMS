@@ -294,7 +294,7 @@
 
                                      {% if field.is_primary == 1 %}
                                         <input type="hidden" class="form-control"
-                                            name="field_{{ field.id }}"
+                                            name="primary_field"
                                             value="{{ field.primary_value|default:'No data available' }}">
                                     {% endif %}
                                 </div>
