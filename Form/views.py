@@ -1140,8 +1140,6 @@ def common_form_post(request):
                     primary_key=primary,
                     created_by=created_by
                 )
-        
-
                
         handle_uploaded_files(request, form_name, created_by, form_data, user,module_id)
         final_value = handle_generative_fields(form, form_data, created_by ,module_id)
@@ -1263,7 +1261,6 @@ def common_form_edit(request):
     form_ids = request.POST.getlist("form_id")  # Multiple form IDs passed as list
     type = request.POST.get("type")
 
-
     try:
         form_data_id = request.POST.get("form_data_id")
         for form_id in form_ids:
@@ -1333,7 +1330,6 @@ def common_form_edit(request):
                             created_by=created_by
                         )
 
-            # Handle uploaded files for this form
             handle_uploaded_files(request, form_name, created_by, form_data, user, module_id)
 
         messages.success(request, "Form data updated successfully!")
