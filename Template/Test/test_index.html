@@ -74,7 +74,7 @@
                     </div> -->
                    
                     <div class="col-md-2"> 
-                      <select style="border-radius:10em;font-size:0.8em;" name="post" id="dp" class="form-control select" placeholder="Post">
+                      <select style="border-radius:5em;font-size:0.8em;" name="post" id="dp" class="form-control select" placeholder="Post">
                         <option value="" selected>Post</option>
                         {% for item in dpl %}
                             <option value="{{ item.0 }}">{{ item.1 }}</option>
@@ -85,7 +85,7 @@
                       <label class="mb-0 css_labels" >Skillset - </label>
                     </div> -->
                     <div class="col-md-2"> 
-                      <select style="border-radius:10em;font-size:0.8em;" name="skillset" id="skillset" class="form-control select">
+                      <select style="border-radius:5em;font-size:0.8em;" name="skillset" id="skillset" class="form-control select">
                         <option value="" selected>Skillset</option>
                         {% for item2 in performance_level_list %}
                             <option value="{{ item2.0 }}">{{ item2.1 }}</option>
@@ -96,7 +96,7 @@
                       <label class="mb-0 css_labels" style="margin-bottom:4%;">IT Performance - </label>
                     </div> -->
                     <div class="col-md-2"> 
-                      <select style="border-radius:10em;font-size:0.8em;" name="it_performance" id="it_performance" class="form-control select">
+                      <select style="border-radius:5em;font-size:0.8em;" name="it_performance" id="it_performance" class="form-control select">
                         <option value="" selected>IT Performance</option>
                         {% for item2 in performance_level_list %}
                             <option value="{{ item2.0 }}">{{ item2.1 }}</option>
@@ -107,7 +107,7 @@
                       <label class="mb-0 css_labels">Created At - </label>
                     </div> -->
                     <div class="col-md-2"> 
-                      <select style="border-radius:10em;width:70%;font-size:0.8em;" name="created_at" id="created_at" class="form-control select">
+                      <select style="border-radius:5em;width:70%;font-size:0.8em;" name="created_at" id="created_at" class="form-control select">
                         <option value="" selected>Created At</option>
                         {% for item1 in created_at %}
                         <option style="border-radius: 10px; padding: 0.5%; width: 100%" value="{{ item1.0 }}">
