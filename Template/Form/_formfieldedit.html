@@ -694,7 +694,7 @@ document.querySelectorAll('.submit-btn').forEach(button => {
 
         if (buttonType === 'Submit' && type === 'create') {
             form.action = "{% url 'common_form_post' %}";
-        } else if (buttonType === 'Submit' && type === 'edit') {
+        } else if (buttonType === 'Submit' && (type === 'edit' || type === 'edit_type')) {
             form.action = "{% url 'common_form_edit' %}";
         } else if (buttonType === 'Action') {
             form.action = "{% url 'common_form_action' %}";

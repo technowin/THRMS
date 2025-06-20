@@ -74,63 +74,60 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <form action="assign_existing_rate_card">
-                 <div class="row col-md-12">
+                   <form method="post" action="{% url 'assign_existing_rate_card' %}">
+                    {% csrf_token %}
+                    <div class="row col-md-12">
+                        <input type="hidden" id="rate_card_id" name="rate_card_id" value="{{ rate_card.card_id }}">
 
-                    <div class="col-md-custom-3">
-                        <label for="client_name" class="form-label">Client Name</label>
+                        <div class="col-md-custom-3">
+                            <label for="client_name" class="form-label">Client Name</label>
                             <select name="client_name" id="client_name" class="form-control select">
                                 <option value="" selected disabled>Select Client</option>
-                                    {% for client in client_names %}
-                                        <option value="{{ client.company_id }}" >
-                                            {{ client.company_name }}
-                                        </option>
-                                    {% endfor %}
+                                {% for client in client_names %}
+                                    <option value="{{ client.company_id }}">{{ client.company_name }}</option>
+                                {% endfor %}
                             </select>
-                    </div>
+                        </div>
 
-                    <div class="col-md-custom-3">
-                        <label for="location" class="form-label">Location Name</label>
+                        <div class="col-md-custom-3">
+                            <label for="location" class="form-label">Location Name</label>
                             <select name="location" id="location" class="form-control select">
                                 <option value="" selected disabled>Select Location</option>
-                                    {% for location in location_names %}
-                                        <option value="{{ location.site_id }}" >
-                                            {{ location.site_name }}
-                                        </option>
-                                    {% endfor %}
+                                {% for location in location_names %}
+                                    <option value="{{ location.site_id }}">{{ location.site_name }}</option>
+                                {% endfor %}
                             </select>
-                    </div>
-                      <div class="col-md-custom-3">
-                        <label for="client_name" class="form-label">Designation</label>
-                            <select name="designation" id="designation" class="form-control select">
-                            <option value="" selected disabled>Select Client</option>
-                                {% for designation in designation_names %}
-                                    <option value="{{ designation.designation_id }}" >
-                                        {{ designation.designation_name }}
-                                    </option>
-                                {% endfor %}
-                        </select>
-                    </div>
-                      <div class="col-md-custom-3">
-                        <label for="level" class="form-label">Level</label>
-                            <select name="level" id="level" class="form-control select">
-                            <option value="" selected disabled>Select Level</option>
-                                {% for level in level_names %}
-                                        <option value="{{ level.id }}" >
-                                            {{ level.name }}
-                                        </option>
-                                {% endfor %}
-                                
-                        </select>
-                    </div>
-                </div>
-                <br>
+                        </div>
 
-                <div class="text-center">
-                    
-                    <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a>
-                </div>
-                   </form>
+                        <div class="col-md-custom-3">
+                            <label for="designation" class="form-label">Designation</label>
+                            <select name="designation" id="designation" class="form-control select">
+                                <option value="" selected disabled>Select Designation</option>
+                                {% for designation in designation_names %}
+                                    <option value="{{ designation.designation_id }}">{{ designation.designation_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-custom-3">
+                            <label for="level" class="form-label">Level</label>
+                            <select name="level" id="level" class="form-control select">
+                                <option value="" selected disabled>Select Level</option>
+                                {% for level in level_names %}
+                                    <option value="{{ level.id }}">{{ level.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <div class="text-center">
+                        <button type="submit" id="id_card_name_button" class="btn btn-primary">Create</button>
+                        <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </form>
+
             </div>
         </div>
     </div>

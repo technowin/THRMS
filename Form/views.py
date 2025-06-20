@@ -1257,8 +1257,8 @@ def common_form_edit(request):
     user = request.session.get('user_id', '').strip()
     workflow_YN = request.POST.get("workflow_YN")
     edit_type = request.POST.get("edit_type")
-    candidate_id = request.POST.get("primary_field")  # Candidate ID
-    form_ids = request.POST.getlist("form_id")  # Multiple form IDs
+    candidate_id = request.POST.get("primary_field")  
+    form_ids = list(set(request.POST.getlist("form_id"))) 
     type = request.POST.get("type")
 
     try:
@@ -1349,8 +1349,8 @@ def common_form_edit(request):
                 if matrix_entry:
                     status_from_matrix = matrix_entry.status
 
-            if form_data_id and rec_workflow_details.objects.filter(form_data_id=form_data_id).exists():
-                workflow_detail = rec_workflow_details.objects.get(form_data_id=form_data_id)
+            if form_data_id and rec_workflow_details.objects.filter(candidate_id=candidate_id).exists():
+                workflow_detail = rec_workflow_details.objects.get(candidate_id=candidate_id)
                 workflow_detail.form_data_id = form_data_id
                 workflow_detail.role_id = request.POST.get('role_id', '')
                 workflow_detail.action_details_id = request.POST.get('action_id', '')
@@ -1401,7 +1401,7 @@ def common_form_edit(request):
         messages.error(request, "Oops...! Something went wrong!")
 
     finally:
-        if edit_type == 'edit_type':
+        if type == 'edit_type':
             return redirect('candidate_index')
         elif type == 'edit':
             return redirect('test_index')
@@ -1964,13 +1964,18 @@ def show_form(request):
     user  = request.session.get('user_id', '')
     role = str(request.session.get('role_id'))
     form_data = request.GET.get('form')
+    type = request.GET.get('type')
     if form_data:
         form_data_id = dec(form_data)
     try: 
         if form_data:
-            step_id = 2
+            if role == '7':
+                step_id = 1
+            else: 
+                step_id = 2
+                type = "edit"
 
-            workflows = workflow_matrix.objects.filter(step_id_flow= 2)
+            workflows = workflow_matrix.objects.filter(step_id_flow= step_id)
 
             workflow = None
             for wf in workflows:
@@ -2119,7 +2124,7 @@ def show_form(request):
                 "matrix_id": id,
                 "forms_data": forms_data,
                 "action_fields": action_fields,
-                "type": "edit",
+                "type": type,
                 "form":form,
                 "form_data": form_data,
                 "form_data_id":form_data_id,
@@ -2244,155 +2249,7 @@ def show_form(request):
         callproc("stp_error_log", [fun, str(e), user])
         messages.error(request, 'Oops...! Something went wrong!')
         return JsonResponse({"error": "Something went wrong!"}, status=500)
-    
 
-# def view_form(request):
-#     user  = request.session.get('user_id', '')
-#     candidate_id = dec(request.GET.get("id"))
-#     try:
-#         module= 1
-#         module_tables = common_module_master(module)
-
-#         IndexTable = apps.get_model('Form', module_tables["index_table"])
-#         DataTable = apps.get_model('Form', module_tables["data_table"])
-#         FileTable = apps.get_model('Form', module_tables["file_table"])
-
-#         # Get all index rows for candidate
-#         index_entries = IndexTable.objects.filter(candidate_id=candidate_id)
-
-#         if not index_entries.exists():
-#             return render(request, "Form/no_data_found.html", {"message": "No data found for this candidate."})
-
-#         forms_data = []
-
-#         for entry in index_entries:
-#             form_data_id = entry.id
-
-#             # Get saved values
-#             field_values = DataTable.objects.filter(form_data_id=form_data_id).values("field_id", "value")
-#             if not field_values.exists():
-#                 continue  # Skip forms with no data
-
-#             values_dict = {fv["field_id"]: fv["value"] for fv in field_values}
-
-#             form_ids = DataTable.objects.filter(form_data_id=form_data_id).values_list("form_id", flat=True).distinct()
-
-#             for form_id in form_ids:
-#                 form = get_object_or_404(Form, id=form_id)
-
-#                 raw_fields = FormField.objects.filter(form_id=form_id).values(
-#                     "id", "label", "field_type", "values", "attributes", "form_id",
-#                     "form_id__name", "section", "is_primary", "foriegn_key_form_id"
-#                 ).order_by("order")
-
-#                 sectioned_fields = {}
-
-#                 for field in raw_fields:
-#                     field_id = field["id"]
-#                     field["values"] = field["values"].split(",") if field.get("values") else []
-#                     field["attributes"] = field["attributes"].split(",") if field.get("attributes") else []
-
-#                     section_id = field.get("section")
-#                     if section_id:
-#                         try:
-#                             section = SectionMaster.objects.get(id=section_id)
-#                             section_name = section.name
-#                         except SectionMaster.DoesNotExist:
-#                             section_name = ""
-#                     else:
-#                         section_name = ""
-#                     field["section_name"] = section_name
-
-#                     # Validations
-#                     validations = FieldValidation.objects.filter(field_id=field_id, form_id=form_id).values("value")
-#                     field["validations"] = list(validations)
-
-#                     if any("^" in v["value"] for v in field["validations"]):
-#                         field["field_type"] = "regex"
-#                         pattern_value = field["validations"][0]["value"]
-#                         try:
-#                             regex_obj = RegexPattern.objects.get(regex_pattern=pattern_value)
-#                             field["regex_id"] = regex_obj.id
-#                             field["regex_description"] = regex_obj.description
-#                         except RegexPattern.DoesNotExist:
-#                             field["regex_id"] = None
-#                             field["regex_description"] = ""
-
-#                     # Foreign key field
-#                     if field["field_type"] == "foreign":
-#                         foreign_form_id = field.get("foriegn_key_form_id")
-#                         if foreign_form_id:
-#                             try:
-#                                 candidate_value = get_object_or_404(DataTable, form_id=foreign_form_id, primary_key=1, form_data=form_data_id).value
-#                                 field["foreign_data"] = candidate_value
-#                             except:
-#                                 field["foreign_data"] = ""
-
-#                     if field["is_primary"] == 1:
-#                         try:
-#                             primary_value = get_object_or_404(DataTable, primary_key=1, form_data=form_data_id).value
-#                             field["primary_value"] = primary_value
-#                         except:
-#                             field["primary_value"] = ""
-
-#                     if field["field_type"] in ["file", "file multiple", "text"]:
-#                         file_validation = next((v for v in field["validations"]), None)
-#                         field["accept"] = file_validation["value"] if file_validation else ""
-
-#                         file_exists = FileTable.objects.filter(field_id=field_id, form_data_id=form_data_id).exists()
-#                         field["file_uploaded"] = 1 if file_exists else 0
-
-#                         if file_exists and "required" in field["attributes"]:
-#                             field["attributes"].remove("required")
-
-#                     # Saved value
-#                     saved_value = values_dict.get(field_id, "")
-#                     if field["field_type"] == "select multiple":
-#                         field["value"] = [val.strip() for val in saved_value.split(",") if val.strip()]
-#                     else:
-#                         field["value"] = saved_value
-
-#                     # Field dropdown
-#                     if field["field_type"] == "field_dropdown":
-#                         split_values = field["values"]
-#                         if len(split_values) == 2:
-#                             try:
-#                                 dropdown_field_id = int(split_values[1])
-#                                 dropdown_field_values = DataTable.objects.filter(field_id=dropdown_field_id).values("value")
-#                                 field["dropdown_data"] = list(dropdown_field_values)
-#                             except (ValueError, IndexError):
-#                                 field["dropdown_data"] = []
-
-#                     if field["field_type"] in ["master dropdown", "multiple"] and field["values"]:
-#                         try:
-#                             dropdown_id = field["values"][0]
-#                             master_data = MasterDropdownData.objects.get(id=dropdown_id)
-#                             query = master_data.query
-#                             result = callproc("stp_get_query_data", [query])
-#                             field["values"] = [{"id": row[0], "name": row[1]} for row in result]
-#                         except (MasterDropdownData.DoesNotExist, IndexError):
-#                             field["values"] = []
-
-#                     sectioned_fields.setdefault(section_name, []).append(field)
-
-#                 forms_data.append({
-#                     "form": form,
-#                     "form_data_id": form_data_id,
-#                     "sectioned_fields": sectioned_fields,
-#                 })
-                
-#             return render(request, "Form/_formfieldedit.html", {
-#             "candidate_id": candidate_id,
-#             "forms_data": forms_data,
-#             "view":"1"
-#         })
-#     except Exception as e:
-#         tb = traceback.extract_tb(e.__traceback__)
-#         fun = tb[0].name
-#         print(e)
-#         callproc("stp_error_log", [fun, str(e), user])
-#         messages.error(request, 'Oops...! Something went wrong!')
-#         return JsonResponse({"error": "Something went wrong!"}, status=500)
 
 def view_form(request):
     user  = request.session.get('user_id', '')

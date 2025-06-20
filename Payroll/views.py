@@ -16,6 +16,7 @@ from django.contrib import messages
 from django.db.models import Q
 from pyparsing import str_type
 from Account import models
+from Account.db_utils import callproc
 from Account.models import CustomUser
 from Masters.models import CityMaster, LevelMaster, SlotDetails, StateMaster, UserSlotDetails, company_master, parameter_master, sc_employee_master, site_master
 from Masters.serializers import PaySlipSerializer, SalaryGeneratedSerializer
@@ -3689,6 +3690,41 @@ def lwf_calculation(user_session,comp_id_in, re_year_in, re_month_in, act_id_id_
         m.close()
         Db.closeConnection()
         return comp_id_out, state_id_out, city_id_out, act_id_out, site_id_out,year, month, emp_code, gross_sal, setEmployee,setEmployer,challan_period1
+    
+def assign_existing_rate_card(request):
+    user = request.session.get('user_id', '')
+    try:
+        rate_card_id = request.POST.get("rate_card_id")
+        client_id = request.POST.get("client_name")
+        location_id = request.POST.get("location")
+        designation_id = request.POST.get("designation")
+        level_id = request.POST.get("level")
+
+        client_obj = get_object_or_404(company_master, id=client_id)
+        location_obj = get_object_or_404(site_master, id=location_id)
+        designation_obj = get_object_or_404(designation_master, id=designation_id)
+        level_obj = get_object_or_404(LevelMaster, id=level_id)
+
+        # Assuming correct model names (adjust if needed)
+        site_card_relation.objects.create(
+            card=get_object_or_404(rate_card_master, card_id=rate_card_id),
+            site=location_obj,
+            client_id=client_obj,
+            designation=designation_obj,
+            level=level_obj,
+            created_by= user
+        )
+
+        messages.success(request, 'Rate Card Assigned Successfully')
+        return redirect('rate_card_index')
+
+    except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        fun = tb[-1].name if tb else "unknown"
+        callproc("stp_error_log", [fun, str(e), user])
+        print("error -", str(e))
+        messages.error(request, "Something went wrong while assigning the rate card.")
+        return redirect('rate_card_index')
 
            
 

@@ -250,6 +250,7 @@ urlpatterns = [
 # test
 
     path('show_form/', show_form, name='show_form'),
+    path('assign_existing_rate_card/', assign_existing_rate_card, name='assign_existing_rate_card'),
 
 
 ]
