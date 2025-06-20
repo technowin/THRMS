@@ -208,6 +208,31 @@ class sc_employee_master(models.Model):
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_created',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='sc_employee_updated',blank=True, null=True,db_column='updated_by')
+    date_of_birth = models.DateTimeField(null=True)
+    marital_status = models.TextField(null=True)
+    country = models.TextField(null=True)
+    permanent_address = models.TextField(null=True)
+    pancard_number = models.TextField(null=True)
+    aadharcard_number = models.TextField(null=True)
+    joining_date = models.DateTimeField(null=True)
+    department = models.TextField(null=True)
+    designation = models.TextField(null=True)
+    grade = models.TextField(null=True)
+    location = models.TextField(null=True)
+    employement_type = models.TextField(null=True)
+    supervisor_name = models.TextField(null=True)
+    designation_start_date = models.DateTimeField(null=True)
+    location_start_date = models.DateTimeField(null=True)
+    location_change_reason = models.TextField(null=True)
+    employement_status_change_date = models.DateTimeField(null=True)
+    emergency_contact = models.TextField(null=True)
+    candidate_id = models.IntegerField(null=True)
+    is_status_changed = models.TextField(null=True)
+    level = models.IntegerField(null=True)
+    linumber = models.BigIntegerField(null=True)
+    micrcode = models.TextField(null=True)
+    state_name = models.TextField(null=True)    
+    
     class Meta:
         db_table = 'sc_employee_master'
     # def __str__(self):
@@ -230,6 +255,13 @@ class site_master(models.Model):
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='site_created',blank=True, null=True,db_column='created_by')
     updated_at = models.DateTimeField(null=True,blank=True,auto_now_add=True)
     updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='site_updated',blank=True, null=True,db_column='updated_by')
+    site_code = models.TextField(null=True)
+    type_of_site = models.TextField(null=True)
+    area_id = models.TextField(null=True)
+    site_supervisor_internal = models.TextField(null=True)
+    site_supervisor_mobile = models.TextField(null=True)
+    site_supervisor_email = models.TextField(null=True)
+    site_night_allowance = models.DecimalField(null=True, max_digits=18, decimal_places=2)    
     class Meta:
         db_table = 'site_master'
     def __str__(self):
