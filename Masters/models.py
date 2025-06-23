@@ -384,6 +384,55 @@ class LevelMaster(models.Model):
         db_table = 'level_master'
     def __str__(self):
         return self.name
-    
+
+class ShiftMaster(models.Model):
+    shift_id = models.AutoField(primary_key=True)
+    shift_name = models.TextField(null=True)
+    company_id= models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='comapny_id_q1',null=True,db_column='company_id')    
+    site_id = models.ForeignKey(site_master, on_delete=models.CASCADE,related_name='site_id_q1',null=True,db_column='site_id')
+    in_time = models.TimeField(null=True)
+    out_time = models.TimeField(null=True)
+    in_time_buffer = models.TimeField(null=True)
+    out_time_buffer = models.TimeField(null=True)
+    half_day_in_time = models.TimeField(null=True)
+    half_day_out_time = models.TimeField(null=True)
+    overtime = models.TimeField(null=True)
+    created_at = models.DateTimeField(null=True)
+    created_by = models.IntegerField(null=True)
+    updated_at = models.DateTimeField(null=True)
+    updated_by = models.IntegerField(null=True)
+
+    class Meta:
+        db_table = 'shift_master'
+        
+class EmployeeShiftMapping(models.Model):
+    id = models.AutoField(primary_key=True)
+    employee_id = models.IntegerField(null=True)
+    shift_id = models.IntegerField(null=True)
+    type_of_attendance = models.TextField(null=True)
+    created_at = models.DateTimeField(null=True)
+    created_by = models.IntegerField(null=True)
+    updated_at = models.DateTimeField(null=True)
+    updated_by = models.IntegerField(null=True)
+
+    class Meta:
+        db_table = 'employee_shift_mapping'
+        
+class AttendanceLog(models.Model):
+    id = models.AutoField(primary_key=True)
+    employee_id = models.IntegerField(null=True)
+    company_id= models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='comapny_id_q2',null=True,db_column='company_id')    
+    latitude = models.CharField(max_length=255, null=True)
+    longitude = models.CharField(max_length=255, null=True)
+    date = models.DateField(null=True)
+    in_time = models.TimeField(null=True)
+    out_time = models.TimeField(null=True)
+    created_at = models.DateTimeField(null=True)
+    created_by = models.IntegerField(null=True)
+    updated_at = models.DateTimeField(null=True)
+    updated_by = models.IntegerField(null=True)
+
+    class Meta:
+        db_table = 'attendance_log'                    
 
 
