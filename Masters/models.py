@@ -258,6 +258,8 @@ class site_master(models.Model):
     site_code = models.TextField(null=True)
     type_of_site = models.TextField(null=True)
     area_id = models.TextField(null=True)
+    latitude = models.CharField(max_length=255,null=True, blank=True)
+    longitude = models.CharField(max_length=255,null=True, blank=True)
     site_supervisor_internal = models.TextField(null=True)
     site_supervisor_mobile = models.TextField(null=True)
     site_supervisor_email = models.TextField(null=True)

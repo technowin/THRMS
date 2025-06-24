@@ -473,12 +473,12 @@ class LoginView(APIView):
                 # Extracting latitude and longitude from the related LocationMaster instance
                 latitude = location_instance.latitude
                 longitude = location_instance.longitude
-                in_shift_time = shift_instance.in_shift_time
-                out_shift_time = shift_instance.out_shift_time
+                in_shift_time = shift_instance.in_time
+                out_shift_time = shift_instance.out_time
                 serializer["latitude"] = latitude
                 serializer["longitude"] = longitude
-                serializer["in_shift_time"] = in_shift_time
-                serializer["out_shift_time"] = out_shift_time
+                serializer["in_time"] = in_shift_time
+                serializer["out_time"] = out_shift_time
                 
                 return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
             else:
