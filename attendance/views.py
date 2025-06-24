@@ -463,22 +463,22 @@ class LoginView(APIView):
             user = get_object_or_404(CustomUser, username=username)
 
             if user.check_password(password):
-                login(request, user)
+                # login(request, user)
                 serializer = UserSerializer(user).data
                 user_relation = get_object_or_404(UserRelationMaster, user_id=serializer['id'])
         
                 # Accessing the related LocationMaster instance using the ForeignKey
-                location_instance = get_object_or_404(site_master, location_id=user_relation.location_id)
+                location_instance = get_object_or_404(site_master, site_id=user_relation.location_id)
                 shift_instance = get_object_or_404(ShiftMaster, shift_id=user_relation.shift_id)
                 # Extracting latitude and longitude from the related LocationMaster instance
-                latitude = location_instance.latitude
-                longitude = location_instance.longitude
-                in_shift_time = shift_instance.in_shift_time
-                out_shift_time = shift_instance.out_shift_time
-                serializer["latitude"] = latitude
-                serializer["longitude"] = longitude
-                serializer["in_shift_time"] = in_shift_time
-                serializer["out_shift_time"] = out_shift_time
+                # latitude = location_instance.latitude
+                # longitude = location_instance.longitude
+                # in_shift_time = shift_instance.in_shift_time
+                # out_shift_time = shift_instance.out_shift_time
+                # serializer["latitude"] = latitude
+                # serializer["longitude"] = longitude
+                # serializer["in_shift_time"] = in_shift_time
+                # serializer["out_shift_time"] = out_shift_time
                 
                 return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
             else:

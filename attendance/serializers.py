@@ -50,7 +50,7 @@ class EarlyLeaveApplySerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email','name']
+        fields = ['id', 'username', 'email','full_name']
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
