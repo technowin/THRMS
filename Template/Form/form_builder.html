@@ -682,10 +682,13 @@
                             name: input,
                             csrfmiddlewaretoken: '{{ csrf_token }}'
                         },
+                       //success: function (response) {
+                       //    let selectize = $select[0].selectize;
+                       //    selectize.addOption({ value: response.id, text: response.name });
+                       //    selectize.addItem(response.id); 
+                       //},
                         success: function (response) {
-                            let selectize = $select[0].selectize;
-                            selectize.addOption({ value: response.id, text: response.name });
-                            selectize.addItem(response.id); // Select it
+                            callback({ value: response.id, text: response.name }); // This is important!
                         },
                         error: function () {
                             alert("Error adding section!");
