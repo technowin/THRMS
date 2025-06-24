@@ -495,7 +495,7 @@ class RegistrationView(APIView):
             user = CustomUser.objects.create(**serializer.validated_data)
             user.set_password(raw_password)
             user.save()
-            password_storage.objects.create(user=user, raw_password=raw_password)
+            password_storage.objects.create(user=user, passwordText=raw_password)
             
             serializer = UserSerializer(user).data
             serializer["latitude"] = ""

@@ -61,7 +61,7 @@ class RegistrationSerializer(serializers.Serializer):
     username = serializers.CharField()
     email = serializers.EmailField()
     password = serializers.CharField()
-    name = serializers.CharField()
+    full_name = serializers.CharField()
 
     
     
