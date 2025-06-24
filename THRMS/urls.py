@@ -30,6 +30,7 @@ from Payroll.views import *
 from Tax.views import *
 from django.urls import path
 from Test.views import *
+from attendance.views import *
 
 
 urlpatterns = [
@@ -252,6 +253,28 @@ urlpatterns = [
     path('show_form/', show_form, name='show_form'),
     path('assign_existing_rate_card/', assign_existing_rate_card, name='assign_existing_rate_card'),
 
+
+# Mobile App
+
+
+    path('', attendance_home,name="attendance_home"),
+    path('admin/', admin.site.urls),
+    path('api/login/', LoginView.as_view(), name='login'),
+    path('api/register/', RegistrationView.as_view(), name='register'),
+    path('api/attendance/', AttendancePost.as_view(), name='attendance'),
+    path('api/ApplyLeave/', ApplyLeave.as_view(), name='ApplyLeave'),
+    path('api/ApplyCorrection/', ApplyCorrection.as_view(), name='ApplyCorrection'),
+    path('api/ApplyEarlyLeave/', ApplyEarlyLeave.as_view(), name='ApplyEarlyLeave'),
+    path('api/getUserDetails/', getUserDetails.as_view(), name='getUserDetails'),
+    path('api/GetLeaveTypeList', GetLeaveTypeList, name='GetLeaveTypeList'),
+    path('api/FetchRecentAttendance', FetchRecentAttendance, name='FetchRecentAttendance'),
+    path('api/FetchRecentLeaves', FetchRecentLeaves, name='FetchRecentLeaves'),
+    path('api/FetchCurrentAttendance', FetchCurrentAttendance, name='FetchCurrentAttendance'),
+    path('api/Alerts', AlertsPost.as_view(), name='AlertsPost'),
+    path('api/AttendanceCorrectionUpdate', AttendanceCorrectionUpdate.as_view(), name='AttendanceCorrectionUpdate'),
+    path('api/LeaveStatusUpdate', LeaveStatusUpdate.as_view(), name='LeaveStatusUpdate'),
+    path('api/ApplyLeaveESS', ApplyLeaveESS.as_view(), name='ApplyLeaveESS'),
+    path('api/getAlertList', getAlertList, name='getAlertList'),
 
 ]
 
