@@ -94,7 +94,7 @@
                                 <option value="" disabled {% if not relation %}selected{% endif %}>Select Client</option>
                                 {% for client in client_names %}
                                     <option value="{{ client.company_id }}"
-                                        {% if  client.company_id == site_relation.client_id %}selected{% endif %}>
+                                        {% if  client.company_id == site_relation.client_id_id %}selected{% endif %}>
                                         {{ client.company_name }}
                                     </option>
                                 {% endfor %}
@@ -105,12 +105,13 @@
                         <label for="location" class="form-label">Location Name</label>
                                <select name="location" id="location" class="form-control select">
                                     <option value="" disabled {% if not relation %}selected{% endif %}>Select Location</option>
-                                    {% for location in location_names %}
-                                        <option value="{{ location.site_id }}"
-                                            {% if location.site_id == site_relation.site_id %}selected{% endif %}>
-                                            {{ location.site_name }}
-                                        </option>
-                                    {% endfor %}
+                                  {% for location in location_names %}
+                                    <option value="{{ location.site_id }}"
+                                        {% if type != 'change' and location.site_id == site_relation.site_id %}selected{% endif %}>
+                                        {{ location.site_name }}
+                                    </option>
+                                {% endfor %}
+
                                 </select>
                     </div>
                       <div class="col-md-custom-3">
@@ -140,7 +141,7 @@
                     <div class="col-md-custom-3">
                             <label for="card_name">Card Name:</label>
                             {{ form.card_name }} 
-                            <input type="hidden" name="card_name_hidden" values={{ form.card_name}}>
+                             <input type="hidden" name="card_name_hidden" values={{ form.card_name}}>
                     </div>
                 </div>
                     <br>
@@ -277,7 +278,8 @@
                    
                     <!-- Submit and Back Buttons -->
                     <div class="text-center mt-3">
-                        <button type="submit" class="btn btn-primary">Update</button>
+                        
+                        <button type="submit" class="btn btn-primary">{% if type == 'change'%}Save{% else%}Update{% endif%}</button>
                         <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a>
                     </div>
                 </form>
@@ -388,6 +390,43 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 </script>
+
+<script>
+    function generateCardName() {
+        const client = document.getElementById('client_name');
+        const location = document.getElementById('location');
+        const designation = document.getElementById('designation');
+        const level = document.getElementById('level');
+        const card = document.getElementById('card_name');
+        const hiddenCard = document.getElementById('card_name_hidden');
+
+        const clientText = client.options[client.selectedIndex]?.text.trim() || '';
+        const locationText = location.options[location.selectedIndex]?.text.trim() || '';
+        const designationText = designation.options[designation.selectedIndex]?.text.trim() || '';
+        const levelText = level.options[level.selectedIndex]?.text.trim() || '';
+
+        if (client.value && location.value && designation.value && level.value) {
+            const cardName = (
+                clientText.substring(0, 3) + '_' +
+                locationText.substring(0, 2) + '_' +
+                designationText.substring(0, 5) + '_' +
+                levelText
+            ).toUpperCase();
+
+            card.value = cardName;
+            hiddenCard.value = cardName;
+        } else {
+            card.value = '';
+            hiddenCard.value = '';
+        }
+    }
+
+    document.getElementById('client_name').addEventListener('change', generateCardName);
+    document.getElementById('location').addEventListener('change', generateCardName);
+    document.getElementById('designation').addEventListener('change', generateCardName);
+    document.getElementById('level').addEventListener('change', generateCardName);
+</script>
+
 
 
 

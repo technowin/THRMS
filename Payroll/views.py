@@ -667,10 +667,6 @@ def calculate_income_tax(user_session, emp_code_in, re_year_in, re_month_in,gros
 
     
 
-
-
-
-
 @login_required
 def index(request):
     salary_elements = salary_element_master.objects.all()
@@ -773,9 +769,9 @@ def rate_card_create(request):
                 four_hour_amount = request.POST.get(f'four_hour_amount_{item_id}', 0)
                 nine_hour_amount = request.POST.get(f'nine_hour_amount_{item_id}', 0)
                 tax_param = request.POST.get(f'tax_parameter_{item_id}', None)
-                salary_unit = request.POST.get(f'salary_unit_{item_id}')
-                pay_types = request.POST.get(f'pay_type_{item_id}')
-                classification = request.POST.get(f'classification_{item_id}')
+                salary_unit = get_object_or_404(SalaryUnit,id = request.POST.get(f'salary_unit_{item_id}'))
+                pay_types = get_object_or_404(pay_type, id = request.POST.get(f'pay_type_{item_id}'))
+                classification = get_object_or_404(basis_type, id=request.POST.get(f'classification_{item_id}'))
                 
                 if not tax_param or tax_param == '0':
                     tax_object = None
@@ -790,7 +786,23 @@ def rate_card_create(request):
                     four_hour_amount=four_hour_amount,
                     nine_hour_amount=nine_hour_amount,
                     tax_parameter=tax_object,
-                    salary_unit = get_object_or_404(SalaryUnit, id = salary_unit)
+                    salary_unit =salary_unit 
+                )
+
+            
+
+            compulsory_items = salary_element_master.objects.filter(visible='0')
+            for item in compulsory_items:
+                RateCardSalaryElement.objects.create(
+                    rate_card=rate_card,
+                    salary_element=item,
+                    item_name=item.item_name,
+                    pay_type=item.pay_type,  # from salary_element_master
+                    classification=item.classification,  # from salary_element_master
+                    four_hour_amount= 0,  # optional if you have these fields
+                    nine_hour_amount= 0,
+                    tax_parameter=item.tax_parameter,  # from salary_element_master
+                    salary_unit=salary_unit  # from salary_element_master
                 )
 
             site_card_relation.objects.create(
@@ -825,17 +837,29 @@ def rate_card_create(request):
 
  
 @login_required
-def rate_card_edit(request, card_id):
+def rate_card_edit(request, card_id): 
     try:
         card_id = dec(card_id)
         rate_card = get_object_or_404(rate_card_master, pk=card_id)
+        type = request.GET.get("type")
+        if not type:
+            type = 'edit' 
 
         if request.method == "POST":
-            form = RateCardMasterForm(request.POST, instance=rate_card)
+            if type == 'change':
+                return rate_card_create(request)
+            else:
+                form = RateCardMasterForm(request.POST, instance=rate_card)
+
             if form.is_valid():
                 rate_card = form.save(commit=False)
                 rate_card.card_name = request.POST.get('card_name_hidden')
                 rate_card.updated_by = request.user
+
+                if type == 'change':
+                    rate_card.created_by = request.user
+                    rate_card.is_active = True
+
                 rate_card.save()
 
                 RateCardSalaryElement.objects.filter(rate_card=rate_card).delete()
@@ -872,6 +896,20 @@ def rate_card_edit(request, card_id):
                         tax_parameter=tax_obj,
                         salary_unit = get_object_or_404(SalaryUnit, id = salary_unit)
 
+                    )
+
+                compulsory_items = salary_element_master.objects.filter(visible='0')
+                for item in compulsory_items:
+                    RateCardSalaryElement.objects.create(
+                        rate_card=rate_card,
+                        salary_element=item,
+                        item_name=item.item_name,
+                        pay_type=item.pay_type,  # from salary_element_master
+                        classification=item.classification,  # from salary_element_master
+                        four_hour_amount= 0,  # optional if you have these fields
+                        nine_hour_amount= 0,
+                        tax_parameter=item.tax_parameter,  # from salary_element_master
+                        salary_unit=get_object_or_404(SalaryUnit, id = salary_unit)  # from salary_element_master
                     )
                 
                 site_card = get_object_or_404(site_card_relation, relation_id=pk)
@@ -917,12 +955,12 @@ def rate_card_edit(request, card_id):
 
     return render(request, 'Payroll/RateCard/edit.html', {
         'form': form,
+        'type':type,
         'tax_parameter':tax_parameter,
         'salary_unit':salary_unit,
         'pay_type':pay_types,
         'classification':classification,
         'rate_card': rate_card,
-        'relation':relation,
         'site_relation':site_relation,
         'selected_item_ids': list(selected_item_ids),
         'prefilled_data': prefilled_data, 
@@ -933,22 +971,31 @@ def rate_card_edit(request, card_id):
  
 @login_required
 def rate_card_view(request, card_id):
+    type = request.GET.get("type")
     card_id = dec(card_id)
     rate_card = get_object_or_404(rate_card_master, pk=card_id)
     salary_elements = RateCardSalaryElement.objects.filter(rate_card=rate_card)
-    client_names = company_master.objects.all()
-    designation_names = designation_master.objects.all()
-    location_names = site_master.objects.all()
-    level_names = LevelMaster.objects.all()
-    return render(request, 'Payroll/RateCard/view.html', {
-        'rate_card': rate_card,
-        'salary_elements': salary_elements,
-        'client_names':client_names,
-        'designation_names': designation_names,
-        'location_names': location_names,
-        'level_names':level_names
+    if type:
+        client_names = company_master.objects.all()
+        designation_names = designation_master.objects.all()
+        location_names = site_master.objects.all()
+        level_names = LevelMaster.objects.all()
+        return render(request, 'Payroll/RateCard/view.html', {
+            'rate_card': rate_card,
+            'salary_elements': salary_elements,
+            'client_names':client_names,
+            'designation_names': designation_names,
+            'location_names': location_names,
+            'level_names':level_names,
+            'type':type
 
-    })
+        })
+    else:
+        return render(request, 'Payroll/RateCard/view.html', {
+            'rate_card': rate_card,'type':type,
+            'salary_elements': salary_elements
+        })
+
 
 
 @login_required
@@ -3700,12 +3747,23 @@ def assign_existing_rate_card(request):
         designation_id = request.POST.get("designation")
         level_id = request.POST.get("level")
 
-        client_obj = get_object_or_404(company_master, id=client_id)
-        location_obj = get_object_or_404(site_master, id=location_id)
-        designation_obj = get_object_or_404(designation_master, id=designation_id)
+        user = get_object_or_404(CustomUser,id = user)
+        client_obj = get_object_or_404(company_master, company_id=client_id)
+        location_obj = get_object_or_404(site_master, site_id=location_id)
+        designation_obj = get_object_or_404(designation_master, designation_id=designation_id)
         level_obj = get_object_or_404(LevelMaster, id=level_id)
 
-        # Assuming correct model names (adjust if needed)
+        existing = site_card_relation.objects.filter(
+            client_id=client_obj,
+            site=location_obj,
+            designation=designation_obj,
+            level=level_obj
+        ).exists()
+
+        if existing:
+            messages.warning(request, 'This combination already has a Rate Card assigned.')
+            return redirect('rate_card_index')
+
         site_card_relation.objects.create(
             card=get_object_or_404(rate_card_master, card_id=rate_card_id),
             site=location_obj,

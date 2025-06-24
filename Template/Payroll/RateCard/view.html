@@ -1,9 +1,13 @@
-{% extends "Shared/Layout.html" %}
+{% extends "Shared/Layout.html" %} 
+{% block username %}{{ username }}{% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>View Rate Card</title>
+{% load static %}
+{% csrf_token %}
+ <link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
     <style>
         .table {
             width: 100%;
@@ -17,30 +21,7 @@
             text-align: left;
         }
     </style>
-</head>
 <body>
-    {% comment %} <h1>View Rate Card - {{ rate_card.card_name }}</h1>
-    
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Salary Element</th>
-                <th>4-Hour Amount</th>
-                <th>9-Hour Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for element in salary_elements %}
-                <tr>
-                    <td>{{ element.item_name }}</td>
-                    <td>{{ element.four_hour_amount }}</td>
-                    <td>{{ element.nine_hour_amount }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-    <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a> {% endcomment %}
 
     <div class="container mt-4" style="max-width: 1000px;">
         <div class="card">
@@ -74,12 +55,13 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                {% if type == "assign" %}
                    <form method="post" action="{% url 'assign_existing_rate_card' %}">
                     {% csrf_token %}
                     <div class="row col-md-12">
                         <input type="hidden" id="rate_card_id" name="rate_card_id" value="{{ rate_card.card_id }}">
 
-                        <div class="col-md-custom-3">
+                        <div class="col-md-3">
                             <label for="client_name" class="form-label">Client Name</label>
                             <select name="client_name" id="client_name" class="form-control select">
                                 <option value="" selected disabled>Select Client</option>
@@ -89,7 +71,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-custom-3">
+                        <div class="col-md-3">
                             <label for="location" class="form-label">Location Name</label>
                             <select name="location" id="location" class="form-control select">
                                 <option value="" selected disabled>Select Location</option>
@@ -99,7 +81,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-custom-3">
+                        <div class="col-md-3">
                             <label for="designation" class="form-label">Designation</label>
                             <select name="designation" id="designation" class="form-control select">
                                 <option value="" selected disabled>Select Designation</option>
@@ -109,7 +91,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-custom-3">
+                        <div class="col-md-3">
                             <label for="level" class="form-label">Level</label>
                             <select name="level" id="level" class="form-control select">
                                 <option value="" selected disabled>Select Level</option>
@@ -127,6 +109,11 @@
                         <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a>
                     </div>
                 </form>
+                {% else %}
+                    <div class="text-center">
+                        <a href="{% url 'rate_card_index' %}" class="btn btn-secondary">Back to List</a>
+                    </div>
+                {% endif %}
 
             </div>
         </div>
