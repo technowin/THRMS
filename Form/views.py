@@ -1905,11 +1905,16 @@ def get_query_data(request):
 def check_field_before_delete(request):
     if request.method == "POST":
         field_id = request.POST.get("field_id")
+        form_id = get_object_or_404(FormField, id = field_id).form.id
+        module_id = get_object_or_404(Form, id = form_id).module
+        module_tables = common_module_master(module_id)
+
+        DataTable = apps.get_model('Form', module_tables["data_table"])
 
         if  not field_id:
             return JsonResponse({"success": False, "error": "Missing form or field ID."})
 
-        data_exists = FormFieldValues.objects.filter(field_id=field_id).exists()
+        data_exists = DataTable.objects.filter(field_id=field_id).exists()
 
         if data_exists:
             return JsonResponse({"exists": True})  # Indicates data is present; can't delete

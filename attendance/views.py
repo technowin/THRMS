@@ -465,7 +465,7 @@ class LoginView(APIView):
             if user.check_password(password):
                 # login(request, user)
                 serializer = UserSerializer(user).data
-                user_relation = get_object_or_404(UserRelationMaster, user_id=serializer['id'])
+                user_relation = get_object_or_404(EmployeeShiftMapping, user_id=serializer['id'])
         
                 # Accessing the related LocationMaster instance using the ForeignKey
                 location_instance = get_object_or_404(site_master, site_id=user_relation.location_id)

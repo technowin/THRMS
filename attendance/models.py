@@ -192,8 +192,11 @@ class ShiftMaster(models.Model):
         
 class EmployeeShiftMapping(models.Model):
     id = models.AutoField(primary_key=True)
+    user_id = models.TextField(null=True, blank=True)
     employee_id = models.IntegerField(null=True)
-    shift_id = models.IntegerField(null=True)
+    company_id = models.BigIntegerField(null=True, blank=True)
+    location_id = models.BigIntegerField(null=True, blank=True)
+    shift_id = models.BigIntegerField(null=True, blank=True)
     type_of_attendance = models.TextField(null=True)
     created_at = models.DateTimeField(null=True)
     created_by = models.IntegerField(null=True)
@@ -219,3 +222,4 @@ class AttendanceLog(models.Model):
 
     class Meta:
         db_table = 'attendance_log'      
+
