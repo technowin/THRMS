@@ -193,9 +193,14 @@ def save_form(request):
             form_name = request.POST.get("form_name")
             form_description = request.POST.get("form_description")
             module = request.POST.get("module")
+            if not module:
+                module = "1"
             form_data_json = request.POST.get("form_data")
 
-            table_name = get_object_or_404(ModuleMaster,id = module).data_table
+            data_table = get_object_or_404(ModuleMaster,id = module).data_table
+            index_table = get_object_or_404(ModuleMaster,id = module).index_table
+            file_table = get_object_or_404(ModuleMaster,id = module).file_table
+            form_data_json = request.POST.get("form_data")
 
             if not form_data_json:
                 return JsonResponse({"error": "No form data received"}, status=400)
@@ -335,7 +340,7 @@ def save_form(request):
 
 
 
-            callproc('create_dynamic_form_views',[table_name])
+            callproc('create_dynamic_form_views',[data_table,file_table,index_table])
             messages.success(request, "Form and fields saved successfully!!")
             new_url = f'/masters?entity=form&type=i'
             return redirect(new_url) 

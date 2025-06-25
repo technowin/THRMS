@@ -6,7 +6,7 @@ from .models import *
 
 class AttendanceSerializer(serializers.Serializer):
     
-    employee_id = serializers.IntegerField()
+    employee_id = serializers.CharField()
     year = serializers.IntegerField()
     month = serializers.IntegerField()
     day = serializers.IntegerField()

@@ -33,7 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     device_token = models.CharField(max_length=255, null=True, blank=True)
     objects = CustomUserManager()
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name', 'phone']  # Add any additional required fields
+    REQUIRED_FIELDS = ['full_name', 'phone'] 
     class Meta:
         db_table = 'users'
 
