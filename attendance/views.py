@@ -1,5 +1,6 @@
 from datetime import date
 import json
+import traceback
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 import requests
@@ -11,6 +12,7 @@ from django.contrib.auth import authenticate, login ,logout
 from Account.models import CustomUser, password_storage
 from attendance.serializers import *
 import Db
+from Account.db_utils import callproc
 # from authentication.models import *
 # from authentication.serializers import * 
 
@@ -75,11 +77,15 @@ class AttendancePost(APIView):
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
-                print(str(e))
-                return Response( status=status.HTTP_400_BAD_REQUEST)
+                tb = traceback.extract_tb(e.__traceback__)
+                fun = tb[0].name
+                callproc("stp_error_log",[fun,str(e),request.user.id])  
+                print(f"error: {e}")
         except Exception as e:
-            print(str(e))
-            return Response( status=status.HTTP_400_BAD_REQUEST)
+            tb = traceback.extract_tb(e.__traceback__)
+            fun = tb[0].name
+            callproc("stp_error_log",[fun,str(e),request.user.id])  
+            print(f"error: {e}")
 
 class ApplyLeave(APIView):
     def post(self, request):
