@@ -258,7 +258,7 @@ urlpatterns = [
 
 
     path('', attendance_home,name="attendance_home"),
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
     path('api/login/', LoginView.as_view(), name='login'),
     path('api/register/', RegistrationView.as_view(), name='register'),
     path('api/attendance/', AttendancePost.as_view(), name='attendance'),

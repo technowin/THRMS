@@ -1,3 +1,4 @@
+from datetime import date
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -37,21 +38,22 @@ class AttendancePost(APIView):
             year = serializer.validated_data['year']
             month = serializer.validated_data['month']
             day = serializer.validated_data['day']
+            date_value = date(year, month, day)
             status1 = serializer.validated_data['status']
             status_change_time = serializer.validated_data['status_change_time']
             latitude = serializer.validated_data['latitude']
             longitude = serializer.validated_data['longitude']
-            param = [employee_id,year,month,day,status1,status_change_time,latitude,longitude]
+            param = [employee_id,status1,status_change_time,latitude,longitude,date_value]
             cursor.callproc("stp_InsertAttendance",param)
             cursor.close()
             m.commit()
             m.close()
-            user = get_object_or_404(CustomUser, id=employee_id)
+            user = get_object_or_404(CustomUser, username=employee_id)
             serializer = UserSerializer(user).data
-            user_relation = get_object_or_404(UserRelationMaster, user_id=serializer['id'])
+            user_relation = get_object_or_404(EmployeeShiftMapping, user_id=serializer['id'])
             shift_instance = get_object_or_404(ShiftMaster, shift_id=user_relation.shift_id)
-            in_shift_time = shift_instance.in_shift_time
-            out_shift_time = shift_instance.out_shift_time
+            in_shift_time = shift_instance.in_time
+            out_shift_time = shift_instance.out_time
             api_url = "http://52.172.154.80:8070/AndroidApi/AttedanceMarked"
             payload = {
                 "employee_id": str(employee_id),
@@ -514,7 +516,7 @@ class getUserDetails(APIView):
             user = get_object_or_404(CustomUser, id=request.data["user_id"])
 
             serializer = UserSerializer(user).data
-            user_relation = get_object_or_404(UserRelationMaster, user_id=serializer['id'])
+            user_relation = get_object_or_404(EmployeeShiftMapping, user_id=serializer['id'])
     
             # Accessing the related LocationMaster instance using the ForeignKey
             location_instance = get_object_or_404(site_master, location_id=user_relation.location_id)
@@ -526,8 +528,8 @@ class getUserDetails(APIView):
             out_shift_time = shift_instance.out_shift_time
             serializer["latitude"] = latitude
             serializer["longitude"] = longitude
-            serializer["in_shift_time"] = in_shift_time
-            serializer["out_shift_time"] = out_shift_time
+            serializer["in_time"] = in_shift_time
+            serializer["out_time"] = out_shift_time
             
             return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
             # return JsonResponse([], status=status.HTTP_200_OK,safe=False)
@@ -535,8 +537,6 @@ class getUserDetails(APIView):
         except Exception as e:
             print(str(e))
             return Response( status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
         

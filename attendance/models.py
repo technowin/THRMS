@@ -15,32 +15,29 @@ from Masters.models import company_master, site_master
 #     longitude = models.CharField(max_length=255,null=True, blank=True)
 #     class Meta:
 #         db_table = 'attendance_log'
-# class DailyAttendance(models.Model):
-#     daily_attendance_id = models.AutoField(primary_key=True, unique=True)
-#     employee_id = models.BigIntegerField(null=True, blank=True)
-#     year = models.IntegerField(null=True, blank=True)
-#     month = models.IntegerField(null=True, blank=True)
-#     day = models.IntegerField(null=True, blank=True)
-#     p = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
-#     a = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
-#     pl = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
-#     sl = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
-#     cl = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
-#     other_leave = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
-#     in_time = models.DateTimeField(null=True, blank=True)
-#     out_time = models.DateTimeField(null=True, blank=True)
-#     latitude = models.CharField(max_length=255,null=True, blank=True)
-#     longitude = models.CharField(max_length=255,null=True, blank=True)
-#     overtime_hours = models.DateTimeField(null=True, blank=True)
-#     is_overtime = models.IntegerField(null=True, blank=True,default="0")
-#     created_at = models.DateTimeField(default=None, null=True, blank=True)
-#     created_by = models.CharField(max_length=255,null=True, blank=True)
-#     updated_at = models.DateTimeField(default=None, null=True, blank=True)
-#     updated_by = models.CharField(max_length=255,null=True, blank=True)
-    
-    
-#     class Meta:
-#         db_table = 'daily_attendance'
+class DailyAttendance(models.Model):
+    employee_id = models.BigIntegerField(null=True, blank=True)
+    atten_date = models.DateField(null=True)
+    p = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
+    a = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
+    pl = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
+    sl = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
+    cl = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
+    other_leave = models.DecimalField(max_digits = 10,decimal_places =2,null=True, blank=True)
+    in_time = models.DateTimeField(null=True, blank=True)
+    out_time = models.DateTimeField(null=True, blank=True)
+    latitude = models.CharField(max_length=255,null=True, blank=True)
+    longitude = models.CharField(max_length=255,null=True, blank=True)
+    overtime_hours = models.IntegerField(null=True, blank=True)
+    is_overtime = models.IntegerField(null=True, blank=True,default="0")
+    created_at = models.DateTimeField(default=None, null=True, blank=True)
+    created_by = models.CharField(max_length=255,null=True, blank=True)
+    updated_at = models.DateTimeField(default=None, null=True, blank=True)
+    updated_by = models.CharField(max_length=255,null=True, blank=True)
+
+    class Meta:
+        db_table = 'daily_attendance'
+
 # class AttendanceDetails(models.Model):
 #     attendance_id = models.AutoField(primary_key=True, unique=True)
 #     employee_id = models.BigIntegerField(null=True, blank=True)
@@ -133,18 +130,18 @@ from Masters.models import company_master, site_master
 #     class Meta:
 #         db_table = 'shift_master'
         
-class UserRelationMaster(models.Model):
-    user_relation_id = models.AutoField(primary_key=True, unique=True)
-    user_id = models.BigIntegerField(max_length=255,null=True, blank=True)
-    company_id = models.BigIntegerField(null=True, blank=True)
-    location_id = models.BigIntegerField(null=True, blank=True)
-    shift_id = models.BigIntegerField(null=True, blank=True)
-    created_at = models.DateTimeField(default=None, null=True, blank=True)
-    created_by = models.CharField(max_length=255,null=True, blank=True)
-    updated_at = models.DateTimeField(default=None, null=True, blank=True)
-    updated_by = models.CharField(max_length=255,null=True, blank=True)
-    class Meta:
-        db_table = 'user_relation_master'         
+# class UserRelationMaster(models.Model):
+#     user_relation_id = models.AutoField(primary_key=True, unique=True)
+#     user_id = models.BigIntegerField(max_length=255,null=True, blank=True)
+#     company_id = models.BigIntegerField(null=True, blank=True)
+#     location_id = models.BigIntegerField(null=True, blank=True)
+#     shift_id = models.BigIntegerField(null=True, blank=True)
+#     created_at = models.DateTimeField(default=None, null=True, blank=True)
+#     created_by = models.CharField(max_length=255,null=True, blank=True)
+#     updated_at = models.DateTimeField(default=None, null=True, blank=True)
+#     updated_by = models.CharField(max_length=255,null=True, blank=True)
+#     class Meta:
+#         db_table = 'user_relation_master'         
 
 # class TimeCorrection(models.Model):
 #     correction_id = models.AutoField(primary_key=True, unique=True)
@@ -212,10 +209,12 @@ class AttendanceLog(models.Model):
     company_id= models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='comapny_id_q2',null=True,db_column='company_id')    
     latitude = models.CharField(max_length=255, null=True)
     longitude = models.CharField(max_length=255, null=True)
-    date = models.DateField(null=True)
+    atten_date = models.DateField(null=True)
     in_time = models.TimeField(null=True)
     out_time = models.TimeField(null=True)
     created_at = models.DateTimeField(null=True)
+    status = models.CharField(max_length=255,null=True, blank=True)
+    status_change_time = models.DateTimeField(default=None, null=True, blank=True)
     created_by = models.IntegerField(null=True)
     updated_at = models.DateTimeField(null=True)
     updated_by = models.IntegerField(null=True)
