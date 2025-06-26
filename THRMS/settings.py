@@ -17,11 +17,9 @@ ALLOWED_HOSTS = ['43.204.250.53']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# DEBUG = False
 
-# ALLOWED_HOSTS = ['*'] 
-
-# DEBUG = True   
+DEBUG = True   
 
 DATABASES = {
     'default': {
