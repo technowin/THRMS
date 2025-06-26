@@ -491,9 +491,15 @@ class LoginView(APIView):
                 return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
             else:
                 return JsonResponse({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED,safe=False)
+            
         except Exception as e:
             print(str(e))
+            tb = traceback.extract_tb(e.__traceback__)
+            fun = tb[0].name
+            callproc("stp_error_log",[fun,str(e),request.user.id])  
+            print(f"error: {e}")
             return Response( status=status.HTTP_400_BAD_REQUEST)
+        
 class RegistrationView(APIView):
     def post(self, request):
         try:
