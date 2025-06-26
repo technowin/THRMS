@@ -8,7 +8,7 @@ def logged_in_user(request):
     session_cookie_age_seconds = settings.AUTO_LOGOUT['IDLE_TIME']
     session_timeout_minutes = session_cookie_age_seconds 
     username = request.session.get('username', '')
-    full_name = request.session.get('full_name', '')
+    full_name = request.session.get('name', '')
     user_id = request.session.get('user_id', '')
     role_id = request.session.get('role_id', '')
     if request.user.is_authenticated ==True:
