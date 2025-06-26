@@ -62,7 +62,7 @@ def Login(request):
             login(request, user)
             request.session.cycle_key()
             request.session["username"]=(str(username))
-            request.session["full_name"]=(str(user.full_name))
+            request.session["name"]=(str(user.name))
             request.session["user_id"]=(str(user.id))
             request.session["role_id"] = str(user.role_id)
             if user.role_id in [2,3]:
