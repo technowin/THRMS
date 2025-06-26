@@ -23,7 +23,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     username = models.TextField(max_length=255,null=True, blank=True)
-    full_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15)
     first_time_login = models.IntegerField(default=1)  # 1 for True, 0 for False
@@ -33,7 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     device_token = models.CharField(max_length=255, null=True, blank=True)
     objects = CustomUserManager()
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name', 'phone'] 
+    REQUIRED_FIELDS = ['name', 'phone'] 
     class Meta:
         db_table = 'users'
 

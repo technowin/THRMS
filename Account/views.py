@@ -95,9 +95,9 @@ def register_new_user(request):
         if id != '0':
             id1 = dec(id)
             users = get_object_or_404(CustomUser, id=id1)
-            full_name = users.full_name.split(" ", 1) 
-            first_name = full_name[0] 
-            last_name = full_name[1] if len(full_name) > 1 else ""  
+            name = users.name.split(" ", 1) 
+            first_name = name[0] 
+            last_name = name[1] if len(name) > 1 else ""  
 
 
             context = {'users':users,'first_name':first_name,'last_name':last_name,'roles':roles}
@@ -122,7 +122,7 @@ def register_new_user(request):
                 full_name = f"{firstname} {lastname}"
 
                 user = CustomUser(
-                    full_name=full_name, email=email, phone=phone,
+                    name=full_name, email=email, phone=phone,
                     role_id=role_id,
                 )
                 user.username = user.email
@@ -156,7 +156,7 @@ def register_new_user(request):
                 role_id = request.POST.get('role_id')
 
                 user = CustomUser.objects.get(id=id)
-                user.full_name = full_name
+                user.name = full_name
                 user.email = email
                 user.phone = phone
                 user.role_id = role_id
