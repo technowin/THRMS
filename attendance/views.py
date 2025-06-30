@@ -43,9 +43,11 @@ class AttendancePost(APIView):
             date_value = date(year, month, day)
             status1 = serializer.validated_data['status']
             status_change_time = serializer.validated_data['status_change_time']
+            time_only = status_change_time.time()
+            formatted_time = time_only.strftime('%H:%M:%S')
             latitude = serializer.validated_data['latitude']
             longitude = serializer.validated_data['longitude']
-            param = [employee_id,status1,status_change_time,latitude,longitude,date_value]
+            param = [employee_id,status1,formatted_time,latitude,longitude,date_value]
             cursor.callproc("stp_InsertAttendance",param)
             cursor.close()
             m.commit()
