@@ -43,11 +43,11 @@ class AttendancePost(APIView):
             date_value = date(year, month, day)
             status1 = serializer.validated_data['status']
             status_change_time = serializer.validated_data['status_change_time']
-            time_only = status_change_time.time()
-            formatted_time = time_only.strftime('%H:%M:%S')
+            # time_only = status_change_time.time()
+            # formatted_time = time_only.strftime('%H:%M:%S')
             latitude = serializer.validated_data['latitude']
             longitude = serializer.validated_data['longitude']
-            param = [employee_id,status1,formatted_time,latitude,longitude,date_value]
+            param = [employee_id,status1,status_change_time,latitude,longitude,date_value]
             cursor.callproc("stp_InsertAttendance",param)
             cursor.close()
             m.commit()
@@ -56,8 +56,8 @@ class AttendancePost(APIView):
             serializer = UserSerializer(user).data
             user_relation = get_object_or_404(EmployeeShiftMapping, user_id=serializer['id'])
             shift_instance = get_object_or_404(ShiftMaster, shift_id=user_relation.shift_id)
-            in_shift_time = shift_instance.in_time
-            out_shift_time = shift_instance.out_time
+            in_shift_time = shift_instance.in_shift_time
+            out_shift_time = shift_instance.out_shift_time
             api_url = "http://52.172.154.80:8070/AndroidApi/AttedanceMarked"
             payload = {
                 "employee_id": str(employee_id),
