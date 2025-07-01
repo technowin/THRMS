@@ -143,28 +143,28 @@ class DailyAttendance(models.Model):
 #     class Meta:
 #         db_table = 'user_relation_master'         
 
-# class TimeCorrection(models.Model):
-#     correction_id = models.AutoField(primary_key=True, unique=True)
-#     user_id = models.BigIntegerField(max_length=255,null=True, blank=True)
-#     title = models.CharField(max_length=255,null=True, blank=True)
-#     correction_date = models.DateField(null=True, blank=True)
-#     corrected_time = models.TimeField(null=True, blank=True)
-#     reason_for_correction = models.CharField(max_length=255,null=True, blank=True)
-#     correction_type = models.CharField(max_length=255,null=True, blank=True)
-#     status_id = models.IntegerField(null=True, blank=True)
-#     created_at = models.DateTimeField(default=None, null=True, blank=True)
-#     created_by = models.CharField(max_length=255,null=True, blank=True)
-#     updated_at = models.DateTimeField(default=None, null=True, blank=True)
-#     updated_by = models.CharField(max_length=255,null=True, blank=True)
-#     class Meta:
-#         db_table = 'time_correction'         
+class TimeCorrection(models.Model):
+    correction_id = models.AutoField(primary_key=True, unique=True)
+    user_id = models.BigIntegerField(max_length=255,null=True, blank=True)
+    title = models.CharField(max_length=255,null=True, blank=True)
+    correction_date = models.DateField(null=True, blank=True)
+    corrected_time = models.TimeField(null=True, blank=True)
+    reason_for_correction = models.CharField(max_length=255,null=True, blank=True)
+    correction_type = models.CharField(max_length=255,null=True, blank=True)
+    status_id = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(default=None, null=True, blank=True)
+    created_by = models.CharField(max_length=255,null=True, blank=True)
+    updated_at = models.DateTimeField(default=None, null=True, blank=True)
+    updated_by = models.CharField(max_length=255,null=True, blank=True)
+    class Meta:
+        db_table = 'time_correction'         
 
-# class Alerts(models.Model):
-#     id = models.AutoField(primary_key=True, unique=True)
-#     employee_id = models.BigIntegerField(null=True, blank=True)
-#     alert_text = models.CharField(max_length=255,null=True, blank=True)
-#     class Meta:
-#         db_table = 'alerts'         
+class Alerts(models.Model):
+    id = models.AutoField(primary_key=True, unique=True)
+    employee_id = models.BigIntegerField(null=True, blank=True)
+    alert_text = models.CharField(max_length=255,null=True, blank=True)
+    class Meta:
+        db_table = 'alerts'         
 
     
 class ShiftMaster(models.Model):
