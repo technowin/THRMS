@@ -58,34 +58,34 @@ class DailyAttendance(models.Model):
     
 #     class Meta:
 #         db_table = 'attendance_details'
-# class LeaveApply(models.Model):
-#     leave_id = models.AutoField(primary_key=True, unique=True)
-#     employee_id = models.BigIntegerField(null=True, blank=True)
-#     from_date =  models.DateField(default=None, null=True, blank=True)
-#     to_date =  models.DateField(default=None, null=True, blank=True)
-#     leave_id = models.CharField(max_length=255,null=True, blank=True)
-#     reason_for_leave  = models.CharField(max_length=255,null=True, blank=True)
-#     title  = models.CharField(max_length=255,null=True, blank=True)
-#     leave_status_id  = models.CharField(max_length=255,null=True, blank=True)
-#     created_at = models.DateTimeField(default=None, null=True, blank=True)
-#     created_by = models.CharField(max_length=255,null=True, blank=True)
-#     updated_at = models.DateTimeField(default=None, null=True, blank=True)
-#     updated_by = models.CharField(max_length=255,null=True, blank=True) 
-#     class Meta:
-#         db_table = 'leave_application_details'
-# class EarlyLeaveApply(models.Model):
-#     early_leave_id = models.AutoField(primary_key=True, unique=True)
-#     employee_id = models.BigIntegerField(null=True, blank=True)
-#     leave_date =  models.DateField(default=None, null=True, blank=True)
-#     leave_time =  models.TimeField(default=None, null=True, blank=True)
-#     reason_for_leave  = models.CharField(max_length=255,null=True, blank=True)
-#     title  = models.CharField(max_length=255,null=True, blank=True)
-#     created_at = models.DateTimeField(default=None, null=True, blank=True)
-#     created_by = models.CharField(max_length=255,null=True, blank=True)
-#     updated_at = models.DateTimeField(default=None, null=True, blank=True)
-#     updated_by = models.CharField(max_length=255,null=True, blank=True)
-#     class Meta:
-#         db_table = 'early_leave_application'        
+class LeaveApply(models.Model):
+    leave_id = models.AutoField(primary_key=True, unique=True)
+    employee_id = models.BigIntegerField(null=True, blank=True)
+    from_date =  models.DateField(default=None, null=True, blank=True)
+    to_date =  models.DateField(default=None, null=True, blank=True)
+    leave_id = models.CharField(max_length=255,null=True, blank=True)
+    reason_for_leave  = models.CharField(max_length=255,null=True, blank=True)
+    title  = models.CharField(max_length=255,null=True, blank=True)
+    leave_status_id  = models.CharField(max_length=255,null=True, blank=True)
+    created_at = models.DateTimeField(default=None, null=True, blank=True)
+    created_by = models.CharField(max_length=255,null=True, blank=True)
+    updated_at = models.DateTimeField(default=None, null=True, blank=True)
+    updated_by = models.CharField(max_length=255,null=True, blank=True) 
+    class Meta:
+        db_table = 'leave_application_details'
+class EarlyLeaveApply(models.Model):
+    early_leave_id = models.AutoField(primary_key=True, unique=True)
+    employee_id = models.BigIntegerField(null=True, blank=True)
+    leave_date =  models.DateField(default=None, null=True, blank=True)
+    leave_time =  models.TimeField(default=None, null=True, blank=True)
+    reason_for_leave  = models.CharField(max_length=255,null=True, blank=True)
+    title  = models.CharField(max_length=255,null=True, blank=True)
+    created_at = models.DateTimeField(default=None, null=True, blank=True)
+    created_by = models.CharField(max_length=255,null=True, blank=True)
+    updated_at = models.DateTimeField(default=None, null=True, blank=True)
+    updated_by = models.CharField(max_length=255,null=True, blank=True)
+    class Meta:
+        db_table = 'early_leave_application'        
 # class StatusMaster(models.Model):
 #     status_id = models.AutoField(primary_key=True, unique=True)
 #     status_name =  models.CharField(max_length=255,null=True, blank=True)
@@ -145,7 +145,7 @@ class DailyAttendance(models.Model):
 
 class TimeCorrection(models.Model):
     correction_id = models.AutoField(primary_key=True, unique=True)
-    user_id = models.BigIntegerField(max_length=255,null=True, blank=True)
+    user_id = models.BigIntegerField(null=True, blank=True)
     title = models.CharField(max_length=255,null=True, blank=True)
     correction_date = models.DateField(null=True, blank=True)
     corrected_time = models.TimeField(null=True, blank=True)
