@@ -1311,7 +1311,11 @@ def common_form_edit(request):
                         input_value = request.POST.get(f"field_{field_id}", "").strip()
 
                     if field.field_type in ["generative", "file", "file multiple"]:
-                        continue  # Skip file fields here
+                        continue  
+
+                    if field.field_type == 'foreign':
+                        input_value = candidate_id
+
 
                     existing_value = DataTable.objects.filter(
                         form_data=form_data, form=form, field=field
@@ -2334,7 +2338,7 @@ def view_form(request):
                         foreign_form_id = field.get("foriegn_key_form_id")
                         if foreign_form_id:
                             try:
-                                candidate_value = get_object_or_404(DataTable, form_id=foreign_form_id, primary_key=1, form_data=form_data_id).value
+                                candidate_value = get_object_or_404(DataTable,form_data=form_data_id, field_id=field["id"]).value
                                 field["foreign_data"] = candidate_value
                             except:
                                 field["foreign_data"] = ""
