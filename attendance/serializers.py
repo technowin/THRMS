@@ -63,6 +63,28 @@ class RegistrationSerializer(serializers.Serializer):
     password = serializers.CharField()
     name = serializers.CharField()
 
+
+# class AttendanceLogSerializer(serializers.Serializer):
+#     employee_id = serializers.IntegerField()
+#     date = serializers.IntegerField()
+#     status = serializers.CharField()
+#     status_change_time = serializers.DateTimeField()
+#     latitude = serializers.CharField()
+#     longitude = serializers.CharField()
+#     in_ime = serializers.CharField()
+#     out_time = serializers.CharField()
+#     status = serializers.CharField()
+#     status_change_time = serializers.DateField()
+#     created_at = serializers.CharField()
+#     created_by = serializers.CharField()
+#     updated_at = serializers.CharField()
+#     updated_by = serializers.CharField()
+
+class AttendanceLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttendanceLog
+        fields = '__all__'
+    
     
     
     

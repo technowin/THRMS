@@ -555,6 +555,17 @@ class getUserDetails(APIView):
         except Exception as e:
             print(str(e))
             return Response( status=status.HTTP_400_BAD_REQUEST)
+        
 
-
+class AttendanceLogInsert(APIView):
+    def post(self, request):
+        try:
+            serializer = AttendanceLogSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Attendance log created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            print(str(e))
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
