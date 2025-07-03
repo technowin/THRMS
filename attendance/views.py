@@ -546,8 +546,8 @@ class getUserDetails(APIView):
             serializer["company_id"] = company_id
             serializer["latitude"] = latitude
             serializer["longitude"] = longitude
-            serializer["in_shift_time"] = in_shift_time
-            serializer["out_shift_time"] = out_shift_time
+            serializer["in_time"] = in_shift_time
+            serializer["out_time"] = out_shift_time
             
             return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
             # return JsonResponse([], status=status.HTTP_200_OK,safe=False)
@@ -556,7 +556,6 @@ class getUserDetails(APIView):
             print(str(e))
             return Response( status=status.HTTP_400_BAD_REQUEST)
         
-
 class AttendanceLogInsert(APIView):
     def post(self, request):
         try:
@@ -564,10 +563,7 @@ class AttendanceLogInsert(APIView):
             
             if serializer.is_valid():
                 serializer.save()
-                return Response({
-                    'message': 'Attendance log created successfully',
-                    'data': serializer.data
-                }, status=status.HTTP_201_CREATED)
+                return Response({'message': 'Attendance log created successfully','data': serializer.data}, status=status.HTTP_201_CREATED)
             
             else:
                 print("Validation Errors:", serializer.errors)
