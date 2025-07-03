@@ -213,6 +213,7 @@ class AttendanceLog(models.Model):
     in_time = models.TimeField(null=True)
     out_time = models.TimeField(null=True)
     created_at = models.DateTimeField(null=True)
+    sync = models.TextField(null=True,blank=True)
     status = models.CharField(max_length=255,null=True, blank=True)
     status_change_time = models.DateTimeField(default=None, null=True, blank=True)
     created_by = models.IntegerField(null=True)

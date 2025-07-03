@@ -561,11 +561,26 @@ class AttendanceLogInsert(APIView):
     def post(self, request):
         try:
             serializer = AttendanceLogSerializer(data=request.data)
+            
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'Attendance log created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+                return Response({
+                    'message': 'Attendance log created successfully',
+                    'data': serializer.data
+                }, status=status.HTTP_201_CREATED)
             
+            else:
+                print("Validation Errors:", serializer.errors)
+                return Response({
+                    'message': 'Validation Failed',
+                    'errors': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+        
         except Exception as e:
-            print(str(e))
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            print("Unexpected Error:", str(e))
+            return Response({
+                'message': 'Internal Server Error',
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
