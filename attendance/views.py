@@ -535,7 +535,7 @@ class getUserDetails(APIView):
             user_relation = get_object_or_404(EmployeeShiftMapping, user_id=serializer['id'])
     
             # Accessing the related LocationMaster instance using the ForeignKey
-            location_instance = get_object_or_404(site_master, location_id=user_relation.location_id)
+            location_instance = get_object_or_404(site_master, site_id=user_relation.location_id)
             shift_instance = get_object_or_404(ShiftMaster, shift_id=user_relation.shift_id)
             # Extracting latitude and longitude from the related LocationMaster instance
             latitude = location_instance.latitude
