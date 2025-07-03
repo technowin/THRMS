@@ -66,6 +66,7 @@ urlpatterns = [
     path('create_new_section/', create_new_section, name='create_new_section'),
     path('get_access_control', get_access_control, name='get_access_control'),
     path('view_form', view_form, name='view_form'),
+    path('common_form_edit_master', common_form_edit_master, name='common_form_edit_master'),
 
 
     # Account

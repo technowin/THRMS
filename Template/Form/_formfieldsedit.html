@@ -131,22 +131,15 @@
                             <input type="hidden" id="action_id" name="action_id" value="{{ action.id }}">
                             <input type="hidden" id="step_id" name="step_id" value="{{ step_id }}">
                             <input type="hidden" id="wfdetailsid" name="wfdetailsid" value="{{ wfdetailsid }}">
-                            <input type="hidden" id="status_wfM" name="status_wfM" value="{{ status_wfM }}">
-                            <input type="hidden" id="new_data_id" name="new_data_id" value="{{ new_data_id }}">
-                            <input type="hidden" id="reference_type" name="reference_type" value="{{ reference_type }}">
-                            <input type="hidden" id="edit_type" name="edit_type" value="{{ edit_type }}">
+                            <input type="hidden" id="candidate_id" name="primary_field" value="{{ candidate_id }}">
 
 
-                            <input type="hidden" id="custom_dropdownOpr" name="custom_dropdownOpr">
-                            <input type="hidden" id="firstStep" name="firstStep" value="{{ firstStep }}">
 
                             <label class="fw-bold">{{ field.label }}</label>
                             <input type="hidden" id = "type" name = "type" value ="{{type}}">
                             <input type="hidden" id = "editORcreate" name = "editORcreate" value ="{{editORcreate}}">
-                            <input type="hidden" id = "file_ref_value" name = "file_ref_value" value ="{{file_ref_value}}">
                             <input type="hidden" id = "readonlyWF" name = "readonlyWF" value ="{{readonlyWF}}">
                             <input type="hidden" id = "viewStepWFSeq" name = "viewStepWFSeq" value ="{{viewStepWFSeq}}">
-                            <input type="hidden" id = "new_form_data_id" name = "new_form_data_id" value ="{{new_form_data_id}}">
                             <input type="hidden" id = "inward_req_id" name = "inward_req_id" value ="{{inward_req_id}}">
                             <input type="hidden" id="category_dropdownOpr" name="category_dropdownOpr">
                             
@@ -343,13 +336,23 @@
 
                                     {% for attr in field.attributes %} {{ attr }} {% endfor %}>
 
+                            {% elif field.field_type == "foreign" %}
+                                        <input type="text" class="form-control"
+                                            name="field_{{ field.id }}"
+                                             {% if view == '1' %} disabled {% endif %}   
+                                            value="{{ field.foreign_data|default:'No data available' }}"
+                                            {% for attr in field.attributes %} {{ attr }} {% endfor %}/>
                             {% else %}
-                                <input type="{{ field.field_type }}" class="form-control"
-                                    name="field_{{ field.id }}"
-                                    value="{{ field.value }}"
-                                    {% for attr in field.attributes %}{{ attr }} {% endfor %}
-                                    {% if readonlyWF == '1' or viewStepWFSeq == '3' %}readonly{% endif %}/>
+                                <input type="{{ field.field_type }}" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"  {% if view == '1' %} disabled {% endif %} 
+                                    {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+                                {% endif %}
+
+                            {% if field.is_primary == 1 %}
+                                <input type="hidden" class="form-control"
+                                    name="primary_field"
+                                    value="{{ field.primary_value|default:'No data available' }}">
                             {% endif %}
+                            
 
 
 
@@ -739,8 +742,8 @@
             const type = $('#type').val(); // assuming jQuery is used here
             if (buttonType === 'Submit' && type === 'create') {
                 form.action = "{% url 'common_form_post' %}";
-            } else if (buttonType === 'Submit' && type === 'edit') {
-                form.action = "{% url 'common_form_edit' %}";
+            } else if (buttonType === 'Submit' && type === 'master') {
+                form.action = "{% url 'common_form_edit_master' %}";
             } else if (buttonType === 'Action') {
                 form.action = "{% url 'common_form_action' %}";
             }
