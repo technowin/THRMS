@@ -79,11 +79,15 @@ class RegistrationSerializer(serializers.Serializer):
 #     created_by = serializers.CharField()
 #     updated_at = serializers.CharField()
 #     updated_by = serializers.CharField()
-
 class AttendanceLogSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AttendanceLog
+        model = AttendanceLog  # Your model
         fields = '__all__'
+
+    # Example for specific fields:
+    in_time = serializers.TimeField(allow_null=True, required=False)
+    out_time = serializers.TimeField(allow_null=True, required=False)\
+
     
     
     
