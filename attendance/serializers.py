@@ -63,30 +63,25 @@ class RegistrationSerializer(serializers.Serializer):
     password = serializers.CharField()
     name = serializers.CharField()
 
-
 # class AttendanceLogSerializer(serializers.Serializer):
-#     employee_id = serializers.IntegerField()
-#     date = serializers.IntegerField()
-#     status = serializers.CharField()
-#     status_change_time = serializers.DateTimeField()
-#     latitude = serializers.CharField()
-#     longitude = serializers.CharField()
-#     in_ime = serializers.CharField()
-#     out_time = serializers.CharField()
-#     status = serializers.CharField()
-#     status_change_time = serializers.DateField()
-#     created_at = serializers.CharField()
-#     created_by = serializers.CharField()
-#     updated_at = serializers.CharField()
-#     updated_by = serializers.CharField()
-class AttendanceLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AttendanceLog  # Your model
-        fields = '__all__'
+#     employee_id = serializers.IntegerField(allow_null=True, required=False)
+#     atten_date = serializers.CharField(allow_null=True, required=False)
+#     status = serializers.CharField(allow_null=True, required=False)
+#     status_change_time = serializers.CharField(allow_null=True, required=False)
+#     latitude = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+#     longitude = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+#     in_time = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+#     out_time = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+#     created_at = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+#     created_by = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+#     updated_at = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+#     updated_by = serializers.CharField(allow_null=True, required=False, allow_blank=True)
 
-    # Example for specific fields:
-    in_time = serializers.TimeField(allow_null=True, required=False)
-    out_time = serializers.TimeField(allow_null=True, required=False)\
+class AttendanceLogSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = AttendanceLog
+        fields = '__all__' 
 
     
     

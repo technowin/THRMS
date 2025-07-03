@@ -209,16 +209,16 @@ class AttendanceLog(models.Model):
     company_id= models.ForeignKey(company_master, on_delete=models.CASCADE,related_name='comapny_id_q2',null=True,db_column='company_id')    
     latitude = models.CharField(max_length=255, null=True)
     longitude = models.CharField(max_length=255, null=True)
-    atten_date = models.DateField(null=True)
-    in_time = models.TimeField(null=True)
-    out_time = models.TimeField(null=True)
-    created_at = models.DateTimeField(null=True)
+    atten_date = models.DateField(null=True,blank=True)
+    in_time = models.TextField(null=True,blank=True)
+    out_time = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(null=True,blank=True)
     sync = models.TextField(null=True,blank=True)
     status = models.CharField(max_length=255,null=True, blank=True)
     status_change_time = models.DateTimeField(default=None, null=True, blank=True)
-    created_by = models.IntegerField(null=True)
-    updated_at = models.DateTimeField(null=True)
-    updated_by = models.IntegerField(null=True)
+    created_by = models.IntegerField(null=True,blank=True)
+    updated_at = models.DateTimeField(null=True,blank=True)
+    updated_by = models.IntegerField(null=True,blank=True)
 
     class Meta:
         db_table = 'attendance_log'      
