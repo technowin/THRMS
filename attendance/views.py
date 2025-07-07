@@ -591,7 +591,7 @@ class getLocationDropdown(APIView):
 
 class get_calender_data(APIView):
 
-    def post(self, request):
+    def get(self, request):
         employee_id = request.data["employee_id"]
         year = request.data["year"]
         month = request.data["month"]
