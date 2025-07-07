@@ -579,4 +579,18 @@ class AttendanceLogInsert(APIView):
                 'message': 'Internal Server Error',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+class getLocationDropdown(APIView):
+    def get(self, request):
+        try:
+            # Fetch active sites
+            sites = site_master.objects.filter(is_active=True).values('site_id', 'site_name')
+
+            # Convert QuerySet to list
+            site_list = list(sites)
+
+            return JsonResponse(site_list, status=status.HTTP_200_OK, safe=False)
+
+        except Exception as e:
+            print(str(e))
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)       

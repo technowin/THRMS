@@ -276,6 +276,7 @@ urlpatterns = [
     path('api/LeaveStatusUpdate', LeaveStatusUpdate.as_view(), name='LeaveStatusUpdate'),
     path('api/ApplyLeaveESS', ApplyLeaveESS.as_view(), name='ApplyLeaveESS'),
     path('api/AttendanceSync', AttendanceLogInsert.as_view(), name='AttendanceLogInsert'),
+    path('api/getLocationDropdown', getLocationDropdown.as_view(), name='getLocationDropdown'),    
 
 ]
 
