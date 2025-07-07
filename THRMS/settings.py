@@ -13,15 +13,15 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
-# ALLOWED_HOSTS = ['43.204.250.53']
+ALLOWED_HOSTS = ['43.204.250.53']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 # ALLOWED_HOSTS = ['localhost']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
+DEBUG = False
 
-DEBUG = True   
+# DEBUG = True   
 
 DATABASES = {
     'default': {
@@ -30,8 +30,8 @@ DATABASES = {
         'NAME': 'techno_hrms_db',      # Replace with your database name
         'USER': 'root',      # Replace with your database user
         'PASSWORD': 'Mysql_MH-047319',  # Replace with your database password
-        'HOST': '43.204.250.53',       # IP FOR TEST
-        # 'HOST': '127.0.0.1',       # IP FOR LOCAL VM
+        # 'HOST': '43.204.250.53',       # IP FOR TEST
+         'HOST': '127.0.0.1',       # IP FOR LOCAL VM
         'PORT': '3306',            
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -42,8 +42,8 @@ DATABASES = {
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'D:/Python Projects/Documents/')
-# MEDIA_ROOT = os.path.join(BASE_DIR, '/home/ubuntu/Documents/')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'D:/Python Projects/Documents/')
+MEDIA_ROOT = os.path.join(BASE_DIR, '/home/ubuntu/Documents/')
 MEDIA_URL = '/media/'
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
@@ -152,8 +152,8 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'D:/Python Projects/THRMS Logs', 'django.log'),  
-            # 'filename': os.path.join(BASE_DIR, '/home/ubuntu/THRMS Logs', 'django.log'),  
+            # 'filename': os.path.join(BASE_DIR, 'D:/Python Projects/THRMS Logs', 'django.log'),  
+            'filename': os.path.join(BASE_DIR, '/home/ubuntu/THRMS Logs', 'django.log'),  
         },
     },
     'loggers': {
