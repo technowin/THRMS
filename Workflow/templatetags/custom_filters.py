@@ -1,5 +1,8 @@
 from django import template
 
+from Account import serializers
+from rest_framework import serializers
+
 register = template.Library()
 
 @register.filter
@@ -89,3 +92,10 @@ def dec(encoded_cipher_text):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+class CustomTimeField(serializers.TimeField):
+    def to_internal_value(self, value):
+        if value == "":
+            return None
+        return super().to_internal_value(value)
+

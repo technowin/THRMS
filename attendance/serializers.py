@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from Account.models import CustomUser
+from Workflow.templatetags.custom_filters import CustomTimeField
 from .models import *
 
 
@@ -78,6 +79,7 @@ class RegistrationSerializer(serializers.Serializer):
 #     updated_by = serializers.CharField(allow_null=True, required=False, allow_blank=True)
 
 class AttendanceLogSerializer(serializers.ModelSerializer):
+    out_time = CustomTimeField(required=False, allow_null=True)
     
     class Meta:
         model = AttendanceLog
