@@ -567,18 +567,10 @@ class AttendanceLogInsert(APIView):
             
             else:
                 print("Validation Errors:", serializer.errors)
-                return Response({
-                    'message': 'Validation Failed',
-                    'errors': serializer.errors
-                }, status=status.HTTP_400_BAD_REQUEST)
-                
-        
+                return Response({ 'message': 'Validation Failed','errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print("Unexpected Error:", str(e))
-            return Response({
-                'message': 'Internal Server Error',
-                'error': str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Internal Server Error','error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class getLocationDropdown(APIView):
     def get(self, request):
@@ -594,3 +586,35 @@ class getLocationDropdown(APIView):
         except Exception as e:
             print(str(e))
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)       
+        
+
+class get_calender_data(APIView):
+
+    def post(self, request):
+        employee_id = request.data["employee_id"]
+        year = request.data["year"]
+        month = request.data["month"]
+
+        if not (employee_id and year and month):
+            return JsonResponse({"error": "Missing parameters"}, status=400)
+
+        try:
+            year = int(year)
+            month = int(month)
+        except ValueError:
+            return JsonResponse({"error": "Year and Month should be integers"}, status=400)
+
+        attendance_records = DailyAttendance.objects.filter(
+            employee_id=employee_id,
+            atten_date__year=year,
+            atten_date__month=month
+        )
+
+        attendance_list = []
+        for record in attendance_records:
+            attendance_list.append({
+                "date": record.atten_date.strftime("%Y-%m-%d"),
+                "status": "present" if record.is_present else "absent"
+            })
+
+        return JsonResponse({"attendance": attendance_list})
