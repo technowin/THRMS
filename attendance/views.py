@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login ,logout
 from Account.models import CustomUser, password_storage
+from Masters.models import sc_employee_master
 from attendance.serializers import *
 import Db
 from Account.db_utils import callproc
@@ -475,10 +476,11 @@ class LoginView(APIView):
             if user.check_password(password):
                 # login(request, user)
                 serializer = UserSerializer(user).data
-                user_relation = get_object_or_404(EmployeeShiftMapping, user_id=serializer['id'])
+                user_details = get_object_or_404(sc_employee_master, employee_id=serializer['username'])
+                user_relation = get_object_or_404(EmployeeShiftMapping, employee_id=serializer['username'])
         
                 # Accessing the related LocationMaster instance using the ForeignKey
-                location_instance = get_object_or_404(site_master, site_id=user_relation.location_id)
+                location_instance = get_object_or_404(site_master, site_id=user_details.site_id.site_id)
                 shift_instance = get_object_or_404(ShiftMaster, shift_id=user_relation.shift_id)
                 # Extracting latitude and longitude from the related LocationMaster instance
                 latitude = location_instance.latitude
@@ -486,7 +488,9 @@ class LoginView(APIView):
                 in_shift_time = shift_instance.in_shift_time
                 out_shift_time = shift_instance.out_shift_time
                 company_id = shift_instance.company_id.company_id
+                site_id = location_instance.site_id
                 serializer["company_id"] = company_id
+                serializer["site_id"] = site_id
                 serializer["latitude"] = latitude
                 serializer["longitude"] = longitude
                 serializer["in_shift_time"] = in_shift_time
@@ -529,13 +533,14 @@ class getUserDetails(APIView):
     def post(self, request):
         try:
             # print(request.data)
-            user = get_object_or_404(CustomUser, id=request.data["user_id"])
+            user = get_object_or_404(CustomUser, username=request.data["user_id"])
 
             serializer = UserSerializer(user).data
-            user_relation = get_object_or_404(EmployeeShiftMapping, user_id=serializer['id'])
+            user_details = get_object_or_404(sc_employee_master, employee_id=serializer['username'])
+            user_relation = get_object_or_404(EmployeeShiftMapping, employee_id=serializer['username'])
     
             # Accessing the related LocationMaster instance using the ForeignKey
-            location_instance = get_object_or_404(site_master, site_id=user_relation.location_id)
+            location_instance = get_object_or_404(site_master, site_id=user_details.site_id.site_id)
             shift_instance = get_object_or_404(ShiftMaster, shift_id=user_relation.shift_id)
             # Extracting latitude and longitude from the related LocationMaster instance
             latitude = location_instance.latitude
@@ -543,11 +548,13 @@ class getUserDetails(APIView):
             in_shift_time = shift_instance.in_shift_time
             out_shift_time = shift_instance.out_shift_time
             company_id = shift_instance.company_id.company_id
+            site_id = location_instance.site_id
             serializer["company_id"] = company_id
+            serializer["site_id"] = site_id
             serializer["latitude"] = latitude
             serializer["longitude"] = longitude
-            serializer["in_time"] = in_shift_time
-            serializer["out_time"] = out_shift_time
+            serializer["in_shift_time"] = in_shift_time
+            serializer["out_shift_time"] = out_shift_time
             
             return JsonResponse(serializer, status=status.HTTP_200_OK,safe=False)
             # return JsonResponse([], status=status.HTTP_200_OK,safe=False)
