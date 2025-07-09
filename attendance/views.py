@@ -585,7 +585,11 @@ class getLocationDropdown(APIView):
             # Fetch active sites
             emp_id = request.data["employee_id"] 
             company_id = get_object_or_404(sc_employee_master , employee_id= emp_id).company_id      
-            sites = site_master.objects.filter(is_active=True, company_id=company_id ).values('site_id', 'site_name')
+            # sites = site_master.objects.filter(is_active=True, company_id=company_id ).values('site_id', 'site_name')
+            sites = site_master.objects.filter(
+                is_active=True, company_id=company_id
+            ).values('site_id', 'site_name', 'latitude', 'longitude')
+            
 
             # Convert QuerySet to list
             site_list = list(sites)
