@@ -580,11 +580,12 @@ class AttendanceLogInsert(APIView):
             return Response({'message': 'Internal Server Error','error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class getLocationDropdown(APIView):
-    def get(self, request):
+    def post(self, request):
         try:
             # Fetch active sites
-            employee_id = request.data["employee_id"]            
-            sites = site_master.objects.filter(is_active=True).values('site_id', 'site_name')
+            emp_id = request.data["employee_id"] 
+            company_id = get_object_or_404(sc_employee_master , employee_id= emp_id).company_id      
+            sites = site_master.objects.filter(is_active=True, company_id=company_id ).values('site_id', 'site_name')
 
             # Convert QuerySet to list
             site_list = list(sites)
@@ -593,7 +594,7 @@ class getLocationDropdown(APIView):
 
         except Exception as e:
             print(str(e))
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)       
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)    
         
 
 class get_calender_data(APIView):
