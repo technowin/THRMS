@@ -196,7 +196,7 @@
                     <button class="btn btn-primary" onclick="addField()"> Add Field</button>
                 </h2>
                 <div id="form-fields-container">
-                <div id="form-builder" class="row col-md-12 mt-3"></div>
+                    <div id="form-builder" class="row col-md-12 mt-3"></div>
                 </div>
             </div>
         </div>
@@ -1312,7 +1312,7 @@ function captureDropdownStates() {
             field.multiMasterValue = selectedValue;        // 🔥 for Django backend
         }
 
-         if (field.type === "foreign") {
+        if (field.type === "foreign") {
             const dropdown = document.getElementById(`foreign-dropdown-${field.id}`);
             if (dropdown) {
                 const selectedValue = dropdown.value; // selected form id

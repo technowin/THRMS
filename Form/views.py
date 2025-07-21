@@ -1,3 +1,4 @@
+import ast
 from django.db import connection
 from django.shortcuts import render
 from collections import defaultdict
@@ -338,8 +339,6 @@ def save_form(request):
                         )
 
 
-
-
             callproc('create_dynamic_form_views',[data_table,file_table,index_table])
             messages.success(request, "Form and fields saved successfully!!")
             new_url = f'/masters?entity=form&type=i'
@@ -412,7 +411,6 @@ def update_form(request, form_id):
                 if primary_value == 0:
                     primary_value = field.get("primary")
 
-                
 
                 if field.get("type") == "master dropdown" :
                     value = field.get("masterValue")
@@ -1360,7 +1358,8 @@ def common_form_edit(request):
     workflow_YN = request.POST.get("workflow_YN")
     action_id = get_object_or_404(FormAction, id = request.POST.get("action_id"))
     candidate_id = request.POST.get("primary_field")  
-    form_ids = list(set(request.POST.getlist("form_id"))) 
+    raw_form_ids = request.POST.get("form_ids")  # This gives a string like "['1', '39']"
+    form_ids = list(set(map(int, ast.literal_eval(raw_form_ids))))
     type = request.POST.get("type")
 
     try:
