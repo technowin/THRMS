@@ -338,8 +338,12 @@ def GetLeaveTypeList(request):
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        print(str(e))
-        return Response( status=status.HTTP_400_BAD_REQUEST)
+            print(str(e))
+            tb = traceback.extract_tb(e.__traceback__)
+            fun = tb[0].name
+            callproc("stp_error_log",[fun,str(e),request.user.id])  
+            print(f"error: {e}")
+            return Response( status=status.HTTP_400_BAD_REQUEST)
     
 def getAlertList(request):
     try:
