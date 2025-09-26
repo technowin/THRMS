@@ -639,11 +639,17 @@ class get_calender_data(APIView):
     
 class LeaveList(APIView):
 
-    def get(self, request):
+    def post(self, request):
         try:
             employee_id = request.data["employee_id"]
             filter_type = request.data["type"] # "month" or "year"
             today = now()
+
+            if not employee_id or not filter_type:
+                return Response({"error": "employee_id and type are required"}, status=400)
+
+            # Convert employee_id to int
+            employee_id = int(employee_id)
 
             if filter_type == "month":
                 leaves = LeaveApply.objects.filter(
@@ -663,4 +669,4 @@ class LeaveList(APIView):
             return Response(serializer.data)
         except Exception as e:
             print(str(e))
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)  
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
