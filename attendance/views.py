@@ -14,6 +14,7 @@ from Masters.models import sc_employee_master
 from attendance.serializers import *
 import Db
 from Account.db_utils import callproc
+from django.utils.timezone import now
 # from authentication.models import *
 # from authentication.serializers import * 
 
@@ -635,3 +636,31 @@ class get_calender_data(APIView):
             })
 
         return JsonResponse({"attendance": attendance_list})
+    
+class LeaveList(APIView):
+
+    def get(self, request):
+        try:
+            employee_id = request.data["employee_id"]
+            filter_type = request.data["type"] # "month" or "year"
+            today = now()
+
+            if filter_type == "month":
+                leaves = LeaveApply.objects.filter(
+                    employee_id=employee_id,
+                    from_date__year=today.year,
+                    from_date__month=today.month
+                )
+            elif filter_type == "year":
+                leaves = LeaveApply.objects.filter(
+                    employee_id=employee_id,
+                    from_date__year=today.year
+                )
+            else:
+                return Response({"error": "Invalid type"}, status=400)
+
+            serializer = LeaveApplySerializer(leaves, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            print(str(e))
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)  

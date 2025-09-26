@@ -85,6 +85,11 @@ class AttendanceLogSerializer(serializers.ModelSerializer):
         model = AttendanceLog
         fields = '__all__' 
 
+class LeaveApplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LeaveApply
+        fields = '__all__'
+
     
     
     
