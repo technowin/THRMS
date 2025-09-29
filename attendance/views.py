@@ -750,4 +750,14 @@ class LeaveDashboardView(APIView):
         except Exception as e:
             print(str(e))
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+        
+class PaySlipList(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            employee_id = kwargs.get("employee_id")
+            payslips = Payslip.objects.filter(employee_id=employee_id).values(
+                "id", "name", "year", "month"
+            )
+            return Response({"payslips": list(payslips)}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

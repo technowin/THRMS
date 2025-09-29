@@ -225,3 +225,46 @@ class AttendanceLog(models.Model):
     class Meta:
         db_table = 'attendance_log'      
 
+class Payslip(models.Model):
+    name = models.TextField()
+    employee_id = models.IntegerField()
+    month = models.IntegerField()
+    year = models.IntegerField()
+    created_at = models.DateTimeField()
+    created_by = models.CharField(max_length=100)
+    updated_at = models.DateTimeField(null=True, blank=True)
+    updated_by = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        db_table = 'pay_slip'
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class EmployeePayroll(models.Model):
+    employee_id = models.IntegerField()
+    month = models.IntegerField()
+    year = models.IntegerField()
+    parameter_name = models.CharField(max_length=255)
+    parameter_value = models.DecimalField(max_digits=15, decimal_places=2)
+    recovery_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    type_of_pay_element = models.CharField(max_length=50)
+    type = models.CharField(max_length=1, choices=[('S', 'Salary'), ('O', 'Other')])
+    bill_no = models.CharField(max_length=100, null=True, blank=True)
+    created_at = models.DateTimeField()
+    created_by = models.CharField(max_length=100)
+    updated_at = models.DateTimeField(null=True, blank=True)
+    updated_by = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        db_table = 'employee_payroll'
+        verbose_name = 'Employee Payroll'
+        verbose_name_plural = 'Employee Payroll Records'
+
+    def __str__(self):
+        return f"{self.employee_id} - {self.parameter_name} - {self.month}/{self.year}"
+    
+    class Meta:
+        db_table = 'employee_payroll'      
+
