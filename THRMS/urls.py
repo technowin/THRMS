@@ -279,6 +279,7 @@ urlpatterns = [
     path('api/getLocationDropdown', getLocationDropdown.as_view(), name='getLocationDropdown'),    
     path('api/get_calender_data', get_calender_data.as_view(), name='get_calender_data'),   
     path('api/LeaveList', LeaveList.as_view(), name='LeaveList'),    
+     path('api/LeaveDashboardView', LeaveDashboardView.as_view(), name='LeaveDashboardView'), 
 
 ]
 

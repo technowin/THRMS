@@ -670,3 +670,58 @@ class LeaveList(APIView):
         except Exception as e:
             print(str(e))
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class LeaveDashboardView(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            employee_id = request.data.get("employee_id")
+
+            if not employee_id:
+                return JsonResponse({"error": "employee_id is required"}, status=400)
+
+            # Step 1: Get leave types from external API
+            try:
+                response = requests.get("http://52.172.154.80:8070/AndroidApi/LeaveTypeList")
+                leave_types = response.json()
+
+                # Case 1: If API returned dict with key "List1" that contains JSON string
+                if isinstance(leave_types, dict):
+                    for val in leave_types.values():
+                        if isinstance(val, str):
+                            leave_types = json.loads(val)   # convert string to list of dicts
+                            break
+
+                # Case 2: If API returned string directly
+                elif isinstance(leave_types, str):
+                    leave_types = json.loads(leave_types)
+
+                # Now it's guaranteed to be a list of dicts
+                leave_dashboard = {lt["leavedescription"]: 0 for lt in leave_types}   # this is a list of dicts
+            except Exception as e:
+                return JsonResponse({"error": f"Failed to fetch leave types: {str(e)}"}, status=500)
+
+            # Step 2: Initialize dashboard with all leave types
+            # leave_dashboard = {lt["leavedescription"]: 0 for lt in leave_types}
+
+            # Step 3: Get employee leave applications
+            leaves = LeaveApply.objects.filter(employee_id=employee_id)
+
+            # Step 4: Count leaves by type
+            for leave in leaves:
+                if leave.leave_id in leave_dashboard:
+                    leave_dashboard[leave.leave_id] += 1
+                else:
+                    # Handle unexpected leave names
+                    leave_dashboard[leave.leave_id] = leave_dashboard.get(leave.leave_id, 0) + 1
+
+            # Step 5: Return only counts
+            return Response({
+                "employee_id": employee_id,
+                "leave_summary": leave_dashboard
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(str(e))
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
