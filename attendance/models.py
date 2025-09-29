@@ -243,6 +243,7 @@ class Payslip(models.Model):
 
 
 class EmployeePayroll(models.Model):
+    payslip = models.ForeignKey(Payslip, on_delete=models.CASCADE,related_name='pay_slip',null=True,db_column='pay_slip')
     employee_id = models.IntegerField()
     month = models.IntegerField()
     year = models.IntegerField()

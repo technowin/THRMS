@@ -281,6 +281,7 @@ urlpatterns = [
     path('api/LeaveList', LeaveList.as_view(), name='LeaveList'),    
     path('api/LeaveDashboardView', LeaveDashboardView.as_view(), name='LeaveDashboardView'), 
     path('api/payslips/<int:employee_id>/', PaySlipList.as_view(), name='payslips'),
+    path('api/GeneratePayslipPDF', GeneratePayslipPDF.as_view(), name='GeneratePayslipPDF'),
 
 ]
 
