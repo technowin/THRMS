@@ -1,3 +1,4 @@
+from calendar import monthrange
 from datetime import date
 import json
 import traceback
@@ -606,9 +607,8 @@ class getLocationDropdown(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)    
         
 
-class get_calender_data(APIView):
-
-    def get(self, request):
+class GetCalendarData(APIView):
+    def post(self, request):
         employee_id = request.data["employee_id"]
         year = request.data["year"]
         month = request.data["month"]
@@ -622,17 +622,43 @@ class get_calender_data(APIView):
         except ValueError:
             return JsonResponse({"error": "Year and Month should be integers"}, status=400)
 
+        # Determine previous month and year
+        if month == 1:
+            prev_month = 12
+            prev_year = year - 1
+        else:
+            prev_month = month - 1
+            prev_year = year
+
+        # Helper function to get all dates for a month
+        def get_all_dates(year, month):
+            num_days = monthrange(year, month)[1]
+            return [date(year, month, day) for day in range(1, num_days + 1)]
+
+        # Combine current and previous month dates
+        all_dates = get_all_dates(prev_year, prev_month) + get_all_dates(year, month)
+
+        # Fetch attendance records for both months
         attendance_records = DailyAttendance.objects.filter(
             employee_id=employee_id,
-            atten_date__year=year,
-            atten_date__month=month
+            atten_date__year__in=[prev_year, year],
+            atten_date__month__in=[prev_month, month]
         )
+        attendance_dict = {record.atten_date: record.is_present for record in attendance_records}
 
+        # Prepare final attendance list
         attendance_list = []
-        for record in attendance_records:
+        for day in all_dates:
+            if day.weekday() == 6:  # Sunday
+                status = "sunday"
+            elif day in attendance_dict:
+                status = "present" if attendance_dict[day] else "absent"
+            else:
+                status = "absent"
+
             attendance_list.append({
-                "date": record.atten_date.strftime("%Y-%m-%d"),
-                "status": "present" if record.is_present else "absent"
+                "date": day.strftime("%Y-%m-%d"),
+                "status": status
             })
 
         return JsonResponse({"attendance": attendance_list})
