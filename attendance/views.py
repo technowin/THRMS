@@ -956,9 +956,9 @@ class GeneratePayslipPDF(APIView):
                 ("TEXTCOLOR", (0,-1), (-1,-1), colors.white),
                 ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
                 ("FONTSIZE", (0,-1), (-1,-1), 12),
-                ("SPAN", (0,-1), (1,-1)),  # Merge first two columns for Net Salary
-                ("SPAN", (2,-1), (3,-1)),  # Merge last two columns for Net Salary
-                ("ALIGN", (0,-1), (-1,-1), "CENTER"),
+                ("ALIGN", (1,-1), (1,-1), "RIGHT"),
+                ("ALIGN", (0,-1), (0,-1), "LEFT"),
+
             ]))
             elements.append(table)
             elements.append(Spacer(1, 20))
