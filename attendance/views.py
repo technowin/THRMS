@@ -873,9 +873,9 @@ class GeneratePayslipPDF(APIView):
             elements.append(date_table)
 
             # ==== Company Header ====
-            logo_path = "static/images/logo.png"   
+            logo_path = "static/images/pmc.png"   
             try:
-                img = Image(logo_path, width=60, height=60)
+                img = Image(logo_path, width=80, height=70)
                 img.hAlign = "CENTER"
                 elements.append(img)
             except:
