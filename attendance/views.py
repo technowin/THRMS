@@ -798,6 +798,8 @@ class PaySlipList(APIView):
         
 
 
+from reportlab.platypus import Image
+
 class GeneratePayslipPDF(APIView):
     def post(self, request, *args, **kwargs):
         try:
@@ -809,175 +811,165 @@ class GeneratePayslipPDF(APIView):
             # Get employee
             employee = sc_employee_master.objects.get(employee_id=employee_id)
 
-            # Get payroll details
+            # Payroll details
             payrolls = EmployeePayroll.objects.filter(
                 employee_id=employee_id, year=year, month=month
             ).values("parameter_name", "parameter_value", "type_of_pay_element", "recovery_amount")
 
-            # Split into categories
+            # Get earnings, deductions, and totals from database
             earnings = [(p["parameter_name"], p["parameter_value"]) for p in payrolls if p["type_of_pay_element"] == "Earning" and p["parameter_value"] > 0]
             deductions = [(p["parameter_name"], p["parameter_value"]) for p in payrolls if p["type_of_pay_element"] == "Deduction" and p["parameter_value"] > 0]
-            totals = [(p["parameter_name"], p["parameter_value"]) for p in payrolls if p["type_of_pay_element"] == "Total"]
             
-            # Get days information
-            days_info = [(p["parameter_name"], p["parameter_value"]) for p in payrolls if p["type_of_pay_element"] in ['RD', 'PD', 'PLD', 'PLRD', 'AD', 'HPD', 'WOD']]
+            # Get totals from database
+            total_earning = next((p for p in payrolls if p["type_of_pay_element"] == "Total Earning"), None)
+            total_deduction = next((p for p in payrolls if p["type_of_pay_element"] == "Total Deduction"), None)
+            net_salary = next((p for p in payrolls if p["type_of_pay_element"] == "Net Salary"), None)
 
-            # Create PDF
             buffer = io.BytesIO()
-            doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=50, bottomMargin=50)
+            doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=30, bottomMargin=30, leftMargin=25, rightMargin=25)
             styles = getSampleStyleSheet()
-            
-            # Custom styles
-            styles.add(ParagraphStyle(
-                name='Center',
-                parent=styles['Normal'],
-                alignment=1,
-                spaceAfter=12
-            ))
-            
-            styles.add(ParagraphStyle(
-                name='RightAlign',
-                parent=styles['Normal'],
-                alignment=2
-            ))
-            
-            styles.add(ParagraphStyle(
-                name='Header',
-                parent=styles['Heading1'],
-                fontSize=16,
-                spaceAfter=20,
-                alignment=1
-            ))
+
+            # Define custom styles with better fonts and sizes
+            styles.add(ParagraphStyle(name="Center", alignment=1, fontSize=11, fontName="Helvetica"))
+            styles.add(ParagraphStyle(name="Right", alignment=2, fontSize=11, fontName="Helvetica"))
+            styles.add(ParagraphStyle(name="Header", alignment=1, fontSize=16, leading=18, spaceAfter=8, fontName="Helvetica-Bold"))
+            styles.add(ParagraphStyle(name="SubHeader", alignment=1, fontSize=12, leading=14, spaceAfter=6, fontName="Helvetica-Bold"))
+            styles.add(ParagraphStyle(name="Footer", alignment=1, fontSize=10, fontName="Helvetica-Oblique"))
 
             elements = []
 
-            # Company Header
-            elements.append(Paragraph("<b>COMPANY NAME</b>", styles['Header']))
-            elements.append(Paragraph("<b>PAYSLIP</b>", styles['Header']))
-            elements.append(Spacer(1, 20))
-
-            # Employee Information Table
-            emp_data = [
-                ["Employee Name:", employee.employee_name, "Employee ID:", str(employee_id)],
-                ["Designation:", getattr(employee, 'designation', 'N/A'), "Department:", getattr(employee, 'department', 'N/A')],
-                ["Month:", f"{month}/{year}", "Bank Account:", getattr(employee, 'bank_account_no', 'N/A')],
-                ["PAN Number:", getattr(employee, 'pan_number', 'N/A'), "PF Number:", getattr(employee, 'pf_number', 'N/A')]
-            ]
+            # ==== Date on right side ====
+            # Convert month to string and handle the conversion properly
+            month_str = str(month)
+            month_names = {
+                "1": "JAN", "2": "FEB", "3": "MAR", "4": "APR", "5": "MAY", "6": "JUN",
+                "7": "JUL", "8": "AUG", "9": "SEP", "10": "OCT", "11": "NOV", "12": "DEC"
+            }
+            display_month = month_names.get(month_str, month_str)
             
-            emp_table = Table(emp_data, colWidths=[100, 150, 100, 150])
+            date_table = Table([[f"{display_month} {year}"]], colWidths=[500])
+            date_table.setStyle(TableStyle([
+                ("ALIGN", (0,0), (0,0), "RIGHT"),
+                ("FONTNAME", (0,0), (0,0), "Helvetica-Bold"),
+                ("FONTSIZE", (0,0), (0,0), 12),
+                ("BOTTOMPADDING", (0,0), (0,0), 10),
+            ]))
+            elements.append(date_table)
+
+            # ==== Company Header ====
+            logo_path = "static/images/logo.png"   
+            try:
+                img = Image(logo_path, width=60, height=60)
+                img.hAlign = "CENTER"
+                elements.append(img)
+            except:
+                pass
+
+            elements.append(Paragraph("<b>STABNET TECHNOLOGIES (PVT) LTD.</b>", styles["Header"]))
+            elements.append(Paragraph("PAY SLIP", styles["SubHeader"]))
+            elements.append(Spacer(1, 15))
+
+            # ==== Employee Info Table with ESIC, PF details ====
+            emp_data = [
+                ["Employee:", employee.employee_name, "Employee ID:", str(employee_id)],
+                ["Department:", getattr(employee, "department", "N/A"), "Designation:", getattr(employee, "designation", "N/A")],
+                ["Bank:", getattr(employee, "bank_name", "N/A"), "Account No:", getattr(employee, "bank_account_no", "N/A")],
+                ["ESIC No:", getattr(employee, "esic", "N/A"), "PF No:", getattr(employee, "pf_no", "N/A")]
+            ]
+
+            emp_table = Table(emp_data, colWidths=[90, 150, 90, 150])
             emp_table.setStyle(TableStyle([
-                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 0), (-1, -1), 9),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-                ('PADDING', (0, 0), (-1, -1), 6),
+                ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+                ("BACKGROUND", (0,0), (-1,0), colors.whitesmoke),
+                ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
+                ("FONTSIZE", (0,0), (-1,-1), 9),
+                ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+                ("PADDING", (0,0), (-1,-1), 6),
             ]))
             elements.append(emp_table)
-            elements.append(Spacer(1, 20))
+            elements.append(Spacer(1, 15))
 
-            # Days Information
-            if days_info:
-                days_data = [["Attendance Details", "Days"]]
-                for day in days_info:
-                    days_data.append([day[0], str(day[1])])
-                
-                days_table = Table(days_data, colWidths=[200, 80])
-                days_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, -1), 9),
-                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-                    ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
-                    ('PADDING', (0, 0), (-1, -1), 6),
-                ]))
-                elements.append(days_table)
-                elements.append(Spacer(1, 20))
-
-            # Earnings and Deductions in two columns
-            elements.append(Paragraph("<b>EARNINGS AND DEDUCTIONS</b>", styles['Heading2']))
-            
-            # Prepare data for the main table
+            # ==== Earnings & Deductions ====
             max_rows = max(len(earnings), len(deductions))
+            earnings_filled = earnings + [("", 0)] * (max_rows - len(earnings))
+            deductions_filled = deductions + [("", 0)] * (max_rows - len(deductions))
+
+            # Table Header
+            data = [["Allowances", "Amount", "Deductions", "Amount"]]
             
-            # Fill with empty rows to make both sides equal length
-            earnings_filled = earnings + [("", "")] * (max_rows - len(earnings))
-            deductions_filled = deductions + [("", "")] * (max_rows - len(deductions))
-            
-            data = [["EARNINGS", "Amount (₹)", "DEDUCTIONS", "Amount (₹)"]]
-            
+            # Table Body - Earnings on left, Deductions on right
             for i in range(max_rows):
                 data.append([
-                    earnings_filled[i][0],
-                    f"{earnings_filled[i][1]:.2f}" if earnings_filled[i][1] != "" else "",
-                    deductions_filled[i][0],
-                    f"{deductions_filled[i][1]:.2f}" if deductions_filled[i][1] != "" else ""
+                    earnings_filled[i][0], 
+                    f"{earnings_filled[i][1]:.2f}" if earnings_filled[i][1] else "",
+                    deductions_filled[i][0], 
+                    f"{deductions_filled[i][1]:.2f}" if deductions_filled[i][1] else ""
                 ])
 
-            # Create table
-            table = Table(data, colWidths=[180, 70, 180, 70])
+            # Calculate totals if not found in database
+            total_earning_value = total_earning["parameter_value"] if total_earning else sum([t[1] for t in earnings])
+            total_deduction_value = total_deduction["parameter_value"] if total_deduction else sum([t[1] for t in deductions])
+            net_salary_value = net_salary["parameter_value"] if net_salary else (total_earning_value - total_deduction_value)
+
+            # Add total rows
+            data.append([
+                "Total Earning", 
+                f"{total_earning_value:.2f}",
+                "Total Deduction", 
+                f"{total_deduction_value:.2f}"
+            ])
+            
+            # Add net salary row (spanning all columns)
+            data.append([
+                "Net Salary", 
+                f"{net_salary_value:.2f}",
+                "", 
+                ""
+            ])
+
+            table = Table(data, colWidths=[180, 80, 180, 80])
             table.setStyle(TableStyle([
                 # Header style
-                ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ("BACKGROUND", (0,0), (1,0), colors.HexColor("#2c3e50")),
+                ("BACKGROUND", (2,0), (3,0), colors.HexColor("#2c3e50")),
+                ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+                ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+                ("FONTSIZE", (0,0), (-1,0), 10),
                 
-                # Table borders
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                # Grid for entire table
+                ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+                ("FONTSIZE", (0,1), (-1,-3), 9),
+                ("FONTNAME", (0,1), (-1,-3), "Helvetica"),
+                ("ALIGN", (1,1), (1,-1), "RIGHT"),
+                ("ALIGN", (3,1), (3,-1), "RIGHT"),
+                ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+                ("PADDING", (0,0), (-1,-1), 5),
                 
-                # Alignment
-                ('ALIGN', (1, 1), (1, -1), 'RIGHT'),
-                ('ALIGN', (3, 1), (3, -1), 'RIGHT'),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                # Total rows styling
+                ("BACKGROUND", (0,-2), (1,-2), colors.HexColor("#ecf0f1")),
+                ("BACKGROUND", (2,-2), (3,-2), colors.HexColor("#ecf0f1")),
+                ("FONTNAME", (0,-2), (-1,-2), "Helvetica-Bold"),
+                ("FONTSIZE", (0,-2), (-1,-2), 10),
                 
-                # Font for content
-                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 1), (-1, -1), 9),
-                
-                # Padding
-                ('PADDING', (0, 0), (-1, -1), 6),
-                
-                # Alternate row colors
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+                # Net salary row styling - FIXED to show value
+                ("BACKGROUND", (0,-1), (-1,-1), colors.HexColor("#27ae60")),
+                ("TEXTCOLOR", (0,-1), (-1,-1), colors.white),
+                ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
+                ("FONTSIZE", (0,-1), (-1,-1), 12),
+                ("SPAN", (0,-1), (1,-1)),  # Merge first two columns for Net Salary
+                ("SPAN", (2,-1), (3,-1)),  # Merge last two columns for Net Salary
+                ("ALIGN", (0,-1), (-1,-1), "CENTER"),
             ]))
-            
             elements.append(table)
             elements.append(Spacer(1, 20))
 
-            # Summary Section
-            elements.append(Paragraph("<b>SUMMARY</b>", styles['Heading2']))
-            
-            summary_data = []
-            for total in totals:
-                summary_data.append([total[0], f"₹ {total[1]:.2f}"])
-            
-            if summary_data:
-                summary_table = Table(summary_data, colWidths=[200, 100])
-                summary_table.setStyle(TableStyle([
-                    ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-                    ('FONTSIZE', (0, 0), (-1, -1), 10),
-                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-                    ('PADDING', (0, 0), (-1, -1), 8),
-                    ('BACKGROUND', (0, -1), (-1, -1), colors.lightgreen),
-                    ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-                ]))
-                elements.append(summary_table)
-
             # Footer
-            elements.append(Spacer(1, 30))
-            elements.append(Paragraph("This is a computer generated payslip and does not require signature.", styles['Center']))
-            elements.append(Paragraph(f"Generated on: {datetime.now().strftime('%d-%m-%Y %H:%M')}", styles['Center']))
+            elements.append(Paragraph("This is a computer generated payslip and does not require signature.", styles["Footer"]))
 
-            # Build PDF
             doc.build(elements)
             buffer.seek(0)
-
             response = HttpResponse(buffer, content_type="application/pdf")
-            response["Content-Disposition"] = f'attachment; filename="payslip_{employee_id}_{month}_{year}.pdf"'
+            response["Content-Disposition"] = f'attachment; filename=\"payslip_{employee_id}_{month}_{year}.pdf\"'
             return response
-
-        except sc_employee_master.DoesNotExist:
-            return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
