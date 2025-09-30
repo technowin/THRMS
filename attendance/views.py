@@ -499,12 +499,16 @@ class LoginView(APIView):
                 longitude = location_instance.longitude
                 in_shift_time = shift_instance.in_shift_time
                 out_shift_time = shift_instance.out_shift_time
-                company_id = shift_instance.company_id.company_id
-                site_id = location_instance.site_id
+                company_id = user_details.company_id.company_id
+                company_name = user_details.company_id.company_name
+                site_name = user_details.site_id.site_name
+                site_id = user_details.site_id.site_id
                 serializer["company_id"] = company_id
                 serializer["site_id"] = site_id
                 serializer["latitude"] = latitude
                 serializer["longitude"] = longitude
+                serializer["company_name"] = company_name
+                serializer["site_name"] = site_name
                 serializer["in_shift_time"] = in_shift_time
                 serializer["out_shift_time"] = out_shift_time
                 
