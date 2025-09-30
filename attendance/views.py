@@ -24,6 +24,17 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 import io
 from .models import EmployeePayroll, Payslip
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import io
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import HttpResponse
 
 
 def attendance_home(request):
@@ -619,9 +630,9 @@ class getLocationDropdown(APIView):
 
 class GetCalendarData(APIView):
     def post(self, request):
-        employee_id = request.data["employee_id"]
-        year = request.data["year"]
-        month = request.data["month"]
+        employee_id = request.data.get("employee_id")
+        year = request.data.get("year")
+        month = request.data.get("month")
 
         if not (employee_id and year and month):
             return JsonResponse({"error": "Missing parameters"}, status=400)
@@ -654,21 +665,38 @@ class GetCalendarData(APIView):
             atten_date__year__in=[prev_year, year],
             atten_date__month__in=[prev_month, month]
         )
-        attendance_dict = {record.atten_date: record.is_present for record in attendance_records}
+
+        # Create a dict for quick lookup
+        attendance_dict = {
+            record.atten_date: {
+                "is_present": record.is_present,
+                "in_time": record.in_time.strftime("%H:%M:%S") if record.in_time else None,
+                "out_time": record.out_time.strftime("%H:%M:%S") if record.out_time else None,
+            }
+            for record in attendance_records
+        }
 
         # Prepare final attendance list
         attendance_list = []
         for day in all_dates:
             if day.weekday() == 6:  # Sunday
                 status = "sunday"
+                in_time = None
+                out_time = None
             elif day in attendance_dict:
-                status = "present" if attendance_dict[day] else "absent"
+                status = "present" if attendance_dict[day]["is_present"] else "absent"
+                in_time = attendance_dict[day]["in_time"] if status == "present" else None
+                out_time = attendance_dict[day]["out_time"] if status == "present" else None
             else:
                 status = "absent"
+                in_time = None
+                out_time = None
 
             attendance_list.append({
                 "date": day.strftime("%Y-%m-%d"),
-                "status": status
+                "status": status,
+                "in_time": in_time,
+                "out_time": out_time,
             })
 
         return JsonResponse({"attendance": attendance_list})
@@ -737,10 +765,6 @@ class LeaveDashboardView(APIView):
             except Exception as e:
                 return JsonResponse({"error": f"Failed to fetch leave types: {str(e)}"}, status=500)
 
-            # Step 2: Initialize dashboard with all leave types
-            # leave_dashboard = {lt["leavedescription"]: 0 for lt in leave_types}
-
-            # Step 3: Get employee leave applications
             leaves = LeaveApply.objects.filter(employee_id=employee_id)
 
             # Step 4: Count leaves by type
@@ -772,17 +796,7 @@ class PaySlipList(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-import io
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.http import HttpResponse
+
 
 class GeneratePayslipPDF(APIView):
     def post(self, request, *args, **kwargs):
