@@ -390,7 +390,7 @@ def getAlertList(request):
         return Response( status=status.HTTP_400_BAD_REQUEST)
     
 class GetAlertList(APIView):
-    def get(self, employee_id):
+    def get(self,request, employee_id):
         try:
             if not employee_id:
                 return Response(
