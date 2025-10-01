@@ -920,7 +920,7 @@ class GeneratePayslipPDF(APIView):
             emp_data = [
                 ["Employee:", employee.employee_name, "Employee ID:", str(employee_id)],
                 ["Department:", getattr(employee, "department", "N/A"), "Designation:", getattr(employee, "designation", "N/A")],
-                ["Bank:", getattr(employee, "bank_name", "N/A"), "Account No:", getattr(employee, "bank_account_no", "N/A")],
+                ["Bank:", getattr(employee, "bank_name", "N/A"), "Account No:", getattr(employee, "account_no", "N/A")],
                 ["ESIC No:", getattr(employee, "esic", "N/A"), "PF No:", getattr(employee, "pf_no", "N/A")]
             ]
 
