@@ -37,9 +37,11 @@ class ApplyCorrectionSerializer(serializers.Serializer):
 class LeaveStatusUpdateSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     status = serializers.CharField()
-class AlertSerializer(serializers.Serializer):
-    employee_id = serializers.IntegerField()
-    text = serializers.CharField()
+
+class AlertSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Alerts
+        fields = "__all__"
     
 class EarlyLeaveApplySerializer(serializers.Serializer):
     employee_id = serializers.IntegerField()

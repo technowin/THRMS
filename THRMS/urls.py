@@ -271,6 +271,7 @@ urlpatterns = [
     path('api/FetchRecentAttendance', FetchRecentAttendance, name='FetchRecentAttendance'),
     path('api/FetchRecentLeaves', FetchRecentLeaves, name='FetchRecentLeaves'),
     path('api/FetchCurrentAttendance', FetchCurrentAttendance, name='FetchCurrentAttendance'),
+    path('api/getAlertList/<int:employee_id>/', GetAlertList.as_view(), name='getAlertList'),
     path('api/Alerts', AlertsPost.as_view(), name='AlertsPost'),
     path('api/AttendanceCorrectionUpdate', AttendanceCorrectionUpdate.as_view(), name='AttendanceCorrectionUpdate'),
     path('api/LeaveStatusUpdate', LeaveStatusUpdate.as_view(), name='LeaveStatusUpdate'),

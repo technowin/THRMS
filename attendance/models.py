@@ -165,6 +165,10 @@ class Alerts(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
     employee_id = models.BigIntegerField(null=True, blank=True)
     alert_text = models.CharField(max_length=255,null=True, blank=True)
+    created_at = models.DateTimeField(default=None, null=True, blank=True)
+    created_by = models.CharField(max_length=255,null=True, blank=True)
+    updated_at = models.DateTimeField(default=None, null=True, blank=True)
+    updated_by = models.CharField(max_length=255,null=True, blank=True)
     class Meta:
         db_table = 'alerts'         
 

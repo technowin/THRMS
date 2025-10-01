@@ -389,6 +389,37 @@ def getAlertList(request):
         print(str(e))
         return Response( status=status.HTTP_400_BAD_REQUEST)
     
+class GetAlertList(APIView):
+    def get(self, employee_id):
+        try:
+            if not employee_id:
+                return Response(
+                    {"message": "employee_id is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Fetch alerts for the employee
+            alerts = Alerts.objects.filter(employee_id=employee_id).order_by("-created_at")
+
+            if not alerts.exists():
+                return Response(
+                    {"message": "No alerts found for this employee"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = AlertSerializer(alerts, many=True)
+            return Response(
+                {"alerts": serializer.data, "count": alerts.count()},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    
 class LeaveStatusUpdate(APIView):
     def post(self, request):
         Db.closeConnection()
