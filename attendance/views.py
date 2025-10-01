@@ -720,6 +720,15 @@ class GetCalendarData(APIView):
                 status = "future"
                 in_time = None
                 out_time = None
+            elif day == today:  # today
+                if day in attendance_dict:
+                    status = "present" if attendance_dict[day]["is_present"] else "absent"
+                    in_time = attendance_dict[day]["in_time"] if status == "present" else None
+                    out_time = attendance_dict[day]["out_time"] if status == "present" else None
+                else:
+                    status = "today"
+                    in_time = None
+                    out_time = None
             elif day.weekday() == 6:  # Sunday
                 status = "sunday"
                 in_time = None
