@@ -660,6 +660,9 @@ class getLocationDropdown(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)    
         
 
+from datetime import date
+from calendar import monthrange
+
 class GetCalendarData(APIView):
     def post(self, request):
         employee_id = request.data.get("employee_id")
@@ -708,10 +711,16 @@ class GetCalendarData(APIView):
             for record in attendance_records
         }
 
+        today = date.today()
+
         # Prepare final attendance list
         attendance_list = []
         for day in all_dates:
-            if day.weekday() == 6:  # Sunday
+            if day > today:  # future dates
+                status = "future"
+                in_time = None
+                out_time = None
+            elif day.weekday() == 6:  # Sunday
                 status = "sunday"
                 in_time = None
                 out_time = None
@@ -732,6 +741,7 @@ class GetCalendarData(APIView):
             })
 
         return JsonResponse({"attendance": attendance_list})
+
     
 class LeaveList(APIView):
 
