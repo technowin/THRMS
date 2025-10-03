@@ -662,46 +662,36 @@ class getLocationDropdown(APIView):
 
 from datetime import date
 from calendar import monthrange
-
 class GetCalendarData(APIView):
     def post(self, request):
         employee_id = request.data.get("employee_id")
         year = request.data.get("year")
-        month = request.data.get("month")
 
-        if not (employee_id and year and month):
+        if not (employee_id and year):
             return JsonResponse({"error": "Missing parameters"}, status=400)
 
         try:
             year = int(year)
-            month = int(month)
         except ValueError:
-            return JsonResponse({"error": "Year and Month should be integers"}, status=400)
+            return JsonResponse({"error": "Year should be an integer"}, status=400)
 
-        # Determine previous month and year
-        if month == 1:
-            prev_month = 12
-            prev_year = year - 1
-        else:
-            prev_month = month - 1
-            prev_year = year
-
-        # Helper function to get all dates for a month
+        # Helper: get all dates for given month
         def get_all_dates(year, month):
             num_days = monthrange(year, month)[1]
             return [date(year, month, day) for day in range(1, num_days + 1)]
 
-        # Combine current and previous month dates
-        all_dates = get_all_dates(prev_year, prev_month) + get_all_dates(year, month)
+        # Collect all dates for the full year
+        all_dates = []
+        for m in range(1, 13):
+            all_dates.extend(get_all_dates(year, m))
 
-        # Fetch attendance records for both months
+        # Fetch attendance records for the full year
         attendance_records = DailyAttendance.objects.filter(
             employee_id=employee_id,
-            atten_date__year__in=[prev_year, year],
-            atten_date__month__in=[prev_month, month]
+            atten_date__year=year
         )
 
-        # Create a dict for quick lookup
+        # Dict for quick lookup
         attendance_dict = {
             record.atten_date: {
                 "is_present": record.is_present,
@@ -712,15 +702,14 @@ class GetCalendarData(APIView):
         }
 
         today = date.today()
-
-        # Prepare final attendance list
         attendance_list = []
+
         for day in all_dates:
-            if day > today:  # future dates
+            if day > today:  # Future
                 status = "future"
                 in_time = None
                 out_time = None
-            elif day == today:  # today
+            elif day == today:  # Today
                 if day in attendance_dict:
                     status = "present" if attendance_dict[day]["is_present"] else "absent"
                     in_time = attendance_dict[day]["in_time"] if status == "present" else None
@@ -733,11 +722,11 @@ class GetCalendarData(APIView):
                 status = "sunday"
                 in_time = None
                 out_time = None
-            elif day in attendance_dict:
+            elif day in attendance_dict:  # Attendance available
                 status = "present" if attendance_dict[day]["is_present"] else "absent"
                 in_time = attendance_dict[day]["in_time"] if status == "present" else None
                 out_time = attendance_dict[day]["out_time"] if status == "present" else None
-            else:
+            else:  # No record
                 status = "absent"
                 in_time = None
                 out_time = None
