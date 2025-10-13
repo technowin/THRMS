@@ -920,7 +920,7 @@ class GeneratePayslipPDF(APIView):
             except:
                 pass
 
-            elements.append(Paragraph("<b>HRMS Panvel.</b>", styles["Header"]))
+            elements.append(Paragraph("<b>HRMS Panvel</b>", styles["Header"]))
             elements.append(Paragraph("PAY SLIP", styles["SubHeader"]))
             elements.append(Spacer(1, 15))
 
