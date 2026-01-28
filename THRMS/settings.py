@@ -13,7 +13,7 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
-ALLOWED_HOSTS = ['43.204.250.53']
+ALLOWED_HOSTS = ['3.111.236.14']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 # ALLOWED_HOSTS = ['localhost']
@@ -30,7 +30,7 @@ DATABASES = {
         'NAME': 'techno_hrms_db',      # Replace with your database name
         'USER': 'root',      # Replace with your database user
         'PASSWORD': 'Mysql_MH-047319',  # Replace with your database password
-        # 'HOST': '43.204.250.53',       # IP FOR TEST
+        # 'HOST': '3.111.236.14',       # IP FOR TEST
         'HOST': '127.0.0.1',       # IP FOR LOCAL VM
         'PORT': '3306',            
         'OPTIONS': {
